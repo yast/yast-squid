@@ -1,0 +1,31 @@
+@HEADER-COMMENT@
+
+@HEADER@
+Requires:	yast2
+BuildRequires:	perl-XML-Writer update-desktop-files yast2 yast2-devtools yast2-testsuite
+
+BuildArchitectures:	noarch
+
+Summary:	Configuration of squid
+
+%description
+-
+
+@PREP@
+
+@BUILD@
+
+@INSTALL@
+
+@CLEAN@
+
+%files
+%defattr(-,root,root)
+%dir @yncludedir@/squid
+@yncludedir@/squid/*
+@clientdir@/squid.ycp
+@clientdir@/squid_*.ycp
+@moduledir@/Squid.*
+@moduledir@/Squid2.*
+@desktopdir@/squid.desktop
+%doc @docdir@

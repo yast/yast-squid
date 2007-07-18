@@ -1,0 +1,30 @@
+# Makefile.am for squid/src
+
+yncludedir = @yncludedir@/squid
+
+client_DATA =			\
+	squid.ycp		\
+	squid_auto.ycp	\
+	squid_proposal.ycp
+
+ynclude_DATA =			\
+	helps.ycp		\
+	wizards.ycp		\
+	dialogs.ycp		\
+	complex.ycp
+
+desktop_DATA =			\
+	squid.desktop
+
+module_DATA =			\
+	Squid.ycp		\
+	Squid2.pm
+
+# create a symlink for local build, #145327
+squid:
+	ln -sf . $@
+ycpchook = squid
+
+EXTRA_DIST = $(client_DATA) $(ynclude_DATA) $(module_DATA) $(desktop_DATA)
+
+include $(top_srcdir)/Makefile.am.common
