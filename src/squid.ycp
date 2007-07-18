@@ -53,8 +53,8 @@ map cmdline_description = $[
     /* Command line help text for the Xsquid module */
     "help"	: _("Configuration of squid"),
     "guihandler"        : SquidSequence,
-    "initialize"        : Squid::Read,
-    "finish"            : Squid::Write,
+//"initialize"        : Squid::Read,
+//    "finish"            : Squid::Write,
     "actions"           : $[
 	// FIXME TODO: fill the functionality description here
     ],
@@ -91,3 +91,4 @@ return ret;
 
 /* EOF */
 }
+/* vim: set sw=4 ts=4 et ft=ycp : */

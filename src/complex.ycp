@@ -41,6 +41,17 @@ import "Squid";
 
 include "squid/helps.ycp";
 
+
+/**
+ * Returns a widget with setting of units
+ */
+term unitWidget(string id)
+{
+    return `ComboBox(`id(id), " ",
+                [`item("KB"), `item("MB")]);
+}
+
+
 /**
  * Return a modification status
  * @return true if data was modified
@@ -80,59 +91,39 @@ symbol WriteDialog() {
     return ret ? `next : `abort;
 }
 
-/**
- * Summary dialog
- * @return dialog result
- */
-any SummaryDialog() {
-
-    /* Squid summary dialog caption */
-    string caption = _("Squid Configuration");
-
-    /* FIXME */
-    list summary = Squid::Summary();
-    list unconfigured = summary[1]:[];
-    string configured = summary[0]:"";
-
-    /* Frame label */
-    term contents = Wizard_hw::DetectedContent(_("Squid to Configure"),
-	    unconfigured, false, configured);
-
-    Wizard::SetContentsButtons(caption, contents, HELPS["summary"]:"",
-	    Label::BackButton(), Label::FinishButton());
-
+any BaseDialog(){
     any ret = nil;
-    while(true) {
+    term dialog_contents =
+        `VBox(
+            `Left(`Label( _("HTTP Ports"))),
+            `Table(`header("Host","Port","Options")),
+            `HBox(
+                `PushButton(`id(`add), _("Add")),
+                `PushButton(`id(`del), _("Del")),
+                `PushButton(`id(`modify), _("Modify")),
+                `HStretch()
+            ),
+            `HBox(
+                `Label( _("Language of error messages:")),
+                `ComboBox(`id("error_language"),
+                              "",
+                              [ `item("aaa"),`item("bbb",true)]),
+                `HStretch()
+            )
+        );
 
-	ret = UI::UserInput();
+    Wizard::SetContentsButtons("Squid Configuration", dialog_contents, "help text ad",
+        Label::BackButton(), Label::NextButton());
 
-	/* abort? */
-	if(ret == `abort || ret == `cancel || ret == `back) {
-	    if(ReallyAbort()) break;
-	    else continue;
-	}
-        /* overview dialog */
-        else if(ret == `edit_button) {
-            ret = `overview;
+    while (true){
+        ret = UI::UserInput();
+
+        y2debug("BaseDialog(): ret == %1",ret);
+
+        if (ret == `next) break;
+        else if (ret == `abort || ret == `back || ret == `cancel){
+            //if (Popup::ReallyAbort(true)) break;
             break;
-        }
-        /* configure the selected device */
-        else if(ret == `configure_button) {
-	    // TODO FIXME: check for change of the configuration
-            any selected = UI::QueryWidget(`id(`detected_selbox), `CurrentItem);
-            if(selected == `other) {
-                ret = `other;
-            }
-            else {
-                ret = `configure;
-            }
-            break;
-        }
-        else if(ret == `next) {
-            break;
-        }
-        else {
-            y2error("unexpected retcode: %1", ret);
             continue;
         }
     }
@@ -140,60 +131,75 @@ any SummaryDialog() {
     return ret;
 }
 
-/**
- * Overview dialog
- * @return dialog result
- */
-any OverviewDialog() {
 
-    /* Squid overview dialog caption */
-    string caption = _("Squid Overview");
-
-    list overview = Squid::Overview();
-
-    /* FIXME table header */
-    term contents = Wizard_hw::ConfiguredContent(
-	/* Table header */
-	`header(_("Number"), _("Squid")),
-	overview, nil, nil, nil, nil );
-
-    contents = Wizard_hw::SpacingAround(contents, 1.5, 1.5, 1.0, 1.0);
-
-    Wizard::SetContentsButtons(caption, contents, HELPS["overview"]:"",
-	    Label::BackButton(), Label::FinishButton());
-
+any CacheDialog(){
     any ret = nil;
-    while(true) {
+    term dialog_contents =
+        `VBox(
+            `Left(`Label( _("Refresh Patterns"))),
+            `Table(`id("refresh_patterns"), `header("Regular Expression", "Min", "Precent", "Max", "Options")),
+            `HBox(
+                `PushButton(`id(`add), _("Add")),
+                `PushButton(`id(`del), _("Del")),
+                `PushButton(`id(`modify), _("Modify")),
+                `HStretch()
+            ),
+            `Left(`Frame("Cache Setting",
+                `VBox(
+                    `HBox(
+                        `HSquash(`TextEntry(`id("cache_mem"), `opt(`shrinkable), "Cache Memory", "")),
+                        unitWidget("cache_mem_units"),
+                        `HStretch()
+                    ),
+                    `HBox(
+                        `HSquash(`TextEntry(`id("cache_max_object_size"), `opt(`shrinkable), "Max Object Size", "")),
+                        unitWidget("cache_max_object_size_units"),
+                        `HSpacing(),
+                        `HSquash(`TextEntry(`id("cache_min_object_size"), `opt(`shrinkable),"Min Object Size", "")),
+                        unitWidget("cache_min_object_size_units"),
+                        `HStretch()
+                    ),
+                    `VSquash(`HBox(
+                        `HSquash(`IntField(`id("cache_swap_low"), "Swap Low-Water Mark", 1, 100, 10)),
+                        `Bottom(`Label("%")),
+                        `HSpacing(),
+                        `HSquash(`IntField(`id("cache_swap_high"), "Swap High-Water Mark", 1, 100, 10)),
+                        `Bottom(`Label("%")),
+                        `HStretch()
+                    )),
+                    `Left(`HBox(
+                        `ComboBox(`id("cache_replacement_policy"),
+                                  "Cache Replacement Policy",
+                                  [`item("lru"), `item("heap GDSF"), `item("heap LFUDA"), `item("heap LRU")]),
+                        `ComboBox(`id("memory_replacement_policy"),
+                                  "Memory Replacement Policy",
+                                  [`item("lru"), `item("heap GDSF"), `item("heap LFUDA"), `item("heap LRU")])
+                    )),
+                    `VSquash(`HBox(
+                        `TextEntry(`id("cache_dir"), "Cache Directory", ""),
+                        `Bottom(`PushButton(`id(`cache_dir), "Advanced Setting"))
+                    ))
+                )
+            ))
+        );
 
-	ret = UI::UserInput();
+    Wizard::SetContentsButtons("Squid - Cache Setting", dialog_contents, "help",
+        Label::BackButton(), Label::NextButton());
 
-	/* abort? */
-	if(ret == `abort || ret == `cancel) {
-	    if(ReallyAbort()) break;
-	    else continue;
-	}
-        /* add */
-        else if(ret == `add_button) {
-	    /* FIXME */
-            ret = `add;
+    UI::ChangeWidget(`id("cache_mem"), `ValidChars, "0123456789");
+    UI::ChangeWidget(`id("cache_max_object_size"), `ValidChars, "0123456789");
+    UI::ChangeWidget(`id("cache_min_object_size"), `ValidChars, "0123456789");
+    UI::ChangeWidget(`id("cache_mem_units"), `Items, [`item("B"),`item("KB",true), `item("MB")]);
+
+    while (true){
+        ret = UI::UserInput();
+
+        y2debug("BaseDialog(): ret == %1",ret);
+
+        if (ret == `next || ret == `back) break;
+        else if (ret == `abort || ret == `cancel){
+            //if (Popup::ReallyAbort(true)) break;
             break;
-        }
-        /* edit */
-        else if(ret == `edit_button) {
-	    /* FIXME */
-            ret = `edit;
-            break;
-        }
-        /* delete */
-        else if(ret == `delete_button) {
-	    /* FIXME */
-            continue;
-        }
-        else if(ret == `next || ret == `back) {
-            break;
-        }
-        else {
-            y2error("unexpected retcode: %1", ret);
             continue;
         }
     }
@@ -201,5 +207,118 @@ any OverviewDialog() {
     return ret;
 }
 
-/* EOF */
+
+any AccessControlDialog(){
+    any ret = nil;
+    term dialog_contents =
+        `VBox(
+            `Left(`Label("ACL Groups")),
+            `Table(`id("acl"), `header("Name", "Type", "Description")),
+            `HBox(
+                `PushButton(`id(`add_acl), "Add"),
+                `PushButton(`id(`del_acl), "Del"),
+                `PushButton(`id(`modify_acl), "Modify"),
+                `HStretch()
+            ),
+
+            `VSpacing(),
+
+            `Left(`Label("Access Control")),
+            `HBox(
+                `Table(`id("http_access"), `header("Allow/Deny", "ACL Groups")),
+                `HSquash(`VBox(
+                    `HWeight(1, `PushButton(`id(`up_http_access), "Up")),
+                    `HWeight(1, `PushButton(`id(`down_http_access), "Down"))
+                ))
+            ),
+            `HBox(
+                `PushButton(`id(`add_http_access), "Add"),
+                `PushButton(`id(`del_http_access), "Del"),
+                `PushButton(`id(`modify_http_access), "Modify"),
+                `HStretch()
+            )
+        );
+
+    Wizard::SetContentsButtons("caption", dialog_contents, "help",
+        Label::BackButton(), Label::NextButton());
+
+    while (true){
+        ret = UI::UserInput();
+
+        y2debug("BaseDialog(): ret == %1",ret);
+
+        if (ret == `next || ret == `back) break;
+        else if (ret == `abort || ret == `cancel){
+            //if (Popup::ReallyAbort(true)) break;
+            break;
+            continue;
+        }
+    }
+
+    return ret;
 }
+
+
+
+any MiscellaneousDialog()
+{
+    any ret = nil;
+    term dialog_contents =
+        `Top(`VBox(
+
+            `Left(`Frame("Miscellaneous",
+                `VBox(
+                    `Left(`HSquash(`TextEntry(`id("cache_mgr"), "Administrator's e-mail", ""))),
+                    `Left(`CheckBox(`id("ftp_pasive_mode"), "Use Ftp Pasive Mode"))
+                )
+            )),
+
+            `VSpacing(),
+
+            `Left(`Frame("Logging",
+                `VBox(
+                    `HSquash(`TextEntry(`id("access_log"), "Access Log" , "")),
+                    `HSquash(`TextEntry(`id("cache_log"), "Cache Log", "")),
+                    `HSquash(`TextEntry(`id("cache_store_log"), "Cache Store Log", "")),
+                    `HSquash(`TextEntry(`id("cache_swap_log"), "Cache Swap Log", "")),
+                    `Left(`CheckBox(`id("emulate_httpd_log"), "Emulate Httpd Log?"))
+                )
+            )),
+
+            `VSpacing(),
+
+            `Left(`Frame("Timeouts",
+                `VBox(
+                    `HBox(
+                       `HSquash(`TextEntry(`id("connect_timeout"), "Connection timeout", "")),
+                       `ComboBox(`id("connect_timeout_units"), " ", [`item("seconds"), `item("minutes")])
+                    ),
+                    `HBox(
+                       `HSquash(`TextEntry(`id("client_lifetime"), "Client Lifetime", "")),
+                       `ComboBox(`id("client_lifetime_units"), " ", [`item("seconds"), `item("minutes")])
+                    )
+                )
+            ))
+        ));
+
+    Wizard::SetContentsButtons("Squid - Miscellaneous Setting", dialog_contents, "help",
+        Label::BackButton(), Label::NextButton());
+
+    while (true){
+        ret = UI::UserInput();
+
+        y2debug("BaseDialog(): ret == %1",ret);
+
+        if (ret == `next || ret == `back) break;
+        else if (ret == `abort || ret == `cancel){
+            //if (Popup::ReallyAbort(true)) break;
+            break;
+            continue;
+        }
+    }
+
+    return ret;
+}
+
+}
+/* vim: set sw=4 ts=4 et ft=ycp : */

@@ -73,16 +73,40 @@ any MainSequence() {
 
     /* FIXME: adapt to your needs */
     map aliases = $[
+        "base"   : ``(BaseDialog()),
+        "cache"  : ``(CacheDialog()),
+        "access" : ``(AccessControlDialog()),
+        "miscellaneous" : ``(MiscellaneousDialog())
+    ];
+    /*
 	"summary"	:   ``( SummaryDialog() ),
 	"overview"	:   ``( OverviewDialog() ),
 	"configure"	: [ ``( AddSequence() ), true ],
 	"add"		: [ ``( AddSequence() ), true ],
 	"edit"		: [ ``( AddSequence() ), true ]
     ];
+    */
 
     /* FIXME: adapt to your needs */
     map sequence = $[
-	"ws_start" : "summary",
+	"ws_start" : "base",
+    "base" : $[
+        `abort : `abort,
+        `next  : "cache"
+    ],
+    "cache" : $[
+        `abort : `abort,
+        `next  : "access"
+    ],
+    "access" : $[
+        `abort : `abort,
+        `next  : "miscellaneous"
+    ],
+    "miscellaneous" : $[
+        `abort : `abort,
+        `next : `next
+    ]
+    /*
 	"summary" : $[
 	    `abort	: `abort,
 	    `next	: `next,
@@ -108,6 +132,7 @@ any MainSequence() {
 	    `abort	: `abort,
 	    `next	: "overview",
 	]
+    */
     ];
 
     any ret = Sequencer::Run(aliases, sequence);
@@ -122,25 +147,25 @@ any MainSequence() {
 any SquidSequence() {
 
     map aliases = $[
-	"read"	: [ ``( ReadDialog() ), true ],
-	"main"	:   ``( MainSequence() ),
-	"write"	: [ ``( WriteDialog() ), true ]
+//"read"	: [ ``( ReadDialog() ), true ],
+	"main"	:   ``( MainSequence() )
+//	"write"	: [ ``( WriteDialog() ), true ]
     ];
 
     map sequence = $[
-	"ws_start" : "read",
+	"ws_start" : "main",/*
 	"read" : $[
 	    `abort	: `abort,
 	    `next	: "main"
-	],
+	],*/
 	"main" : $[
 	    `abort	: `abort,
-	    `next	: "write"
-	],
+	    `next	: `next
+	] /*,
 	"write" : $[
 	    `abort	: `abort,
 	    `next	: `next
-	]
+	]*/
     ];
 
     Wizard::CreateDialog();
@@ -175,3 +200,4 @@ any SquidAutoSequence() {
 
 /* EOF */
 }
+/* vim: set sw=4 ts=4 et ft=ycp : */
