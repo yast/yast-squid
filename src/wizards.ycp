@@ -38,101 +38,46 @@ include "squid/complex.ycp";
 include "squid/dialogs.ycp";
 
 /**
- * Add a configuration of squid
- * @return sequence result
- */
-any AddSequence() {
-
-    /* FIXME: adapt to your needs */
-    map aliases = $[
-	"config1"	: ``(Configure1Dialog()),
-	"config2"	: ``(Configure2Dialog()),
-    ];
-
-    /* FIXME: adapt to your needs */
-    map sequence = $[
-	"ws_start" : "config1",
-	"config1" : $[
-	    `abort	: `abort,
-	    `next	: "config2"
-	],
-	"config2" : $[
-	    `abort	: `abort,
-	    `next	: `next
-	]
-    ];
-
-    return Sequencer::Run(aliases, sequence);
-}
-
-/**
  * Main workflow of the squid configuration
  * @return sequence result
  */
 any MainSequence() {
 
-    /* FIXME: adapt to your needs */
     map aliases = $[
-        "base"   : ``(BaseDialog()),
+        "http_ports"   : ``(HttpPortsDialog()),
         "cache"  : ``(CacheDialog()),
+        "cache2"  : ``(Cache2Dialog()),
         "access" : ``(AccessControlDialog()),
+        "logging_and_timeouts" : ``(LoggingAndTimeoutsDialog()),
         "miscellaneous" : ``(MiscellaneousDialog())
     ];
-    /*
-	"summary"	:   ``( SummaryDialog() ),
-	"overview"	:   ``( OverviewDialog() ),
-	"configure"	: [ ``( AddSequence() ), true ],
-	"add"		: [ ``( AddSequence() ), true ],
-	"edit"		: [ ``( AddSequence() ), true ]
-    ];
-    */
 
-    /* FIXME: adapt to your needs */
     map sequence = $[
-	"ws_start" : "base",
-    "base" : $[
+	"ws_start" : "http_ports",
+    "http_ports" : $[
         `abort : `abort,
         `next  : "cache"
     ],
     "cache" : $[
         `abort : `abort,
+        `next  : "cache2"
+    ],
+    "cache2" : $[
+        `abort : `abort,
         `next  : "access"
     ],
     "access" : $[
         `abort : `abort,
-        `next  : "miscellaneous"
+        `next  : "logging_and_timeouts"
+    ],
+    "logging_and_timeouts" : $[
+        `abort : `abort,
+        `next : "miscellaneous"
     ],
     "miscellaneous" : $[
         `abort : `abort,
         `next : `next
     ]
-    /*
-	"summary" : $[
-	    `abort	: `abort,
-	    `next	: `next,
-	    `overview	: "overview",
-	    `configure	: "configure",
-	    `other	: "configure",
-	],
-	"overview" : $[
-	    `abort	: `abort,
-	    `next	: `next,
-	    `add	: "add",
-	    `edit	: "edit",
-	],
-	"configure" : $[
-	    `abort	: `abort,
-	    `next	: "summary",
-	],
-	"add" : $[
-	    `abort	: `abort,
-	    `next	: "overview",
-	],
-	"edit" : $[
-	    `abort	: `abort,
-	    `next	: "overview",
-	]
-    */
     ];
 
     any ret = Sequencer::Run(aliases, sequence);
@@ -147,17 +92,17 @@ any MainSequence() {
 any SquidSequence() {
 
     map aliases = $[
-//"read"	: [ ``( ReadDialog() ), true ],
+    "read"	: [ ``( ReadDialog() ), true ],
 	"main"	:   ``( MainSequence() )
 //	"write"	: [ ``( WriteDialog() ), true ]
     ];
 
     map sequence = $[
-	"ws_start" : "main",/*
+	"ws_start" : "read",
 	"read" : $[
 	    `abort	: `abort,
 	    `next	: "main"
-	],*/
+	],
 	"main" : $[
 	    `abort	: `abort,
 	    `next	: `next
