@@ -59,13 +59,12 @@ term timeUnitWidget(string id)
 /**
  * returns true if something added/edited otherwise false
  */
-boolean AddEditHttpPortDialog(any id_item)
+boolean AddEditHttpPortDialog(integer id_item)
 {
     any ui = nil;
     boolean ret = false;
     string label = (id_item == nil ? _("Add New HTTP Port")
-                                   : _("Edit Current HTTP Port"));
-
+                                      : _("Edit Current HTTP Port"));
     term contents =
         `VBox(
             `Left(`Label(label)),
@@ -86,6 +85,8 @@ boolean AddEditHttpPortDialog(any id_item)
     UI::OpenDialog(`opt(`decorated), contents);
     UI::ChangeWidget(`id("port"), `ValidChars, "1234567890");
 
+    InitAddEditHttpPortDialog(id_item);
+
     while (true){
         ui = UI::UserInput();
 
@@ -93,6 +94,7 @@ boolean AddEditHttpPortDialog(any id_item)
             ret = false;
             break;
         }else if (ui == `ok){
+            StoreDataFromAddEditHttpPortDialog(id_item);
             ret = true;
             break;
         }
@@ -107,6 +109,7 @@ boolean AddEditHttpPortDialog(any id_item)
 any HttpPortsDialog(){
     any ret = nil;
     any http_port = nil;
+    any tmp = nil;
 
     term dialog_contents =
         `VBox(
@@ -124,8 +127,7 @@ any HttpPortsDialog(){
         Label::BackButton(), Label::NextButton());
     Wizard::DisableBackButton();
 
-    UI::ChangeWidget(`id("http_port"), `Items, [`item(`id(1), "localhost","3128",""), `item(`id(2), "","80","tranparent")]);
-
+    InitHttpPortsTable();
 
     while (true){
         ret = UI::UserInput();
@@ -138,12 +140,14 @@ any HttpPortsDialog(){
             break;
             continue;
         }else if (ret == `add){
-            AddEditHttpPortDialog(nil);
+            if (AddEditHttpPortDialog(nil))
+                InitHttpPortsTable();
         }else if (ret == `edit){
-            AddEditHttpPortDialog(UI::QueryWidget(`id("http_port"), `CurrentItem));
-
-            http_port = UI::QueryWidget(`id("http_port"), `CurrentItem);
-            y2debug("id: %1, currentPort: %2, currentPortValue: %3", ret, http_port,UI::QueryWidget(`id("http_port"), `Item(http_port)));
+            if (AddEditHttpPortDialog((integer)UI::QueryWidget(`id("http_port"), `CurrentItem)))
+                InitHttpPortsTable();
+        }else if (ret == `del){
+            DelFromHttpPortsDialog((integer)UI::QueryWidget(`id("http_port"), `CurrentItem));
+            InitHttpPortsTable();
         }
     }
 
@@ -209,7 +213,13 @@ any CacheDialog(){
     term dialog_contents =
         `VBox(
             `Left(`Label( _("Refresh Patterns"))),
-            `Table(`id("refresh_patterns"), `header(_("Regular Expression"), _("Min"), _("Precent"), _("Max")/*, _("Options")*/)),
+            `HBox(
+                `Table(`id("refresh_patterns"), `header(_("Regular Expression"), _("Min"), _("Precent"), _("Max")/*, _("Options")*/)),
+                `VBox(
+                    `PushButton(`id(`up), Label::UpButton()),
+                    `PushButton(`id(`down), Label::DownButton())
+                )
+            ),
             `HBox(
                 `PushButton(`id(`add), Label::AddButton()),
                 `PushButton(`id(`del), Label::DeleteButton()),

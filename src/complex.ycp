@@ -84,5 +84,64 @@ symbol WriteDialog() {
 }
 
 
+
+/* Inits */
+void InitHttpPortsTable()
+{
+    list items = [];
+    integer i = 0;
+
+    foreach(map<string,any> value, Squid::GetHttpPorts(),
+        {
+            items = add(items, `item(`id(i), value["host"]:"", value["port"]:"",
+                                      (value["transparent"]:false ? "transparent" : "")));
+            i = i+1;
+        });
+
+    y2debug("complex::InitPortsTable() - items: %1, http_ports: %2", items, Squid::GetHttpPorts());
+    UI::ChangeWidget(`id("http_port"), `Items, items);
+    if (size(items) > 0){
+        UI::ChangeWidget(`id(`edit), `Enabled, true);
+        UI::ChangeWidget(`id(`del), `Enabled, true);
+    }else{
+        UI::ChangeWidget(`id(`edit), `Enabled, false);
+        UI::ChangeWidget(`id(`del), `Enabled, false);
+    }
+}
+void InitAddEditHttpPortDialog(integer id_item)
+{
+    if (id_item != nil){
+        map<string,any> values = Squid::GetHttpPort(id_item);
+
+        UI::ChangeWidget(`id("host"), `Value, values["host"]:"");
+        UI::ChangeWidget(`id("port"), `Value, values["port"]:"");
+        UI::ChangeWidget(`id("transparent"), `Value, values["transparent"]:false);
+    }
+}
+
+
+
+/* Storing */
+void StoreDataFromAddEditHttpPortDialog(integer id_item)
+{
+    map <string, any> data = $[
+        "host" : UI::QueryWidget(`id("host"), `Value),
+        "port" : UI::QueryWidget(`id("port"), `Value),
+        "transparent" : UI::QueryWidget(`id("transparent"), `Value)
+    ];
+    y2debug("complex::StoreDataFromAddEditHttpPortDialog() - data: %1",data);
+
+    //Add
+    if (id_item == nil){
+        Squid::AddHttpPort(data);
+    }else{
+        Squid::ModifyHttpPort(id_item, data);
+    }
+}
+
+void DelFromHttpPortsDialog(integer id_item)
+{
+    Squid::DelHttpPort(id_item);
+}
 }
 /* vim: set sw=4 ts=4 et ft=ycp : */

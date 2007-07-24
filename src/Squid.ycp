@@ -40,6 +40,9 @@ import "Report";
 import "Summary";
 import "Message";
 
+/**
+ * Defines path used in SCR::Read/Write functions
+ */
 path squid_path = .squid;
 
 
@@ -49,9 +52,12 @@ path squid_path = .squid;
 boolean modified = false;
 
 /**
- * Map of all configuration settings except consequential
+ * Map of all configuration settings except consequential. Format:
+ * $[ "parameter name" : [ list of options (rest of line) ]
+ *    ...
+ * ]
  */
-map<string,any> settings = $[];
+map <string,any> settings = $[];
 
 /**
  * List of http_ports. Format:
@@ -63,9 +69,13 @@ map<string,any> settings = $[];
  */
 list <map <string,any> > http_ports = [];
 
-/** TODO
+/**
  * List of acls. Format:
- * [ $[ ???
+ * [ $[ "name" : "localhost",
+ *      "type" : "src",
+ *      "options" : [ non-empty list of options ]]
+ *      ...
+ * ]
  */
 list <map <string,any> > acls = [];
 
@@ -81,6 +91,7 @@ list <map <string,any> > http_accesses = [];
 /**
  * List of refresh patterns. Format:
  * [ $["regexp" : "^ftp:",
+ *     "case_sensitive" : true,
  *     "min" : 12,
  *     "max" : 12,
  *     "percent" : 12],
@@ -89,6 +100,36 @@ list <map <string,any> > http_accesses = [];
  */
 list <map <string,any> > refresh_patterns = [];
 
+
+/**
+ * Map of all available parameters with defalut values.
+ * $[ "parameter_name" : [ list of default options ],
+ *    ...
+ *  ]
+ */
+map <string, list> parameters = $[
+    "cache_dir" : ["ufs", "/var/cache/squid", "100", "16", "256"],
+    "cache_mem" : ["8", "MB"],
+    "cache_swap_low" : ["90"],
+    "cache_swap_high" : ["95"],
+    "maximum_object_size" : ["4096", "KB"],
+    "minimum_object_size" : ["0", "KB"],
+    "cache_replacement_policy" : ["lru"],
+    "memory_replacement_policy" : ["lru"],
+
+    "access_log" : ["/var/log/squid/access.log"],
+    "cache_log" : ["/var/log/squid/cache.log"],
+    "cache_store_log" : ["/var/log/squid/store.log"],
+    "cache_swap_log" : ["none"],
+    "emulate_httpd_log" : ["off"],
+
+    "connect_timeout" : ["2", "minutes"],
+    "client_lifetime" : ["1", "day"],
+
+    "error_directory" : ["/usr/share/squid/errors/English"],
+    "cache_mgr" : ["webmaster"],
+    "ftp_passive" : ["on"]
+];
 
 
 
@@ -126,14 +167,55 @@ global define boolean Abort() ``{
 }
 
 
+
+global list<string> GetSetting(string name)
+{
+    return settings[name]:[];
+}
+
+global list <map<string, any> > GetHttpPorts()
+{
+    return http_ports;
+}
+global map<string, any > GetHttpPort(integer id_item)
+{
+    return http_ports[id_item]:$[];
+}
+global void AddHttpPort(map<string,any> data)
+{
+    http_ports = add(http_ports, data);
+    y2debug("====== %1",http_ports);
+}
+global void ModifyHttpPort(integer id_item, map<string,any> data)
+{
+    http_ports[id_item] = data;
+}
+global void DelHttpPort(integer id_item)
+{
+    http_ports = remove(http_ports, id_item);
+}
+
 /**
- * Read setting of parameter http_port. It can be in form:
- * http_port [hostname:]port [transparent]
+ * Same as splitstring(), but returns only non-empty strings.
+ */
+list<string> split(string str, string delim)
+{
+    return filter(string value, splitstring(str, delim),
+                {
+                    //y2debug("Squid::split value: %1, size(value): %2",value, size(value));
+                    return (size(value)>0);
+                });
+}
+
+/**
+ * Read setting of parameter http_port.
+ *      http_port [hostname:]port [transparent]
  *
  * return true on success
  */
 boolean readHttpPorts()
 {
+    boolean ok = true;
     list tmp = [];
     list tmp2 = [];
     map <string,any> tmp_http_port = $[];
@@ -145,20 +227,23 @@ boolean readHttpPorts()
             tmp = [];
             tmp2 = [];
 
-            tmp = splitstring(value," \t");
+            tmp = split(value," \t");
 
             //can parse only 'http_port hostname:port [transparent]'
-            if (size(tmp) < 1 || size(tmp) > 2) return false;
+            if (size(tmp) < 1 || size(tmp) > 2){
+                ok = false;
+                return false;
+            }
 
             // hostname and port
-            tmp2 = splitstring(tmp[0]:"",":");
+            tmp2 = split(tmp[0]:"",":");
             y2debug("readHttpPorts - tmp2: %1",tmp2);
             if (size(tmp2) == 1){
                 tmp_http_port["host"] = "";
-                tmp_http_port["port"] = tointeger(tmp2[0]:"");
+                tmp_http_port["port"] = tmp2[0]:"";
             }else{
                 tmp_http_port["host"] = (string)tmp2[0]:"";
-                tmp_http_port["port"] = tointeger(tmp2[1]:"");
+                tmp_http_port["port"] = tmp2[1]:"";
             }
 
             //transparent option
@@ -168,7 +253,143 @@ boolean readHttpPorts()
             http_ports = add(http_ports, tmp_http_port);
         });
 
-    return true;
+    return ok;
+}
+
+/**
+ * Read setting of parameter http_access.
+ *      http_access allow acl1 !acl2 ...
+ *
+ * return true on success
+ */
+boolean readHttpAccesses()
+{
+    boolean ok = true;
+    list tmp = [];
+    map <string,any> tmp_http_access = $[];
+
+    http_accesses = [];
+    foreach (string value, (list<string>)SCR::Read( add(squid_path,"http_access")),
+        {
+            tmp_http_access = $[];
+
+            tmp = split(value, " \t");
+
+            if (tmp[0]:"" != "allow" && tmp[0]:"" != "deny"){
+                ok = false;
+                return false;
+            }
+
+            tmp_http_access["allow"] = (tmp[0]:"" == "allow" ? true : false);
+            tmp_http_access["acl"] = remove(tmp, 0);
+
+            http_accesses = add(http_accesses, tmp_http_access);
+        });
+
+    return ok;
+}
+
+/**
+ * Read setting of parameter refresh_pattern.
+ *      refresh_pattern [-i] regexp min percent max [options (ignored)]
+ *
+ * return true on success
+ */
+boolean readRefreshPatterns()
+{
+    boolean ok = true;
+    list tmp = [];
+    map <string,any> tmp_refresh_pattern = $[];
+
+    refresh_patterns = [];
+    foreach (string value, (list<string>)SCR::Read( add(squid_path, "refresh_pattern")),
+        {
+            tmp_refresh_pattern = $[];
+
+            tmp = split(value, " \t");
+
+            //case-insesitive
+            if (tmp[0]:"" == "-i"){
+                tmp_refresh_pattern["case_sensitive"] = false;
+                tmp = remove(tmp, 0);
+            }else{
+                tmp_refresh_pattern["case_sensitive"] = true;
+            }
+
+            if (size(tmp) < 4){
+                ok = false;
+                return false;
+            }
+
+            tmp_refresh_pattern["regexp"] = tmp[0]:"";
+            tmp_refresh_pattern["min"] = tmp[1]:"";
+            tmp_refresh_pattern["percent"] = tmp[2]:"";
+            tmp_refresh_pattern["max"] = tmp[3]:"";
+
+            refresh_patterns = add(refresh_patterns, tmp_refresh_pattern);
+        });
+
+    return ok;
+}
+
+/**
+ * Read setting of parameter acl.
+ *      acl aclname acltype string1 string2 ...
+ *
+ * return true on success
+ */
+boolean readACLs()
+{
+    boolean ok = true;
+    list tmp = [];
+    map <string, any> tmp_acl = $[];
+
+
+    acls = [];
+    foreach (string value, (list<string>)SCR::Read( add(squid_path, "acl")),
+        {
+            tmp_acl = $[];
+
+            tmp = split(value, " \t");
+
+            if (size(tmp) < 3){
+                ok = false;
+                return false;
+            }
+
+            tmp_acl["name"] = tmp[0]:"";
+            tmp_acl["type"] = tmp[1]:"";
+            tmp_acl["options"] = remove(remove(tmp,0),0);
+
+            acls = add(acls, tmp_acl);
+        });
+    return ok;
+}
+
+/**
+ * Read rest of setting.
+ * return true on success
+ */
+boolean readRestSetting()
+{
+    boolean ok = true;
+    list tmp = [];
+
+    settings = $[];
+    foreach (string key, list value, parameters,
+        {
+            tmp = (list <string>)SCR::Read( add(squid_path, key));
+            tmp = split(tmp[0]:"", " \t");
+
+            if (size(tmp) > 0){
+                settings[key] = tmp;
+            }else{
+                settings[key] = value;
+            }
+
+        });
+
+    return ok;
 }
 
 /**
@@ -178,29 +399,41 @@ boolean readHttpPorts()
 global boolean Read() {
     boolean ok = true;
 
-    /* Squid read dialog caption */
-    string caption = _("Initializing squid Configuration");
-
-    integer steps = 2;
-
-    Progress::New(caption, " ", steps, [_("Read the settings")], [_("Reading the settings..."), _("Finished")], "");
+    Progress::New(_("Initializing squid Configuration"),
+                  " ",
+                  5,
+                  [_("Read the settings")],
+                  [_("Reading the setting ...")],
+                  "");
 
     if(Abort()) return false;
     Progress::NextStage();
 
     if (!readHttpPorts()) ok = false;
-    // TODO:
-    //if (!readRefreshPatterns()) ok = false;
-    //if (!readACLs()) ok = false;
-    //if (!readHttpAccesses()) ok = false;
-    //if (!readRestSetting()) ok = false;
+    Progress::NextStep();
 
+    if (!readRefreshPatterns()) ok = false;
+    Progress::NextStep();
+
+    if (!readACLs()) ok = false;
+    Progress::NextStep();
+
+    if (!readHttpAccesses()) ok = false;
+    Progress::NextStep();
+
+    if (!readRestSetting()) ok = false;
+    Progress::NextStep();
+
+    y2debug("================ Setting ======================");
     y2debug("Squid::Read - http_ports: %1",http_ports);
+    y2debug("Squid::Read - http_accesses: %1", http_accesses);
+    y2debug("Squid::Read - acls: %1", acls);
+    y2debug("Squid::Read - refresh_patterns: %1", refresh_patterns);
+    y2debug("Squid::Read - settings: %1", settings);
+    y2debug("================ Setting END ==================");
 
     /* Error message */
     if(!ok) Report::Error(_("Cannot read configuration file."));
-
-    Progress::NextStep();
 
     return true;
 }
