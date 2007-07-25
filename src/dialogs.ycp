@@ -33,7 +33,8 @@ textdomain "squid";
 
 import "Label";
 import "Wizard";
-import "Squid";
+
+//import "Squid";
 
 include "squid/helps.ycp";
 
@@ -44,7 +45,7 @@ include "squid/helps.ycp";
 term sizeUnitWidget(string id)
 {
     return `ComboBox(`id(id), " ",
-                [`item("KB"), `item("MB")]);
+                [`item("B"), `item("KB"), `item("MB")]);
 }
 /**
  * Returns a widget with setting of units
@@ -94,9 +95,10 @@ boolean AddEditHttpPortDialog(integer id_item)
             ret = false;
             break;
         }else if (ui == `ok){
-            StoreDataFromAddEditHttpPortDialog(id_item);
-            ret = true;
-            break;
+            if (StoreDataFromAddEditHttpPortDialog(id_item)){
+                ret = true;
+                break;
+            }
         }
     }
 
@@ -110,6 +112,7 @@ any HttpPortsDialog(){
     any ret = nil;
     any http_port = nil;
     any tmp = nil;
+    integer id_item = nil;
 
     term dialog_contents =
         `VBox(
@@ -143,10 +146,13 @@ any HttpPortsDialog(){
             if (AddEditHttpPortDialog(nil))
                 InitHttpPortsTable();
         }else if (ret == `edit){
-            if (AddEditHttpPortDialog((integer)UI::QueryWidget(`id("http_port"), `CurrentItem)))
+            id_item = (integer)UI::QueryWidget(`id("http_port"), `CurrentItem);
+            if (AddEditHttpPortDialog(id_item)){
                 InitHttpPortsTable();
+                UI::ChangeWidget(`id("http_port"), `CurrentItem, id_item);
+            }
         }else if (ret == `del){
-            DelFromHttpPortsDialog((integer)UI::QueryWidget(`id("http_port"), `CurrentItem));
+            DelFromHttpPortsTable((integer)UI::QueryWidget(`id("http_port"), `CurrentItem));
             InitHttpPortsTable();
         }
     }
@@ -155,7 +161,7 @@ any HttpPortsDialog(){
 }
 
 
-boolean AddEditRefreshPattern(any id_item)
+boolean AddEditRefreshPatternDialog(integer id_item)
 {
     boolean ret = false;
     any ui = nil;
@@ -170,15 +176,15 @@ boolean AddEditRefreshPattern(any id_item)
                 `CheckBox(`id("regexp_case_insensitive"), _("Case Insensitive"))
             ),
             `HBox(
-                `Bottom(`IntField(`id("min"), _("Min"), 1, 99999, 10)),
+                `Bottom(`IntField(`id("min"), _("Min"), 0, 99999, 0)),
                 `Bottom(`Label(_("minutes")))
             ),
             `HBox(
-                `Bottom(`IntField(`id("percent"), _("Percent"), 1, 99999, 10)),
+                `Bottom(`IntField(`id("percent"), _("Percent"), 0, 99999, 0)),
                 `Bottom(`Label("%"))
             ),
             `HBox(
-                `Bottom(`IntField(`id("max"), _("Max"), 1, 99999, 10)),
+                `Bottom(`IntField(`id("max"), _("Max"), 0, 99999, 0)),
                 `Bottom(`Label(_("minutes")))
             ),
 
@@ -192,6 +198,8 @@ boolean AddEditRefreshPattern(any id_item)
 
     UI::OpenDialog(`opt(`decorated), contents);
 
+    InitAddEditRefreshPatternDialog(id_item);
+
     while (true){
         ui = UI::UserInput();
 
@@ -199,8 +207,10 @@ boolean AddEditRefreshPattern(any id_item)
             ret = false;
             break;
         }else if (ui == `ok){
-            ret = true;
-            break;
+            if (StoreDataFromAddEditRefreshPatternDialog(id_item)){
+                ret = true;
+                break;
+            }
         }
     }
 
@@ -210,11 +220,13 @@ boolean AddEditRefreshPattern(any id_item)
 
 any CacheDialog(){
     any ret = nil;
+    integer id_item = 0;
     term dialog_contents =
         `VBox(
             `Left(`Label( _("Refresh Patterns"))),
             `HBox(
-                `Table(`id("refresh_patterns"), `header(_("Regular Expression"), _("Min"), _("Precent"), _("Max")/*, _("Options")*/)),
+                `Table(`id("refresh_patterns"), `opt(`keepSorting),
+                       `header(_("Regular Expression"), _("Min"), _("Precent"), _("Max")/*, _("Options")*/)),
                 `VBox(
                     `PushButton(`id(`up), Label::UpButton()),
                     `PushButton(`id(`down), Label::DownButton())
@@ -223,13 +235,15 @@ any CacheDialog(){
             `HBox(
                 `PushButton(`id(`add), Label::AddButton()),
                 `PushButton(`id(`del), Label::DeleteButton()),
-                `PushButton(`id(`modify), Label::EditButton()),
+                `PushButton(`id(`edit), Label::EditButton()),
                 `HStretch()
             )
         );
 
     Wizard::SetContentsButtons(_("Squid - Cache Setting"), dialog_contents, "help",
         Label::BackButton(), Label::NextButton());
+
+    InitRefreshPatternsTable();
 
     while (true){
         ret = UI::UserInput();
@@ -242,7 +256,29 @@ any CacheDialog(){
             break;
             continue;
         }else if (ret == `add){
-            AddEditRefreshPattern(nil);
+            if (AddEditRefreshPatternDialog(nil))
+                InitRefreshPatternsTable();
+        }else if (ret == `edit){
+            id_item = (integer)UI::QueryWidget(`id("refresh_patterns"), `CurrentItem);
+            if (AddEditRefreshPatternDialog(id_item)){
+                InitRefreshPatternsTable();
+                UI::ChangeWidget(`id("refresh_patterns"), `CurrentItem, id_item);
+            }
+        }else if (ret == `del){
+            DelFromRefreshPatternsTable((integer)UI::QueryWidget(`id("refresh_patterns"), `CurrentItem));
+            InitRefreshPatternsTable();
+        }else if (ret == `up){
+            id_item = MoveUpRefreshPattern((integer)UI::QueryWidget(`id("refresh_patterns"), `CurrentItem));
+            if (id_item != nil){
+                InitRefreshPatternsTable();
+                UI::ChangeWidget(`id("refresh_patterns"), `CurrentItem, id_item);
+            }
+        }else if (ret == `down){
+            id_item = MoveDownRefreshPattern((integer)UI::QueryWidget(`id("refresh_patterns"), `CurrentItem));
+            if (id_item != nil){
+                InitRefreshPatternsTable();
+                UI::ChangeWidget(`id("refresh_patterns"), `CurrentItem, id_item);
+            }
         }
     }
 
@@ -256,7 +292,7 @@ boolean CacheDirAdvancedSettingDialog(){
         `VBox(
             `Left(`Label( _("Cache Directory Advanced Setting"))),
 
-            `ComboBox(`id("type"), _("Type"), []),
+            //`ComboBox(`id("type"), _("Type"), []),
             `HBox(
                 `IntField(`id("mbytes"), _("Size"), 1, 99999, 10),
                 `Bottom(`Label(_("MB")))
@@ -274,6 +310,9 @@ boolean CacheDirAdvancedSettingDialog(){
 
     UI::OpenDialog(contents);
 
+
+    InitCacheDirAdvancedSettingDialog();
+
     while (true){
         ui = UI::UserInput();
 
@@ -281,8 +320,10 @@ boolean CacheDirAdvancedSettingDialog(){
             ret = false;
             break;
         }else if (ui == `ok){
-            ret = true;
-            break;
+            if (StoreDataFromCacheDirAdvancedSettingDialog()){
+                ret = true;
+                break;
+            }
         }
     }
 
@@ -304,19 +345,19 @@ any Cache2Dialog(){
                     ),
                     `VSpacing(),
                     `HBox(
-                        `HSquash(`IntField(`id("cache_max_object_size"), _("Max Object Size"), 1, 99999, 10)),
+                        `HSquash(`IntField(`id("cache_max_object_size"), _("Max Object Size"), 0, 99999, 0)),
                         sizeUnitWidget("cache_max_object_size_units"),
                         `HSpacing(3),
-                        `HSquash(`IntField(`id("cache_min_object_size"), _("Min Object Size"), 1, 99999, 10)),
+                        `HSquash(`IntField(`id("cache_min_object_size"), _("Min Object Size"), 0, 99999, 0)),
                         sizeUnitWidget("cache_min_object_size_units"),
                         `HStretch()
                     ),
                     `VSpacing(),
                     `VSquash(`HBox(
-                        `HSquash(`IntField(`id("cache_swap_low"), _("Swap Low-Water Mark"), 1, 100, 10)),
+                        `HSquash(`IntField(`id("cache_swap_low"), _("Swap Low-Water Mark"), 0, 100, 0)),
                         `Bottom(`Label("%")),
                         `HSpacing(3),
-                        `HSquash(`IntField(`id("cache_swap_high"), _("Swap High-Water Mark"), 1, 100, 10)),
+                        `HSquash(`IntField(`id("cache_swap_high"), _("Swap High-Water Mark"), 0, 100, 0)),
                         `Bottom(`Label("%")),
                         `HStretch()
                     )),
@@ -342,15 +383,17 @@ any Cache2Dialog(){
     Wizard::SetContentsButtons("Squid - Cache Setting 2", dialog_contents, "help",
         Label::BackButton(), Label::NextButton());
 
-    UI::ChangeWidget(`id("cache_mem_units"), `Items, [`item("B"),`item("KB",true), `item("MB")]);
+    InitCache2Dialog();
 
     while (true){
         ret = UI::UserInput();
 
         y2debug("Cache2Dialog(): ret == %1",ret);
 
-        if (ret == `next || ret == `back) break;
-        else if (ret == `abort || ret == `cancel){
+        if (ret == `next || ret == `back){
+            if (StoreDataFromCache2Dialog())
+                break;
+        }else if (ret == `abort || ret == `cancel){
             //if (Popup::ReallyAbort(true)) break;
             break;
             continue;
@@ -372,7 +415,7 @@ any AccessControlDialog(){
             `HBox(
                 `PushButton(`id(`add_acl), Label::AddButton()),
                 `PushButton(`id(`del_acl), Label::DeleteButton()),
-                `PushButton(`id(`modify_acl), Label::EditButton()),
+                `PushButton(`id(`edit_acl), Label::EditButton()),
                 `HStretch()
             ),
 
@@ -380,7 +423,7 @@ any AccessControlDialog(){
 
             `Left(`Label(_("Access Control"))),
             `HBox(
-                `Table(`id("http_access"), `header(_("Allow/Deny"), _("ACL Groups"))),
+                `Table(`id("http_access"), `opt(`keepSorting), `header(_("Allow/Deny"), _("ACL Groups"))),
                 `HSquash(`VBox(
                     `HWeight(1, `PushButton(`id(`up_http_access), Label::UpButton())),
                     `HWeight(1, `PushButton(`id(`down_http_access), Label::DownButton()))
@@ -396,6 +439,9 @@ any AccessControlDialog(){
 
     Wizard::SetContentsButtons(_("Squid - Access Control Setting"), dialog_contents, "help",
         Label::BackButton(), Label::NextButton());
+
+    InitACLGroupsTable();
+    InitHttpAccessTable();
 
     while (true){
         ret = UI::UserInput();

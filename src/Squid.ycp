@@ -167,12 +167,65 @@ global define boolean Abort() ``{
 }
 
 
+/******* ACL *******/
+global list<map<string,any> > GetACLs()
+{
+    return acls;
+}
+/******* ACL END *******/
 
+/******* HTTP_ACCESS ******/
+global list<map<string,any> > GetHttpAccesses()
+{
+    return http_accesses;
+}
+/******* HTTP_ACCESS END ******/
+
+/******* SETTINGS *****/
+global map<string,any> GetSettings()
+{
+    return settings;
+}
 global list<string> GetSetting(string name)
 {
     return settings[name]:[];
 }
+global void SetSetting(string name, list value)
+{
+    settings[name] = value;
+}
+/******* SETTINGS END *****/
 
+/**** REFRESH PATTERN ****/
+global list <map<string,any> > GetRefreshPatterns()
+{
+    return refresh_patterns;
+}
+global map<string,any> GetRefreshPattern(integer id_item)
+{
+    return refresh_patterns[id_item]:$[];
+}
+global void AddRefreshPattern(map<string,any> data)
+{
+    refresh_patterns = add(refresh_patterns, data);
+}
+global void ModifyRefreshPattern(integer id_item, map<string,any> data)
+{
+    refresh_patterns[id_item] = data;
+}
+global void DelRefreshPattern(integer id_item)
+{
+    refresh_patterns = remove(refresh_patterns, id_item);
+}
+global void MoveRefreshPattern(integer id_from, integer id_to)
+{
+    map<string,any> tmp = refresh_patterns[id_from]:$[];
+    refresh_patterns[id_from] = refresh_patterns[id_to]:$[];
+    refresh_patterns[id_to] = tmp;
+}
+/**** REFRESH PATTERN END ****/
+
+/**** HTTP PORT *****/
 global list <map<string, any> > GetHttpPorts()
 {
     return http_ports;
@@ -184,7 +237,6 @@ global map<string, any > GetHttpPort(integer id_item)
 global void AddHttpPort(map<string,any> data)
 {
     http_ports = add(http_ports, data);
-    y2debug("====== %1",http_ports);
 }
 global void ModifyHttpPort(integer id_item, map<string,any> data)
 {
@@ -194,6 +246,7 @@ global void DelHttpPort(integer id_item)
 {
     http_ports = remove(http_ports, id_item);
 }
+/**** HTTP PORT END *****/
 
 /**
  * Same as splitstring(), but returns only non-empty strings.
@@ -323,7 +376,7 @@ boolean readRefreshPatterns()
 
             tmp_refresh_pattern["regexp"] = tmp[0]:"";
             tmp_refresh_pattern["min"] = tmp[1]:"";
-            tmp_refresh_pattern["percent"] = tmp[2]:"";
+            tmp_refresh_pattern["percent"] = deletechars(tmp[2]:"","%");
             tmp_refresh_pattern["max"] = tmp[3]:"";
 
             refresh_patterns = add(refresh_patterns, tmp_refresh_pattern);
@@ -388,6 +441,10 @@ boolean readRestSetting()
             }
 
         });
+
+    //special modification
+    settings["cache_replacement_policy"] = [mergestring(settings["cache_replacement_policy"]:[]," ")];
+    settings["memory_replacement_policy"] = [mergestring(settings["memory_replacement_policy"]:[]," ")];
 
     return ok;
 }
