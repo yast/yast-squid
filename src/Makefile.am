@@ -11,14 +11,16 @@ ynclude_DATA =			\
 	helps.ycp		\
 	wizards.ycp		\
 	dialogs.ycp		\
-	complex.ycp
+	complex.ycp \
+	SquidACL_local_functions.ycp
 
 desktop_DATA =			\
 	squid.desktop
 
 module_DATA =			\
 	Squid.ycp		\
-	Squid2.pm
+	Squid2.pm \
+    SquidACL.ycp
 
 # create a symlink for local build, #145327
 squid:

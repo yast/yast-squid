@@ -1,0 +1,155 @@
+/* ------------------------------------------------------------------------------
+ * Copyright (c) 2006 Novell, Inc. All Rights Reserved.
+ *
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of version 2 of the GNU General Public License as published by the
+ * Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, contact Novell, Inc.
+ *
+ * To contact Novell about this file by physical or electronic mail, you may find
+ * current contact information at www.novell.com.
+ * ------------------------------------------------------------------------------
+ */
+
+/**
+ * File:	include/squid/acl.ycp
+ * Package:	Configuration of squid
+ * Summary:	Definition and handling of ACL groups in Squid configuration
+ * Authors:	Daniel Fiser <dfiser@suse.cz>
+ *
+ * $Id$
+ */
+
+{
+module "SquidACL";
+textdomain "squid";
+
+include "squid/SquidACL_local_functions.ycp";
+
+
+/**
+ * map of acl definition. format:
+ *  $[
+ *      "type" : $[ "name" : "Name shown in dialogs",
+ *                  "widget" : `WidgetDescribingThisType,
+ *                  "widget_init" : FunctionWithInitsOfWidget,
+ *                  "verification_func" : FunctionCalledToVerificateContentsOfWidget,
+ *                  "store_func" : FunctionCalledToStoreDataFromWidget //returns list of options
+ *                 ]
+ *  ]
+ *
+ *  widget_init prototype: void FuncName(integer id_item)
+ *  verification_func prototype: boolean FuncName()
+ *  store_func prototype: list<string> FuncName()
+ */
+map<string,map> acl_map = $[
+    "src" : $[ "name" : "src",
+               "widget" : `Frame( _("src"),
+                            `VBox(
+                                `TextEntry(`id("acl_addr1"), _("IP Address 1"), ""),
+                                //`Label(" - "),
+                                `TextEntry(`id("acl_addr2"), _("IP Address 2"), ""),
+                                //`Label("/"),
+                                `TextEntry(`id("acl_mask"), _("Network Mask"), "")
+                            )
+                          ),
+               "widget_init" : srcWidgetInit,
+               "verification_func" : srcVerif,
+               "store_func" : srcStore ],
+
+    "dst" : $[ "name" : "dst",
+               "widget" : `Frame( _("dst"),
+                            `VBox(
+                                `TextEntry(`id("acl_addr"), _("IP Address"), ""),
+                                `TextEntry(`id("acl_mask"), _("Network Mask"), "")
+                            )
+                          ),
+               "widget_init" : dstWidgetInit,
+               "verification_func" : dstVerif,
+               "store_func" : dstStore ],
+
+    "myip" : $[ "name" : "myip",
+                "widget" : `Frame( _("myip"),
+                             `VBox(
+                                 `TextEntry(`id("acl_addr"), _("Local IP Address"), ""),
+                                 `TextEntry(`id("acl_mask"), _("Network Mask"), "")
+                            )
+                           ),
+                "widget_init" : myipWidgetInit,
+                "verification_func" : myipVerif,
+                "store_func" : myipStore ]
+];
+
+/**
+ * Specify order of acls.
+ * Values must corespond with keys in acl_map.
+ */
+list<string> acl_order = ["src", "dst", "myip"];
+
+
+
+/**
+ * Returns list of terms in form:
+ *      [ `item(`id(key), acl_map[key]["name"]:""), `item(... ) ]
+ * Returned list is preferably to place in UI::ComboBox as list of
+ * all available types of ACLs.
+ */
+global list<term> GetTypesToComboBox()
+{
+    list<term> items = [];
+
+    foreach(string value, acl_order,
+        {
+            items = add(items, `item(`id(value), (acl_map[value]:$[])["name"]:""));
+        });
+
+    return items;
+}
+
+
+/**
+ * Initialize widget of acl identified by id_acl_type.
+ * If id_item is not nil, function initialize widgets by default values
+ * from module Squid.
+ */
+global void InitWidget(string id_acl_type, integer id_item)
+{
+    void(integer) func = (void(integer))(acl_map[id_acl_type]:$[])["widget_init"]:nil;
+    func(id_item);
+}
+
+/**
+ * Replace widget with id widget_id by widget acl_map[id_acl_type]["widget"].
+ */
+global void Replace(any widget_id, string id_acl_type)
+{
+    UI::ReplaceWidget(`id(widget_id), (acl_map[id_acl_type]:$[])["widget"]:`Empty());
+}
+
+
+/**
+ * This function call verification function joined with acl type
+ * identified by id_acl_type.
+ * Returns return value of verification function.
+ */
+global boolean Verify(string id_acl_type)
+{
+    boolean() func = (boolean())(acl_map[id_acl_type]:$[])["verification_func"]:nil;
+    return (boolean)func();
+}
+
+
+global list<string> Store(string id_acl_type)
+{
+    list<string>() func = (list<string>())(acl_map[id_acl_type]:$[])["store_func"]:nil;
+    return func();
+}
+}
+/* vim: set sw=4 ts=4 et ft=ycp : */

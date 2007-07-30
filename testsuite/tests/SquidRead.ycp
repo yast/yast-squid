@@ -35,12 +35,12 @@ map READ = $[
                             "-i ^gopher:\t1440\t0%\t1440",
                             ".\t\t0\t20%\t4320"],
 
-       "cache_dir" : ["ufs", "/var/cache/squid", "100", "16", "256"],
-       "cache_mem" : ["80", "MB"],
+       "cache_dir" : ["ufs /var/cache/squid 100 16 256"],
+       "cache_mem" : ["80 MB"],
        "cache_swap_low" : ["90"],
        "cache_swap_high" : ["95"],
-       "maximum_object_size" : ["4096", "KB"],
-       "minimum_object_size" : ["0", "KB"],
+       "maximum_object_size" : ["4096 KB"],
+       "minimum_object_size" : ["0 KB"],
        "cache_replacement_policy" : ["lru"],
        "memory_replacement_policy" : ["heap GDSF"],
 
@@ -50,8 +50,8 @@ map READ = $[
        "cache_swap_log" : ["none"],
        "emulate_httpd_log" : ["off"],
 
-       "connect_timeout" : ["2", "minutes"],
-       "client_lifetime" : ["1", "day"],
+       "connect_timeout" : ["2 minutes"],
+       "client_lifetime" : ["1 day"],
 
        "error_directory" : ["/usr/share/squid/errors/English"],
        "cache_mgr" : ["webmaster"],

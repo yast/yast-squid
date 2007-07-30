@@ -172,12 +172,46 @@ global list<map<string,any> > GetACLs()
 {
     return acls;
 }
+global map<string,any> GetACL(integer id_item)
+{
+    return acls[id_item]:$[];
+}
+global void AddACL(map<string, any> data)
+{
+    acls = add(acls, data);
+}
+global void ModifyACL(integer id_item, map<string,any> value)
+{
+    acls[id_item] = value;
+}
 /******* ACL END *******/
 
 /******* HTTP_ACCESS ******/
 global list<map<string,any> > GetHttpAccesses()
 {
     return http_accesses;
+}
+global map<string,any> GetHttpAccess(integer id_item)
+{
+    return http_accesses[id_item]:$[];
+}
+global void AddHttpAccess(map<string, any> value)
+{
+    http_accesses = add(http_accesses, value);
+}
+global void ModifyHttpAccess(integer id_item, map<string, any> value)
+{
+    http_accesses[id_item] = value;
+}
+global void DelHttpAccess(integer id_item)
+{
+    http_accesses = remove(http_accesses, id_item);
+}
+global void MoveHttpAccess(integer id_from, integer id_to)
+{
+    map<string,any> tmp = http_accesses[id_from]:$[];
+    http_accesses[id_from] = http_accesses[id_to]:$[];
+    http_accesses[id_to] = tmp;
 }
 /******* HTTP_ACCESS END ******/
 

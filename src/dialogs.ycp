@@ -33,6 +33,7 @@ textdomain "squid";
 
 import "Label";
 import "Wizard";
+import "SquidACL";
 
 //import "Squid";
 
@@ -53,7 +54,7 @@ term sizeUnitWidget(string id)
 term timeUnitWidget(string id)
 {
     return `ComboBox(`id(id), " ",
-                [`item("seconds"), `item("minutes")]);
+                [`item("seconds"), `item("minutes"), `item("hours"), `item("days")]);
 }
 
 
@@ -406,8 +407,155 @@ any Cache2Dialog(){
 }
 
 
+
+void addItemToAddEditHttpAccessDialog(boolean not, string item)
+{
+    list items = [];
+
+    integer i = 0;
+    foreach (term value, (list<term>)UI::QueryWidget(`id("acls"), `Items),
+        {
+            items = add(items, `item(`id(i), value[1]:"", value[2]:""));
+            i = i+1;
+        });
+    items = add(items, `item(`id(i), (not == true ? "not" : ""), item));
+    UI::ChangeWidget(`id("acls"), `Items, items);
+}
+void delItemFromAddEditHttpAccessDialog(integer id_item)
+{
+    list items = [];
+
+    integer i = 0;
+    foreach (term value, (list<term>)UI::QueryWidget(`id("acls"), `Items),
+        {
+            if (value[0]:nil != `id(id_item)){
+                items = add(items, `item(`id(i), value[1]:"", value[2]:""));
+                i = i+1;
+            }
+        });
+    UI::ChangeWidget(`id("acls"), `Items, items);
+}
+boolean AddEditHttpAccessDialog(integer id_item)
+{
+    boolean ret = false;
+    any ui = nil;
+    string acl = "";
+    boolean not = false;
+    any tmp = nil;
+    term contents =
+        `VBox(
+            `ComboBox(`id("allow_deny"), _("Allow/Deny"),
+                [`item(`id("allow"), "allow"), `item(`id("deny"), "deny")]),
+
+            //`VSpacing(),
+
+            `MinSize(25, 7,
+                `Table(`id("acls"), `header("   ", _("ACL")), [])
+            ),
+            `Left(`PushButton(`id(`del), Label::DeleteButton())),
+
+            //`VSpacing(),
+
+            `Frame( _("Add ACL"),
+                `HBox(
+                    `CheckBox(`id("acl_not"), _("not")),
+                    `ComboBox(`id("acl"), "ACL", []),
+                    `PushButton(`id(`add), Label::AddButton())
+                )
+            ),
+
+            `HBox(
+                `PushButton(`id(`cancel), Label::CancelButton()),
+                `PushButton(`id(`ok), Label::OKButton())
+            )
+        );
+
+    UI::OpenDialog(contents);
+
+    InitAddEditHttpAccessDialog(id_item);
+
+    while (true){
+        ui = UI::UserInput();
+
+        if (ui == `cancel || ui == `abort){
+            ret = false;
+            break;
+        }else if (ui == `ok){
+            if (StoreDataFromAddEditHttpAccessDialog(id_item)){
+                ret = true;
+                break;
+            }
+        }else if (ui == `add){
+            acl = (string)UI::QueryWidget(`id("acl"), `Value);
+            not = (boolean)UI::QueryWidget(`id("acl_not"), `Value);
+            if (size(acl) > 0){
+                addItemToAddEditHttpAccessDialog(not, acl);
+                InitAddEditHttpAccessDialog(nil);
+            }
+        }else if (ui == `del){
+            delItemFromAddEditHttpAccessDialog((integer)UI::QueryWidget(`id("acls"), `CurrentItem));
+            InitAddEditHttpAccessDialog(nil);
+        }
+    }
+
+
+    UI::CloseDialog();
+
+    return ret;
+}
+
+
+boolean AddEditACLDialog(integer id_item)
+{
+    boolean ret = false;
+    any ui = nil;
+    string type = "";
+    term contents =
+        `VBox(
+            `TextEntry(`id("name"), _("Name"), ""),
+            `ComboBox(`id("type"), `opt(`notify), _("Type"), SquidACL::GetTypesToComboBox()),
+            `ReplacePoint(`id(`replace_point), `Empty()),
+
+            `HBox(
+                `PushButton(`id(`cancel), Label::CancelButton()),
+                `PushButton(`id(`ok), Label::OKButton())
+            )
+        );
+
+    UI::OpenDialog(contents);
+
+    InitAddEditACLDialog(id_item);
+
+    type = (string)UI::QueryWidget(`id("type"), `Value);
+    SquidACL::Replace(`replace_point, type);
+    SquidACL::InitWidget(type, id_item);
+
+    while (true){
+        ui = UI::UserInput();
+
+        if (ui == `cancel || ui == `abort){
+            ret = false;
+            break;
+        }else if (ui == `ok){
+            if (StoreDataFromAddEditACLDialog(id_item)){
+                ret = true;
+                break;
+            }
+        }else if (ui == "type"){
+            type = (string)UI::QueryWidget(`id("type"), `Value);
+            SquidACL::Replace(`replace_point, type);
+            SquidACL::InitWidget(type, id_item);
+        }
+    }
+
+
+    UI::CloseDialog();
+
+    return ret;
+}
 any AccessControlDialog(){
     any ret = nil;
+    integer id_item = nil;
     term dialog_contents =
         `VBox(
             `Left(`Label(_("ACL Groups"))),
@@ -432,7 +580,7 @@ any AccessControlDialog(){
             `HBox(
                 `PushButton(`id(`add_http_access), Label::AddButton()),
                 `PushButton(`id(`del_http_access), Label::DeleteButton()),
-                `PushButton(`id(`modify_http_access), Label::EditButton()),
+                `PushButton(`id(`edit_http_access), Label::EditButton()),
                 `HStretch()
             )
         );
@@ -453,6 +601,42 @@ any AccessControlDialog(){
             //if (Popup::ReallyAbort(true)) break;
             break;
             continue;
+        }else if (ret == `add_acl){
+            if (AddEditACLDialog(nil)){
+                InitACLGroupsTable();
+            }
+        }else if (ret == `edit_acl){
+            id_item = (integer)UI::QueryWidget(`id("acl"), `CurrentItem);
+            if (AddEditACLDialog(id_item)){
+                InitACLGroupsTable();
+                UI::ChangeWidget(`id("acl"), `CurrentItem, id_item);
+            }
+
+        }else if (ret == `add_http_access){
+            if (AddEditHttpAccessDialog(nil)){
+                InitHttpAccessTable();
+            }
+        }else if (ret == `edit_http_access){
+            id_item = (integer)UI::QueryWidget(`id("http_access"), `CurrentItem);
+            if (AddEditHttpAccessDialog(id_item)){
+                InitHttpAccessTable();
+                UI::ChangeWidget(`id("http_access"), `CurrentItem, id_item);
+            }
+        }else if (ret == `del_http_access){
+            DelFromHttpAccessTable((integer)UI::QueryWidget(`id("http_access"), `CurrentItem));
+            InitHttpAccessTable();
+        }else if (ret == `up_http_access){
+            id_item = MoveUpHttpAccess((integer)UI::QueryWidget(`id("http_access"), `CurrentItem));
+            if (id_item != nil){
+                InitHttpAccessTable();
+                UI::ChangeWidget(`id("http_access"), `CurrentItem, id_item);
+            }
+        }else if (ret == `down_http_access){
+            id_item = MoveDownHttpAccess((integer)UI::QueryWidget(`id("http_access"), `CurrentItem));
+            if (id_item != nil){
+                InitHttpAccessTable();
+                UI::ChangeWidget(`id("http_access"), `CurrentItem, id_item);
+            }
         }
     }
 
@@ -527,7 +711,7 @@ any MiscellaneousDialog()
         ));
 
     Wizard::SetContentsButtons("Squid - Miscellaneous Setting", dialog_contents, "help",
-        Label::BackButton(), Label::NextButton());
+        Label::BackButton(), Label::FinishButton());
 
     while (true){
         ret = UI::UserInput();

@@ -39,6 +39,7 @@ import "Confirm";
 import "Report";
 
 import "Squid";
+import "SquidACL";
 
 
 include "squid/helps.ycp";
@@ -253,6 +254,52 @@ void InitHttpAccessTable()
         UI::ChangeWidget(`id(`del_http_access), `Enabled, false);
     }
 }
+
+
+void InitAddEditHttpAccessDialog(integer id_item)
+{
+    list items = [];
+    list acls_items = [];
+
+    if (id_item != nil){
+        map<string, any> http_access = Squid::GetHttpAccess(id_item);
+        integer i = 0;
+
+        foreach(string value, http_access["acl"]:[],
+            {
+                items = add(items, `item(`id(i), (search(value,"!")==0 ? "not" : ""), deletechars(value, "!")));
+                i = i+1;
+            });
+        UI::ChangeWidget(`id("acls"), `Items, items);
+        UI::ChangeWidget(`id("allow_deny"), `Value, (http_access["allow"]:true ? "allow" : "deny"));
+
+        items = [];
+    }
+
+    foreach(term value, (list<term>)UI::QueryWidget(`id("acls"), `Items),
+        {
+            acls_items = add(acls_items, value[2]:"");
+        });
+
+    foreach(map<string,any> value, Squid::GetACLs(),
+        {
+            if (!contains(items, `item(`id(value["name"]:""), value["name"]:"")) &&
+                !contains(acls_items, value["name"]:""))
+                items = add(items, `item(`id(value["name"]:""), value["name"]:""));
+        });
+    UI::ChangeWidget(`id("acl"), `Items, items);
+    UI::ChangeWidget(`id("acl_not"), `Value, false);
+}
+
+
+void InitAddEditACLDialog(integer id_item)
+{
+    if (id_item != nil){
+        map<string,any> acl = Squid::GetACL(id_item);
+        UI::ChangeWidget(`id("name"), `Value, acl["name"]:"");
+        UI::ChangeWidget(`id("type"), `Value, acl["type"]:"");
+    }
+}
 /*********************   INITS END  ****************/
 
 
@@ -380,6 +427,92 @@ boolean StoreDataFromCache2Dialog()
     }else{
         ok = false;
         Report::Error(_("Cache directory must not be empty."));
+    }
+
+    return ok;
+}
+
+
+boolean StoreDataFromAddEditHttpAccessDialog(integer id_item)
+{
+    boolean ok = true;
+    boolean allow = true;
+    list<string> acls = [];
+    string tmp = "";
+
+    allow = (UI::QueryWidget(`id("allow_deny"), `Value) == "allow" ? true : false);
+    foreach(term value, (list<term>)UI::QueryWidget(`id("acls"), `Items),
+        {
+            tmp = (value[1]:"" == "not" ? "!" : "");
+            tmp = tmp + value[2]:"";
+            acls = add(acls, tmp);
+        });
+
+    if (size(acls) > 0){
+        if (id_item == nil){
+            Squid::AddHttpAccess($["allow" : allow, "acl" : acls]);
+        }else{
+            Squid::ModifyHttpAccess(id_item, $["allow" : allow, "acl" : acls]);
+        }
+   }else{
+       ok = false;
+       Report::Error(_("ACL table must not be empty."));
+   }
+
+    return ok;
+}
+void DelFromHttpAccessTable(integer id_item)
+{
+    Squid::DelHttpAccess(id_item);
+}
+integer MoveUpHttpAccess(integer id_item)
+{
+    integer ret = nil;
+
+    if (id_item > 0){
+        Squid::MoveHttpAccess(id_item, id_item - 1);
+        ret = id_item - 1;
+    }
+    return ret;
+}
+integer MoveDownHttpAccess(integer id_item)
+{
+    integer ret = nil;
+
+    if (id_item < size(Squid::GetHttpAccesses())-1){
+        Squid::MoveHttpAccess(id_item, id_item + 1);
+        ret = id_item + 1;
+    }
+    return ret;
+}
+
+
+boolean StoreDataFromAddEditACLDialog(integer id_item)
+{
+    boolean ok = true;
+    map<string, any> data = $[];
+
+    string type = (string)UI::QueryWidget(`id("type"), `Value);
+    string name = (string)UI::QueryWidget(`id("name"), `Value);
+    boolean verification = SquidACL::Verify(type);
+
+    if (verification && size(name) > 0){
+        data["name"] = name;
+        data["type"] = type;
+        data["options"] = SquidACL::Store(type);
+
+        y2debug("complex::StoreDataFromAddEditACLDialog() - data: %1", data);
+
+        if (id_item == nil){
+            Squid::AddACL(data);
+        }else{
+            Squid::ModifyACL(id_item, data);
+        }
+    }else if(verification){ // -> size(name) <= 0
+        ok = false;
+        Report::Error( _("Name must not be empty."));
+    }else{
+        ok = false;
     }
 
     return ok;
