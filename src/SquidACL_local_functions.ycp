@@ -33,14 +33,46 @@ import "Report";
 
 import "Squid";
 
-
-boolean isIPAddress(string str)
+list<string> splitToChars(string str)
 {
-    return regexpmatch(str, "[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+");
+    integer len = size(str);
+    integer i = 0;
+    list<string> ret = [];
+    while (i<len){
+        ret = add(ret, substring(str,i,1));
+        i = i + 1;
+    }
+
+    return (ret);
+}
+
+boolean isIPAddr(string str)
+{
+    return regexpmatch(str, "^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$");
 }
 boolean isMask(string str)
 {
-    return regexpmatch(str, "[0-9]+") || isIPAddress(str);
+    return regexpmatch(str, "^[0-9]+$") || isIPAddr(str);
+}
+boolean isHHMMFormat(string str)
+{
+    if (!regexpmatch(str, "^[0-9]{1,2}:[0-9]{1,2}$")) return false;
+    list<string> hm = splitstring(str, ":");
+    integer tmp = 0;
+
+    tmp = tointeger(hm[0]:"");
+    if (tmp < 0 || tmp > 23) return false;
+    tmp = tointeger(hm[1]:"");
+    if (tmp < 0 || tmp > 59) return false;
+
+    return true;
+}
+boolean isCorrectFromTo(string from, string to)
+{
+    integer fr = tointeger(regexpsub(mergestring(splitstring(from, ":"), ""), "([1-9][0-9]*$)", "\\1"));
+    integer t = tointeger(regexpsub(mergestring(splitstring(to, ":"),""), "([1-9][0-9]*$)", "\\1"));
+
+    return fr<t;
 }
 
 
@@ -53,45 +85,40 @@ void widgetInitMask(any id)
 {
     UI::ChangeWidget(`id(id), `ValidChars, "1234567890.");
 }
+void widgetInitDomainName(any id)
+{
+    UI::ChangeWidget(`id(id), `ValidChars, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.");
+}
+void widgetInitHHMM(any id)
+{
+    UI::ChangeWidget(`id(id), `ValidChars, "1234567890:");
+    UI::ChangeWidget(`id(id), `InputMaxLength, 5);
+}
 
 
 /******************  SRC  *************************/
-void srcWidgetInit(integer id_item)//TODO:
+void srcWidgetInit(integer id_item)
 {
-    widgetInitIPAddr("acl_addr1");
-    widgetInitIPAddr("acl_addr2");
+    UI::ChangeWidget(`id("acl_addr"), `ValidChars, "1234567890.-");
     widgetInitMask("acl_mask");
 
     if (id_item != nil){
         map<string,any> acl = Squid::GetACL(id_item);
-        list<string> tmp = [];
         list<string> data = splitstring((acl["options"]:[])[0]:"", "/");
-        data[2] = data[1]:"";
-        tmp = splitstring(data[0]:"", "-");
-        if (size(tmp) == 1){
-            data[0] = "";
-            data[1] = tmp[0]:"";
-        }else{
-            data[0] = tmp[0]:"";
-            data[1] = tmp[1]:"";
-        }
 
-        y2debug("%1", data);
-        UI::ChangeWidget(`id("acl_addr1"), `Value, data[0]:"");
-        UI::ChangeWidget(`id("acl_addr2"), `Value, data[1]:"");
-        UI::ChangeWidget(`id("acl_mask"), `Value, data[2]:"");
+        UI::ChangeWidget(`id("acl_addr"), `Value, data[0]:"");
+        UI::ChangeWidget(`id("acl_mask"), `Value, data[1]:"");
     }
 }
 
 boolean srcVerif(){
     boolean ok = true;
-    string addr1 = (string)UI::QueryWidget(`id("acl_addr1"), `Value);
-    string addr2 = (string)UI::QueryWidget(`id("acl_addr2"), `Value);
+    string addr = (string)UI::QueryWidget(`id("acl_addr"), `Value);
     string mask = (string)UI::QueryWidget(`id("acl_mask"), `Value);
+    list<string> tmp = splitstring(addr, "-");
 
-    if ((size(addr1) == 0 && size(addr2) == 0) ||
-        (size(addr1) > 0 && !isIPAddress(addr1)) ||
-        (size(addr2) > 0 && !isIPAddress(addr2)) ||
+    if (size(addr) == 0 ||
+        (!isIPAddr(addr) && !isIPAddr(tmp[0]:"") && !isIPAddr(tmp[1]:"")) ||
         (size(mask) > 0 && !isMask(mask))){
         ok = false;
         Report::Error( _("Invalid values."));
@@ -99,18 +126,13 @@ boolean srcVerif(){
     return ok;
 }
 
-list<string> srcStore(){
+list<string> srcOptions(){
     list<string> data = [];
-    string addr1 = (string)UI::QueryWidget(`id("acl_addr1"), `Value);
-    string addr2 = (string)UI::QueryWidget(`id("acl_addr2"), `Value);
+    string addr = (string)UI::QueryWidget(`id("acl_addr"), `Value);
     string mask = (string)UI::QueryWidget(`id("acl_mask"), `Value);
 
-    if (size(addr1) > 0 && size(addr2) > 0){
-        data[0] = addr1 + "-" + addr2;
-    }else{
-        data[0] = addr1 + addr2;
-    }
-    if (size(mask) > 0 && size(addr1)+size(addr2) > 0)
+    data[0]=addr;
+    if (size(mask) > 0 && size(addr) > 0)
         data[0] = data[0]:"" + "/" + mask;
     return data;
 }
@@ -138,14 +160,14 @@ boolean dstVerif()
     string addr = (string)UI::QueryWidget(`id("acl_addr"), `Value);
     string mask = (string)UI::QueryWidget(`id("acl_mask"), `Value);
 
-    if (!isIPAddress(addr) || (size(mask) > 0 && !isMask(mask))){
+    if (!isIPAddr(addr) || (size(mask) > 0 && !isMask(mask))){
         ok = false;
         Report::Error( _("Invalid values."));
     }
     return ok;
 }
 
-list<string> dstStore()
+list<string> dstOptions()
 {
     list<string> data = [];
     string addr = (string)UI::QueryWidget(`id("acl_addr"), `Value);
@@ -159,20 +181,283 @@ list<string> dstStore()
 /******************  DST END  *********************/
 
 
-/******************  MYIP  ************************/
-void myipWidgetInit(integer id_item)
+/******************  MYIP  ************************
+ * Uses same functions as DST
+/******************  MYIP END  ********************/
+
+
+/****************  SRCDOMAIN  *********************/
+void srcdomainWidgetInit(integer id_item)
 {
-    widgetInitIPAddr("acl_addr");
-    widgetInitMask("acl_mask");
+    widgetInitDomainName("acl_domain");
+
+    if (id_item != nil){
+        map<string, any> acl = Squid::GetACL(id_item);
+        UI::ChangeWidget(`id("acl_domain"), `Value, (acl["options"]:[])[0]:"");
+    }
 }
-boolean myipVerif()
+boolean srcdomainVerif()
+{
+    boolean ok = true;
+
+    if (size((string)UI::QueryWidget(`id("acl_domain"), `Value)) == 0){
+        ok = false;
+        Report::Error( _("Domain Name must not be empty."));
+    }
+    return ok;
+}
+list<string> srcdomainOptions()
+{
+    return [(string)UI::QueryWidget(`id("acl_domain"), `Value)];
+}
+/****************  SRCDOMAIN END  *****************/
+
+/****************  DSTDOMAIN  *********************
+ * Uses same functions as SRCDOMAIN.
+/****************  DSTDOMAIN END  *****************/
+
+
+/****************  REGEXP  ************************/
+/**
+ * Returns univerzal widget for setting a regular expression.
+ */
+term regexpWidget(string frame_title)
+{
+    return `Frame( frame_title,
+                `VBox(
+                    `TextEntry(`id("acl_regexp"), _("Regular Expression"), ""),
+                    `CheckBox(`id("acl_regexp_case_insensitive"), _("Case Insensitive"), false)
+                )
+            );
+}
+
+/**
+ * Univerzal widget_init for regular expression.
+ */
+void regexpWidgetInit(integer id_item)
+{
+    if (id_item != nil){
+        map <string,any> acl = Squid::GetACL(id_item);
+
+        if ((acl["options"]:[])[0]:"" == "-i"){
+            UI::ChangeWidget(`id("acl_regexp_case_insensitive"), `Value, true);
+            acl["options"] = remove(acl["options"]:[],0);
+        }
+        UI::ChangeWidget(`id("acl_regexp"), `Value, (acl["options"]:[])[0]:"");
+    }
+}
+/**
+ * Univerzal verification function for regular expression.
+ */
+boolean regexpVerif()
+{
+    boolean ok = true;
+    string regexp = (string)UI::QueryWidget(`id("acl_regexp"), `Value);
+
+    if (size(regexp) == 0){
+        ok = false;
+        Report::Error( _("Regular Expression must not be empty."));
+    }
+    return ok;
+}
+/**
+ * Univerzal options function for regular expression.
+ */
+list<string> regexpOptions()
+{
+    list<string> ret = [];
+    if ((boolean)UI::QueryWidget(`id("acl_regexp_case_insensitive"), `Value))
+        ret[0] = "-i";
+    ret = add(ret, (string)UI::QueryWidget(`id("acl_regexp"), `Value));
+    return ret;
+}
+
+/**
+ * Returns map describing acl which has type of regular expression.
+ */
+map<string,any> regexp(string name, string frame_title)
+{
+    return $[ "name" : name,
+              "widget" : regexpWidget(frame_title),
+              "widget_init" : regexpWidgetInit,
+              "verification" : regexpVerif,
+              "options" : regexpOptions ];
+}
+/****************  REGEXP END  ********************/
+
+
+
+/****************  TIME  **************************/
+void timeWidgetInit(integer id_item)
+{
+    widgetInitHHMM("acl_from");
+    widgetInitHHMM("acl_to");
+
+    if (id_item != nil){
+        map<string,any> acl = Squid::GetACL(id_item);
+        list<string> days = splitToChars((acl["options"]:[])[0]:"");
+        list<string> times = splitstring((acl["options"]:[])[1]:"","-");
+
+        UI::ChangeWidget(`id("acl_days"), `SelectedItems, days);
+        UI::ChangeWidget(`id("acl_from"), `Value, times[0]:"");
+        UI::ChangeWidget(`id("acl_to"), `Value, times[1]:"");
+    }
+}
+boolean timeVerif()
+{
+    boolean ok = true;
+    string from = (string)UI::QueryWidget(`id("acl_from"), `Value);
+    string to = (string)UI::QueryWidget(`id("acl_to"), `Value);
+    integer selected_items = size((list)UI::QueryWidget(`id("acl_days"), `SelectedItems));
+
+    if (selected_items == 0){
+        ok = false;
+        Report::Error( _("You must select at least on day."));
+    }else if (!isHHMMFormat(from) || !isHHMMFormat(to)){
+        ok = false;
+        Report::Error( _("Time isn't filled in corrent format."));
+    }else if (!isCorrectFromTo(from, to)){// from must be less then to
+        ok = false;
+        Report::Error( _("From must be less then To."));//TODO: better error message
+    }
+    return ok;
+}
+list<string> timeOptions()
+{
+    string days = mergestring((list<string>)UI::QueryWidget(`id("acl_days"), `SelectedItems),"");
+    string times = mergestring([(string)UI::QueryWidget(`id("acl_from"), `Value),
+                                (string)UI::QueryWidget(`id("acl_to"), `Value)], "-");
+    return [days, times];
+}
+/****************  TIME END  **********************/
+
+
+/****************  PORT  **************************/
+void portWidgetInit(integer id_item)
+{
+    UI::ChangeWidget(`id("acl_port"), `ValidChars, "1234567890-");
+
+    if (id_item != nil){
+        map<string,any> acl = Squid::GetACL(id_item);
+
+        UI::ChangeWidget(`id("acl_port"), `Value, (acl["options"]:[])[0]:"");
+    }
+}
+boolean portVerif()
+{
+    boolean ok = true;
+    string port = (string)UI::QueryWidget(`id("acl_port"), `Value);
+
+    if (!regexpmatch(port, "^[0-9]+(-[0-9]+){0,1}$")){
+        ok = false;
+    }else{
+        list<string> ports = splitstring(port, "-");
+        if (size(ports) == 2 && (tointeger(ports[0]:"") > tointeger(ports[1]:""))){
+            ok = false;
+        }
+    }
+    if (!ok){
+        Report::Error( _("Invalid value."));
+    }
+    return ok;
+}
+list<string> portOptions()
+{
+    return [(string)UI::QueryWidget(`id("acl_port"), `Value)];
+}
+/****************  PORT END  **********************/
+
+
+/**************  MYPORT  **************************/
+void myportWidgetInit(integer id_item)
+{
+    UI::ChangeWidget(`id("acl_port"), `ValidChars, "1234567890");
+
+    if (id_item != nil){
+        map<string,any> acl = Squid::GetACL(id_item);
+
+        UI::ChangeWidget(`id("acl_port"), `Value, (acl["options"]:[])[0]:"");
+    }
+}
+boolean myportVerif()
+{
+    boolean ok = true;
+    string port = (string)UI::QueryWidget(`id("acl_port"), `Value);
+
+    if (!regexpmatch(port, "^[0-9]+$")){
+        ok = false;
+        Report::Error( _("Invalid value."));
+    }
+    return ok;
+}
+/**************  MYPORT END  **********************/
+
+
+/***************  PROTO  **************************/
+void protoWidgetInit(integer id_item)
+{
+    UI::ChangeWidget(`id("acl_proto"), `ValidChars, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_");
+
+    if (id_item != nil){
+        map<string,any> acl = Squid::GetACL(id_item);
+
+        UI::ChangeWidget(`id("acl_proto"), `Value, (acl["options"]:[])[0]:"");
+    }
+}
+boolean protoVerif()
+{
+    boolean ok = true;
+    string protocol = (string)UI::QueryWidget(`id("acl_proto"), `Value);
+
+    if (size(protocol) == 0){
+        Report::Error( _("Protocol must not be empty."));
+    }
+    return ok;
+}
+list<string> protoOptions()
+{
+    return [(string)UI::QueryWidget(`id("acl_proto"), `Value)];
+}
+/***************  PROTO END  **********************/
+
+
+/***************  METHOD  *************************/
+void methodWidgetInit(integer id_item)
+{
+    if (id_item != nil){
+        map<string,any> acl = Squid::GetACL(id_item);
+
+        UI::ChangeWidget(`id("acl_method"), `Value, (acl["options"]:[])[0]:"");
+    }
+}
+boolean methodVerif()
 {
     return true;
 }
-list<string> myipStore()
+list<string> methodOptions()
 {
-    return [];
+    return [(string)UI::QueryWidget(`id("acl_method"), `Value)];
 }
-/******************  MYIP END  ********************/
+/***************  METHOD END  *********************/
+
+
+/***************  MAXCONN  ************************/
+void maxconnWidgetInit(integer id_item)
+{
+    if (id_item != nil){
+        map<string,any> acl = Squid::GetACL(id_item);
+
+        UI::ChangeWidget(`id("acl_connections"), `Value, tointeger((acl["options"]:[])[0]:""));
+    }
+}
+boolean maxconnVerif()
+{
+    return true;
+}
+list<string> maxconnOptions()
+{
+    return [tostring(UI::QueryWidget(`id("acl_connections"), `Value))];
+}
+/***************  MAXCONN END  ********************/
 }
 /* vim: set sw=4 ts=4 et ft=ycp : */

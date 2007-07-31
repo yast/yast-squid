@@ -153,8 +153,9 @@ any HttpPortsDialog(){
                 UI::ChangeWidget(`id("http_port"), `CurrentItem, id_item);
             }
         }else if (ret == `del){
-            DelFromHttpPortsTable((integer)UI::QueryWidget(`id("http_port"), `CurrentItem));
+            id_item = DelFromHttpPortsTable((integer)UI::QueryWidget(`id("http_port"), `CurrentItem));
             InitHttpPortsTable();
+            UI::ChangeWidget(`id("http_port"), `CurrentItem, id_item);
         }
     }
 
@@ -266,8 +267,9 @@ any CacheDialog(){
                 UI::ChangeWidget(`id("refresh_patterns"), `CurrentItem, id_item);
             }
         }else if (ret == `del){
-            DelFromRefreshPatternsTable((integer)UI::QueryWidget(`id("refresh_patterns"), `CurrentItem));
+            id_item = DelFromRefreshPatternsTable((integer)UI::QueryWidget(`id("refresh_patterns"), `CurrentItem));
             InitRefreshPatternsTable();
+            UI::ChangeWidget(`id("refresh_patterns"), `CurrentItem, id_item);
         }else if (ret == `up){
             id_item = MoveUpRefreshPattern((integer)UI::QueryWidget(`id("refresh_patterns"), `CurrentItem));
             if (id_item != nil){
@@ -421,7 +423,7 @@ void addItemToAddEditHttpAccessDialog(boolean not, string item)
     items = add(items, `item(`id(i), (not == true ? "not" : ""), item));
     UI::ChangeWidget(`id("acls"), `Items, items);
 }
-void delItemFromAddEditHttpAccessDialog(integer id_item)
+integer delItemFromAddEditHttpAccessDialog(integer id_item)
 {
     list items = [];
 
@@ -434,6 +436,10 @@ void delItemFromAddEditHttpAccessDialog(integer id_item)
             }
         });
     UI::ChangeWidget(`id("acls"), `Items, items);
+    if (id_item >= size(items)){
+        id_item = id_item - 1;
+    }
+    return id_item;
 }
 boolean AddEditHttpAccessDialog(integer id_item)
 {
@@ -442,6 +448,7 @@ boolean AddEditHttpAccessDialog(integer id_item)
     string acl = "";
     boolean not = false;
     any tmp = nil;
+    integer id_acl = 0;
     term contents =
         `VBox(
             `ComboBox(`id("allow_deny"), _("Allow/Deny"),
@@ -493,8 +500,9 @@ boolean AddEditHttpAccessDialog(integer id_item)
                 InitAddEditHttpAccessDialog(nil);
             }
         }else if (ui == `del){
-            delItemFromAddEditHttpAccessDialog((integer)UI::QueryWidget(`id("acls"), `CurrentItem));
+            id_acl = delItemFromAddEditHttpAccessDialog((integer)UI::QueryWidget(`id("acls"), `CurrentItem));
             InitAddEditHttpAccessDialog(nil);
+            UI::ChangeWidget(`id("acls"), `CurrentItem, id_acl);
         }
     }
 
@@ -509,6 +517,7 @@ boolean AddEditACLDialog(integer id_item)
 {
     boolean ret = false;
     any ui = nil;
+    string orig_type = "";
     string type = "";
     term contents =
         `VBox(
@@ -526,9 +535,9 @@ boolean AddEditACLDialog(integer id_item)
 
     InitAddEditACLDialog(id_item);
 
-    type = (string)UI::QueryWidget(`id("type"), `Value);
-    SquidACL::Replace(`replace_point, type);
-    SquidACL::InitWidget(type, id_item);
+    orig_type = (string)UI::QueryWidget(`id("type"), `Value);
+    SquidACL::Replace(`replace_point, orig_type);
+    SquidACL::InitWidget(orig_type, id_item);
 
     while (true){
         ui = UI::UserInput();
@@ -544,7 +553,11 @@ boolean AddEditACLDialog(integer id_item)
         }else if (ui == "type"){
             type = (string)UI::QueryWidget(`id("type"), `Value);
             SquidACL::Replace(`replace_point, type);
-            SquidACL::InitWidget(type, id_item);
+            if (type == orig_type){
+                SquidACL::InitWidget(type, id_item);
+            }else{
+                SquidACL::InitWidget(type, nil);
+            }
         }
     }
 
@@ -611,6 +624,10 @@ any AccessControlDialog(){
                 InitACLGroupsTable();
                 UI::ChangeWidget(`id("acl"), `CurrentItem, id_item);
             }
+        }else if (ret == `del_acl){
+            id_item = DelFromACLGroupsTable((integer)UI::QueryWidget(`id("acl"), `CurrentItem));
+            InitACLGroupsTable();
+            UI::ChangeWidget(`id("acl"), `CurrentItem, id_item);
 
         }else if (ret == `add_http_access){
             if (AddEditHttpAccessDialog(nil)){
@@ -623,8 +640,9 @@ any AccessControlDialog(){
                 UI::ChangeWidget(`id("http_access"), `CurrentItem, id_item);
             }
         }else if (ret == `del_http_access){
-            DelFromHttpAccessTable((integer)UI::QueryWidget(`id("http_access"), `CurrentItem));
+            id_item = DelFromHttpAccessTable((integer)UI::QueryWidget(`id("http_access"), `CurrentItem));
             InitHttpAccessTable();
+            UI::ChangeWidget(`id("http_access"), `CurrentItem, id_item);
         }else if (ret == `up_http_access){
             id_item = MoveUpHttpAccess((integer)UI::QueryWidget(`id("http_access"), `CurrentItem));
             if (id_item != nil){

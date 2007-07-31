@@ -329,9 +329,13 @@ boolean StoreDataFromAddEditHttpPortDialog(integer id_item)
     return ok;
 }
 
-void DelFromHttpPortsTable(integer id_item)
+integer DelFromHttpPortsTable(integer id_item)
 {
     Squid::DelHttpPort(id_item);
+    if (id_item >= size(Squid::GetHttpPorts())){
+        id_item = id_item - 1;
+    }
+    return id_item;
 }
 
 boolean StoreDataFromAddEditRefreshPatternDialog(integer id_item)
@@ -360,9 +364,13 @@ boolean StoreDataFromAddEditRefreshPatternDialog(integer id_item)
     return ok;
 }
 
-void DelFromRefreshPatternsTable(integer id_item)
+integer DelFromRefreshPatternsTable(integer id_item)
 {
     Squid::DelRefreshPattern(id_item);
+    if (id_item >= size(Squid::GetRefreshPatterns())){
+        id_item = id_item - 1;
+    }
+    return id_item;
 }
 
 /**
@@ -461,9 +469,13 @@ boolean StoreDataFromAddEditHttpAccessDialog(integer id_item)
 
     return ok;
 }
-void DelFromHttpAccessTable(integer id_item)
+integer DelFromHttpAccessTable(integer id_item)
 {
     Squid::DelHttpAccess(id_item);
+    if (id_item >= size(Squid::GetHttpAccesses())){
+        id_item = id_item - 1;
+    }
+    return (id_item);
 }
 integer MoveUpHttpAccess(integer id_item)
 {
@@ -499,7 +511,7 @@ boolean StoreDataFromAddEditACLDialog(integer id_item)
     if (verification && size(name) > 0){
         data["name"] = name;
         data["type"] = type;
-        data["options"] = SquidACL::Store(type);
+        data["options"] = SquidACL::GetOptions(type);
 
         y2debug("complex::StoreDataFromAddEditACLDialog() - data: %1", data);
 
@@ -516,6 +528,14 @@ boolean StoreDataFromAddEditACLDialog(integer id_item)
     }
 
     return ok;
+}
+integer DelFromACLGroupsTable(integer id_item)
+{
+    Squid::DelACL(id_item);
+    if (id_item >= size(Squid::GetACLs())){
+        id_item = id_item - 1;
+    }
+    return id_item;
 }
 /********************* STORING + DELETING END ********************/
 

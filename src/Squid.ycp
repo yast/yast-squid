@@ -184,6 +184,10 @@ global void ModifyACL(integer id_item, map<string,any> value)
 {
     acls[id_item] = value;
 }
+global void DelACL(integer id_item)
+{
+    acls = remove(acls, id_item);
+}
 /******* ACL END *******/
 
 /******* HTTP_ACCESS ******/
@@ -419,7 +423,7 @@ boolean readRefreshPatterns()
     return ok;
 }
 
-/**
+/** TODO: Regular expressions!
  * Read setting of parameter acl.
  *      acl aclname acltype string1 string2 ...
  *
@@ -431,6 +435,14 @@ boolean readACLs()
     list tmp = [];
     map <string, any> tmp_acl = $[];
 
+    //list of types which contains regular expression
+    list<string> regexps = [
+        "srcdom_regex",
+        "dstdom_regex",
+        "url_regex",
+        "urlpath_regex",
+        "browser"
+    ];
 
     acls = [];
     foreach (string value, (list<string>)SCR::Read( add(squid_path, "acl")),
@@ -447,6 +459,15 @@ boolean readACLs()
             tmp_acl["name"] = tmp[0]:"";
             tmp_acl["type"] = tmp[1]:"";
             tmp_acl["options"] = remove(remove(tmp,0),0);
+
+            // concat list of regular expressions into one option
+            if (contains(regexps, tmp_acl["type"]:"")){
+                if ((tmp_acl["options"]:[])[0]:"" == "-i"){
+                    tmp_acl["options"] = ["-i", mergestring((list<string>)remove(tmp_acl["options"]:[], 0), " ")];
+                }else{
+                    tmp_acl["options"] = [mergestring(tmp_acl["options"]:[], " ")];
+                }
+            }
 
             acls = add(acls, tmp_acl);
         });

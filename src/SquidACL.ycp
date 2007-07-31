@@ -40,29 +40,29 @@ include "squid/SquidACL_local_functions.ycp";
  *      "type" : $[ "name" : "Name shown in dialogs",
  *                  "widget" : `WidgetDescribingThisType,
  *                  "widget_init" : FunctionWithInitsOfWidget,
- *                  "verification_func" : FunctionCalledToVerificateContentsOfWidget,
- *                  "store_func" : FunctionCalledToStoreDataFromWidget //returns list of options
+ *                  "verification" : FunctionCalledToVerificateContentsOfWidget,
+ *                  "options" : FunctionThatReturnsListOfOptions
  *                 ]
  *  ]
  *
  *  widget_init prototype: void FuncName(integer id_item)
- *  verification_func prototype: boolean FuncName()
- *  store_func prototype: list<string> FuncName()
+ *  verification prototype: boolean FuncName()
+ *  options prototype: list<string> FuncName()
  */
 map<string,map> acl_map = $[
     "src" : $[ "name" : "src",
                "widget" : `Frame( _("src"),
                             `VBox(
-                                `TextEntry(`id("acl_addr1"), _("IP Address 1"), ""),
+                                //`TextEntry(`id("acl_addr1"), _("IP Address 1"), ""),
                                 //`Label(" - "),
-                                `TextEntry(`id("acl_addr2"), _("IP Address 2"), ""),
+                                `TextEntry(`id("acl_addr"), _("IP Address or Range of IP Addresses"), ""),
                                 //`Label("/"),
                                 `TextEntry(`id("acl_mask"), _("Network Mask"), "")
                             )
                           ),
                "widget_init" : srcWidgetInit,
-               "verification_func" : srcVerif,
-               "store_func" : srcStore ],
+               "verification" : srcVerif,
+               "options" : srcOptions ],
 
     "dst" : $[ "name" : "dst",
                "widget" : `Frame( _("dst"),
@@ -72,26 +72,137 @@ map<string,map> acl_map = $[
                             )
                           ),
                "widget_init" : dstWidgetInit,
-               "verification_func" : dstVerif,
-               "store_func" : dstStore ],
+               "verification" : dstVerif,
+               "options" : dstOptions ],
 
     "myip" : $[ "name" : "myip",
                 "widget" : `Frame( _("myip"),
                              `VBox(
                                  `TextEntry(`id("acl_addr"), _("Local IP Address"), ""),
                                  `TextEntry(`id("acl_mask"), _("Network Mask"), "")
-                            )
+                             )
                            ),
-                "widget_init" : myipWidgetInit,
-                "verification_func" : myipVerif,
-                "store_func" : myipStore ]
+                "widget_init" : dstWidgetInit,
+                "verification" : dstVerif,
+                "options" : dstOptions ],
+
+    "srcdomain" : $[ "name" : "srcdomain",
+                     "widget" : `Frame( _("srcdomain"),
+                                  `VBox(
+                                      `TextEntry(`id("acl_domain"), _("Clients Domain Name"), "")
+                                  )
+                                ),
+                     "widget_init" : srcdomainWidgetInit,
+                     "verification" : srcdomainVerif,
+                     "options" : srcdomainOptions ],
+
+    "dstdomain" : $[ "name" : "dstdomain",
+                     "widget" : `Frame( _("dstdomain"),
+                                  `VBox(
+                                      `TextEntry(`id("acl_domain"), _("Destination Domain"), "")
+                                  )
+                                ),
+                     "widget_init" : srcdomainWidgetInit,
+                     "verification" : srcdomainVerif,
+                     "options" : srcdomainOptions ],
+
+    "srcdom_regex" : regexp("srcdom_regex", "srcdom_regex"),
+    "dstdom_regex" : regexp("dstdom_regex", "dstdom_regex"),
+
+    "time" : $[ "name" : "time",
+                "widget" : `Frame( _("time"),
+                             `VBox(
+                                 `HWeight(1, `MinHeight(8, `MultiSelectionBox(`id("acl_days"), _("Days"),
+                                                                [`item(`id("M"), "Monday"),
+                                                                 `item(`id("T"), "Tuesday"),
+                                                                 `item(`id("W"), "Wednesday"),
+                                                                 `item(`id("H"), "Thursday"),
+                                                                 `item(`id("F"), "Friday"),
+                                                                 `item(`id("A"), "Saturday"),
+                                                                 `item(`id("S"), "Sunday")]))),
+                                 `HWeight(1, `HBox(
+                                     `TextEntry(`id("acl_from"), `opt(`shrinkable), _("From (H:M)"), ""),
+                                     `TextEntry(`id("acl_to"), `opt(`shrinkable), _("To (H:M)"), "")
+                                 ))
+                             )
+                           ),
+                "widget_init" : timeWidgetInit,
+                "verification" : timeVerif,
+                "options" : timeOptions ],
+
+    "url_regex" : regexp("url_regex", "url_regex"),
+    "urlpath_regex" : regexp("urlpath_regex", "urlpath_regex"),
+
+    "port" : $[ "name" : "port",
+                "widget" : `Frame( _("port"),
+                                `TextEntry(`id("acl_port"), _("Port Number or Range of Ports"), "")
+                           ),
+                "widget_init" : portWidgetInit,
+                "verification" : portVerif,
+                "options" : portOptions ],
+
+    "myport" : $[ "name" : "myport",
+                  "widget" : `Frame( _("myport"),
+                                  `TextEntry(`id("acl_port"), _("Port Number"), "")
+                             ),
+                  "widget_init" : myportWidgetInit,
+                  "verification" : myportVerif,
+                  "options" : portOptions ],
+
+    "proto" : $[ "name" : "proto",
+                 "widget" : `Frame ( _("proto"),
+                                `TextEntry(`id("acl_proto"), _("Protocol"), "")
+                            ),
+                 "widget_init" : protoWidgetInit,
+                 "verification" : protoVerif,
+                 "options" : protoOptions ],
+
+    "method" : $[ "name" : "method",
+                  "widget" : `Frame( _("method"),
+                                `ComboBox(`id("acl_method"), _("HTTP Method"),
+                                    [`item(`id("GET"), "GET"),
+                                     `item(`id("HEAD"), "HEAD"),
+                                     `item(`id("POST"), "POST"),
+                                     `item(`id("PUT"), "PUT"),
+                                     `item(`id("DELETE"), "DELETE"),
+                                     `item(`id("TRACE"), "TRACE"),
+                                     `item(`id("CONNECT"), "CONNECT")])
+                             ),
+                  "widget_init" : methodWidgetInit,
+                  "verification" : methodVerif,
+                  "options" : methodOptions ],
+
+    "browser" : regexp("browser", "browser"),
+
+    "maxconn" : $[ "name" : "maxconn",
+                   "widget" : `Frame("maxconn",
+                                `IntField(`id("acl_connections"), _("Maximum Number of HTTP Connections"), 0, 999999, 0)
+                              ),
+                   "widget_init" : maxconnWidgetInit,
+                   "verification" : maxconnVerif,
+                   "options" : maxconnOptions ]
 ];
 
 /**
  * Specify order of acls.
  * Values must corespond with keys in acl_map.
  */
-list<string> acl_order = ["src", "dst", "myip"];
+list<string> acl_order = ["src",
+                          "dst",
+                          "myip",
+                          "srcdomain",
+                          "dstdomain",
+                          "srcdom_regex",
+                          "dstdom_regex",
+                          "time",
+                          "url_regex",
+                          "urlpath_regex",
+                          "port",
+                          "myport",
+                          "proto",
+                          "method",
+                          "browser",
+                          "maxconn"];
 
 
 
@@ -141,14 +252,18 @@ global void Replace(any widget_id, string id_acl_type)
  */
 global boolean Verify(string id_acl_type)
 {
-    boolean() func = (boolean())(acl_map[id_acl_type]:$[])["verification_func"]:nil;
+    boolean() func = (boolean())(acl_map[id_acl_type]:$[])["verification"]:nil;
     return (boolean)func();
 }
 
 
-global list<string> Store(string id_acl_type)
+/**
+ * Returns values from widget as list of options in correct form to store
+ * them into Squid module.
+ */
+global list<string> GetOptions(string id_acl_type)
 {
-    list<string>() func = (list<string>())(acl_map[id_acl_type]:$[])["store_func"]:nil;
+    list<string>() func = (list<string>())(acl_map[id_acl_type]:$[])["options"]:nil;
     return func();
 }
 }
