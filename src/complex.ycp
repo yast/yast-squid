@@ -216,12 +216,16 @@ void InitACLGroupsTable()
 {
     list items = [];
     integer i = 0;
+    list<string> sup_acls = SquidACL::SupportedACLs();
 
     foreach(map<string,any> value, Squid::GetACLs(),
         {
-            items = add(items, `item(`id(i), value["name"]:"", value["type"]:"",
-                                     mergestring(value["options"]:[], " ")));
-            i = i+1;
+            // test, if know how to handle this ACL
+            if (contains(sup_acls, value["type"]:"")){
+                items = add(items, `item(`id(i), value["name"]:"", value["type"]:"",
+                                         mergestring(value["options"]:[], " ")));
+                i = i+1;
+            }
         });
 
     UI::ChangeWidget(`id("acl"), `Items, items);
@@ -249,9 +253,13 @@ void InitHttpAccessTable()
     if (size(items) > 0){
         UI::ChangeWidget(`id(`edit_http_access), `Enabled, true);
         UI::ChangeWidget(`id(`del_http_access), `Enabled, true);
+        UI::ChangeWidget(`id(`up_http_access), `Enabled, true);
+        UI::ChangeWidget(`id(`down_http_access), `Enabled, true);
     }else{
         UI::ChangeWidget(`id(`edit_http_access), `Enabled, false);
         UI::ChangeWidget(`id(`del_http_access), `Enabled, false);
+        UI::ChangeWidget(`id(`up_http_access), `Enabled, false);
+        UI::ChangeWidget(`id(`down_http_access), `Enabled, false);
     }
 }
 
@@ -308,18 +316,15 @@ void InitAddEditACLDialog(integer id_item)
 boolean StoreDataFromAddEditHttpPortDialog(integer id_item)
 {
     boolean ok = true;
-    map <string, any> data = $[
-        "host" : UI::QueryWidget(`id("host"), `Value),
-        "port" : UI::QueryWidget(`id("port"), `Value),
-        "transparent" : UI::QueryWidget(`id("transparent"), `Value)
-    ];
-    y2debug("complex::StoreDataFromAddEditHttpPortDialog() - data: %1",data);
+    string host = (string)UI::QueryWidget(`id("host"), `Value);
+    string port = (string)UI::QueryWidget(`id("port"), `Value);
+    boolean transparent = (boolean)UI::QueryWidget(`id("transparent"), `Value);
 
-    if (size(data["port"]:"") > 0){
+    if (size(port) > 0){
         if (id_item == nil){
-            Squid::AddHttpPort(data);
+            Squid::AddHttpPort(host, port, transparent);
         }else{
-            Squid::ModifyHttpPort(id_item, data);
+            Squid::ModifyHttpPort(id_item, host, port, transparent);
         }
     }else{
         Report::Error(_("Port number must not be empty."));
@@ -341,20 +346,17 @@ integer DelFromHttpPortsTable(integer id_item)
 boolean StoreDataFromAddEditRefreshPatternDialog(integer id_item)
 {
     boolean ok = true;
-    map <string,any> data = $[
-        "regexp" : UI::QueryWidget(`id("regexp"), `Value),
-        "min" : tostring(UI::QueryWidget(`id("min"), `Value)),
-        "percent" : tostring(UI::QueryWidget(`id("percent"), `Value)),
-        "max" : tostring(UI::QueryWidget(`id("max"), `Value)),
-        "case_sensitive" : !(boolean)UI::QueryWidget(`id("regexp_case_insensitive"), `Value)
-    ];
-    y2debug("complex::StoreDataFromAddEditRefreshPatternDialog() - data: %1", data);
+    string regexp = (string)UI::QueryWidget(`id("regexp"), `Value);
+    string min = tostring(UI::QueryWidget(`id("min"), `Value));
+    string percent = tostring(UI::QueryWidget(`id("percent"), `Value));
+    string max = tostring(UI::QueryWidget(`id("max"), `Value));
+    boolean case_sensitive = !(boolean)UI::QueryWidget(`id("regexp_case_insensitive"), `Value);
 
-    if (size(data["regexp"]:"") > 0){
+    if (size(regexp) > 0){
         if (id_item == nil){
-            Squid::AddRefreshPattern(data);
+            Squid::AddRefreshPattern(regexp, min, percent, max, case_sensitive);
         }else{
-            Squid::ModifyRefreshPattern(id_item, data);
+            Squid::ModifyRefreshPattern(id_item, regexp, min, percent, max, case_sensitive);
         }
     }else{
         Report::Error(_("Regular expression must not be empty."));
@@ -458,9 +460,9 @@ boolean StoreDataFromAddEditHttpAccessDialog(integer id_item)
 
     if (size(acls) > 0){
         if (id_item == nil){
-            Squid::AddHttpAccess($["allow" : allow, "acl" : acls]);
+            Squid::AddHttpAccess(allow, acls);
         }else{
-            Squid::ModifyHttpAccess(id_item, $["allow" : allow, "acl" : acls]);
+            Squid::ModifyHttpAccess(id_item, allow, acls);
         }
    }else{
        ok = false;
@@ -502,23 +504,18 @@ integer MoveDownHttpAccess(integer id_item)
 boolean StoreDataFromAddEditACLDialog(integer id_item)
 {
     boolean ok = true;
-    map<string, any> data = $[];
-
     string type = (string)UI::QueryWidget(`id("type"), `Value);
     string name = (string)UI::QueryWidget(`id("name"), `Value);
+    list<string> options = [];
     boolean verification = SquidACL::Verify(type);
 
     if (verification && size(name) > 0){
-        data["name"] = name;
-        data["type"] = type;
-        data["options"] = SquidACL::GetOptions(type);
-
-        y2debug("complex::StoreDataFromAddEditACLDialog() - data: %1", data);
+        options = SquidACL::GetOptions(type);
 
         if (id_item == nil){
-            Squid::AddACL(data);
+            Squid::AddACL(name, type, options);
         }else{
-            Squid::ModifyACL(id_item, data);
+            Squid::ModifyACL(id_item, name, type, options);
         }
     }else if(verification){ // -> size(name) <= 0
         ok = false;

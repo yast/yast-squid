@@ -11,6 +11,7 @@ ynclude_DATA =			\
 	helps.ycp		\
 	wizards.ycp		\
 	dialogs.ycp		\
+    popup_dialogs.ycp \
 	complex.ycp \
 	SquidACL_local_functions.ycp
 

@@ -459,5 +459,79 @@ list<string> maxconnOptions()
     return [tostring(UI::QueryWidget(`id("acl_connections"), `Value))];
 }
 /***************  MAXCONN END  ********************/
+
+
+/***************  HEADER  *************************/
+void headerWidgetInit(integer id_item)
+{
+    if (id_item != nil){
+        map<string, any> acl = Squid::GetACL(id_item);
+        UI::ChangeWidget(`id("acl_header_name"), `Value, (acl["options"]:[])[0]:"");
+        if ((acl["options"]:[])[1]:"" == "-i"){
+            UI::ChangeWidget(`id("acl_regexp"), `Value, (acl["options"]:[])[2]:"");
+            UI::ChangeWidget(`id("acl_regexp_case_insensitive"), `Value, true);
+        }else{
+            UI::ChangeWidget(`id("acl_regexp"), `Value, (acl["options"]:[])[1]:"");
+        }
+    }
+}
+boolean headerVerif()
+{
+    boolean ok = true;
+    string header_name = (string)UI::QueryWidget(`id("acl_header_name"), `Value);
+    string regexp = (string)UI::QueryWidget(`id("acl_regexp"), `Value);
+
+    if (size(header_name) == 0 && size(regexp) == 0){
+        ok = false;
+        Report::Error( _("Header Name and Regular Expression must not be empty."));
+    }
+    return ok;
+}
+list<string> headerOptions()
+{
+    string header_name = (string)UI::QueryWidget(`id("acl_header_name"), `Value);
+    string regexp = (string)UI::QueryWidget(`id("acl_regexp"), `Value);
+    boolean ci = (boolean)UI::QueryWidget(`id("acl_regexp_case_insensitive"), `Value);
+    list <string> ret = [header_name];
+
+    if (ci == true)
+        ret = add(ret, "-i");
+    ret = add(ret, regexp);
+
+    return ret;
+}
+/***************  HEADER END  *********************/
+
+
+/***************  ARP  ****************************/
+void arpWidgetInit(integer id_item)
+{
+    UI::ChangeWidget(`id("acl_mac"), `ValidChars, "1234567890ABCDEFabcdef:");
+
+    if (id_item != nil){
+        map<string,any> acl = Squid::GetACL(id_item);
+        UI::ChangeWidget(`id("acl_mac"), `Value, (acl["options"]:[])[0]:"");
+    }
+}
+boolean arpVerif()
+{
+    boolean ok = true;
+    string mac = (string)UI::QueryWidget(`id("acl_mac"), `Value);
+    if (size(mac) == 0){
+        ok = false;
+        Report::Error( _("MAC Address must not be empty."));
+    }else if (!regexpmatch(mac, "^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$")){
+        ok = false;
+        Report::Error( _("Incorrect formar of MAC Address."));
+    }
+    return ok;
+}
+list<string> arpOptions()
+{
+    return [(string)UI::QueryWidget(`id("acl_mac"), `Value)];
+}
+/***************  ARP END  ************************/
+
+
 }
 /* vim: set sw=4 ts=4 et ft=ycp : */

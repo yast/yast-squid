@@ -38,6 +38,7 @@ import "SquidACL";
 //import "Squid";
 
 include "squid/helps.ycp";
+include "squid/popup_dialogs.ycp";
 
 
 /**
@@ -57,55 +58,6 @@ term timeUnitWidget(string id)
                 [`item("seconds"), `item("minutes"), `item("hours"), `item("days")]);
 }
 
-
-/**
- * returns true if something added/edited otherwise false
- */
-boolean AddEditHttpPortDialog(integer id_item)
-{
-    any ui = nil;
-    boolean ret = false;
-    string label = (id_item == nil ? _("Add New HTTP Port")
-                                      : _("Edit Current HTTP Port"));
-    term contents =
-        `VBox(
-            `Left(`Label(label)),
-            `TextEntry(`id("host"), _("Host"), ""),
-            `TextEntry(`id("port"), _("Port"), ""),
-            `Frame(_("Options"),
-                `VBox(
-                    `CheckBox(`id("transparent"), "Transparent", false)
-                )
-            ),
-            `VSpacing(),
-            `HBox(
-                `PushButton(`id(`cancel), Label::CancelButton()),
-                `PushButton(`id(`ok), Label::OKButton())
-            )
-        );
-
-    UI::OpenDialog(`opt(`decorated), contents);
-    UI::ChangeWidget(`id("port"), `ValidChars, "1234567890");
-
-    InitAddEditHttpPortDialog(id_item);
-
-    while (true){
-        ui = UI::UserInput();
-
-        if (ui == `abort || ui == `cancel){
-            ret = false;
-            break;
-        }else if (ui == `ok){
-            if (StoreDataFromAddEditHttpPortDialog(id_item)){
-                ret = true;
-                break;
-            }
-        }
-    }
-
-    UI::CloseDialog();
-    return ret;
-}
 
 
 
@@ -163,62 +115,6 @@ any HttpPortsDialog(){
 }
 
 
-boolean AddEditRefreshPatternDialog(integer id_item)
-{
-    boolean ret = false;
-    any ui = nil;
-    string label = (id_item == nil ? _("Add New Refresh Pattern")
-                                   : _("Edit Current refresh Pattern"));
-    term contents =
-        `VBox(
-            `Left(`Label(label)),
-
-            `HBox(
-                `TextEntry(`id("regexp"), _("Regular Expression"), ""),
-                `CheckBox(`id("regexp_case_insensitive"), _("Case Insensitive"))
-            ),
-            `HBox(
-                `Bottom(`IntField(`id("min"), _("Min"), 0, 99999, 0)),
-                `Bottom(`Label(_("minutes")))
-            ),
-            `HBox(
-                `Bottom(`IntField(`id("percent"), _("Percent"), 0, 99999, 0)),
-                `Bottom(`Label("%"))
-            ),
-            `HBox(
-                `Bottom(`IntField(`id("max"), _("Max"), 0, 99999, 0)),
-                `Bottom(`Label(_("minutes")))
-            ),
-
-            `VSpacing(),
-
-            `HBox(
-                `PushButton(`id(`cancel), Label::CancelButton()),
-                `PushButton(`id(`ok), Label::OKButton())
-            )
-        );
-
-    UI::OpenDialog(`opt(`decorated), contents);
-
-    InitAddEditRefreshPatternDialog(id_item);
-
-    while (true){
-        ui = UI::UserInput();
-
-        if (ui == `cancel || ui == `abort){
-            ret = false;
-            break;
-        }else if (ui == `ok){
-            if (StoreDataFromAddEditRefreshPatternDialog(id_item)){
-                ret = true;
-                break;
-            }
-        }
-    }
-
-    UI::CloseDialog();
-    return ret;
-}
 
 any CacheDialog(){
     any ret = nil;
@@ -288,52 +184,6 @@ any CacheDialog(){
     return ret;
 }
 
-boolean CacheDirAdvancedSettingDialog(){
-    boolean ret = false;
-    any ui = nil;
-    term contents =
-        `VBox(
-            `Left(`Label( _("Cache Directory Advanced Setting"))),
-
-            //`ComboBox(`id("type"), _("Type"), []),
-            `HBox(
-                `IntField(`id("mbytes"), _("Size"), 1, 99999, 10),
-                `Bottom(`Label(_("MB")))
-            ),
-            `IntField(`id("l1dirs"), _("Level 1 Directories"), 1, 99999, 20),
-            `IntField(`id("l2dirs"), _("Level 2 Directories"), 1, 99999, 20),
-
-            `VSpacing(),
-
-            `HBox(
-                `PushButton(`id(`cancel), Label::CancelButton()),
-                `PushButton(`id(`ok), Label::OKButton())
-            )
-        );
-
-    UI::OpenDialog(contents);
-
-
-    InitCacheDirAdvancedSettingDialog();
-
-    while (true){
-        ui = UI::UserInput();
-
-        if (ui == `cancel || ui == `abort){
-            ret = false;
-            break;
-        }else if (ui == `ok){
-            if (StoreDataFromCacheDirAdvancedSettingDialog()){
-                ret = true;
-                break;
-            }
-        }
-    }
-
-
-    UI::CloseDialog();
-    return ret;
-}
 
 any Cache2Dialog(){
     any ret = nil;
@@ -410,162 +260,6 @@ any Cache2Dialog(){
 
 
 
-void addItemToAddEditHttpAccessDialog(boolean not, string item)
-{
-    list items = [];
-
-    integer i = 0;
-    foreach (term value, (list<term>)UI::QueryWidget(`id("acls"), `Items),
-        {
-            items = add(items, `item(`id(i), value[1]:"", value[2]:""));
-            i = i+1;
-        });
-    items = add(items, `item(`id(i), (not == true ? "not" : ""), item));
-    UI::ChangeWidget(`id("acls"), `Items, items);
-}
-integer delItemFromAddEditHttpAccessDialog(integer id_item)
-{
-    list items = [];
-
-    integer i = 0;
-    foreach (term value, (list<term>)UI::QueryWidget(`id("acls"), `Items),
-        {
-            if (value[0]:nil != `id(id_item)){
-                items = add(items, `item(`id(i), value[1]:"", value[2]:""));
-                i = i+1;
-            }
-        });
-    UI::ChangeWidget(`id("acls"), `Items, items);
-    if (id_item >= size(items)){
-        id_item = id_item - 1;
-    }
-    return id_item;
-}
-boolean AddEditHttpAccessDialog(integer id_item)
-{
-    boolean ret = false;
-    any ui = nil;
-    string acl = "";
-    boolean not = false;
-    any tmp = nil;
-    integer id_acl = 0;
-    term contents =
-        `VBox(
-            `ComboBox(`id("allow_deny"), _("Allow/Deny"),
-                [`item(`id("allow"), "allow"), `item(`id("deny"), "deny")]),
-
-            //`VSpacing(),
-
-            `MinSize(25, 7,
-                `Table(`id("acls"), `header("   ", _("ACL")), [])
-            ),
-            `Left(`PushButton(`id(`del), Label::DeleteButton())),
-
-            //`VSpacing(),
-
-            `Frame( _("Add ACL"),
-                `HBox(
-                    `CheckBox(`id("acl_not"), _("not")),
-                    `ComboBox(`id("acl"), "ACL", []),
-                    `PushButton(`id(`add), Label::AddButton())
-                )
-            ),
-
-            `HBox(
-                `PushButton(`id(`cancel), Label::CancelButton()),
-                `PushButton(`id(`ok), Label::OKButton())
-            )
-        );
-
-    UI::OpenDialog(contents);
-
-    InitAddEditHttpAccessDialog(id_item);
-
-    while (true){
-        ui = UI::UserInput();
-
-        if (ui == `cancel || ui == `abort){
-            ret = false;
-            break;
-        }else if (ui == `ok){
-            if (StoreDataFromAddEditHttpAccessDialog(id_item)){
-                ret = true;
-                break;
-            }
-        }else if (ui == `add){
-            acl = (string)UI::QueryWidget(`id("acl"), `Value);
-            not = (boolean)UI::QueryWidget(`id("acl_not"), `Value);
-            if (size(acl) > 0){
-                addItemToAddEditHttpAccessDialog(not, acl);
-                InitAddEditHttpAccessDialog(nil);
-            }
-        }else if (ui == `del){
-            id_acl = delItemFromAddEditHttpAccessDialog((integer)UI::QueryWidget(`id("acls"), `CurrentItem));
-            InitAddEditHttpAccessDialog(nil);
-            UI::ChangeWidget(`id("acls"), `CurrentItem, id_acl);
-        }
-    }
-
-
-    UI::CloseDialog();
-
-    return ret;
-}
-
-
-boolean AddEditACLDialog(integer id_item)
-{
-    boolean ret = false;
-    any ui = nil;
-    string orig_type = "";
-    string type = "";
-    term contents =
-        `VBox(
-            `TextEntry(`id("name"), _("Name"), ""),
-            `ComboBox(`id("type"), `opt(`notify), _("Type"), SquidACL::GetTypesToComboBox()),
-            `ReplacePoint(`id(`replace_point), `Empty()),
-
-            `HBox(
-                `PushButton(`id(`cancel), Label::CancelButton()),
-                `PushButton(`id(`ok), Label::OKButton())
-            )
-        );
-
-    UI::OpenDialog(contents);
-
-    InitAddEditACLDialog(id_item);
-
-    orig_type = (string)UI::QueryWidget(`id("type"), `Value);
-    SquidACL::Replace(`replace_point, orig_type);
-    SquidACL::InitWidget(orig_type, id_item);
-
-    while (true){
-        ui = UI::UserInput();
-
-        if (ui == `cancel || ui == `abort){
-            ret = false;
-            break;
-        }else if (ui == `ok){
-            if (StoreDataFromAddEditACLDialog(id_item)){
-                ret = true;
-                break;
-            }
-        }else if (ui == "type"){
-            type = (string)UI::QueryWidget(`id("type"), `Value);
-            SquidACL::Replace(`replace_point, type);
-            if (type == orig_type){
-                SquidACL::InitWidget(type, id_item);
-            }else{
-                SquidACL::InitWidget(type, nil);
-            }
-        }
-    }
-
-
-    UI::CloseDialog();
-
-    return ret;
-}
 any AccessControlDialog(){
     any ret = nil;
     integer id_item = nil;

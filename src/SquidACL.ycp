@@ -34,6 +34,30 @@ textdomain "squid";
 include "squid/SquidACL_local_functions.ycp";
 
 
+list<string> getKeys(map<string, any> m)
+{
+    list<string> ret = [];
+    foreach(string key, any value, m,
+        {
+            ret = add(ret, key);
+        });
+    return ret;
+}
+
+/***
+ * Unsupported ACLS:
+ * * * * * * * * * * * *
+ * ident, ident_regex,
+ * src_as, dst_as,
+ * proxy_auth, proxy_auth_regex,
+ * snmp_community,
+ * max_user_ip,
+ * external,
+ * urllogin, urlgroup
+ * user_cert, ca_cert
+ * ext_user
+ */
+
 /**
  * map of acl definition. format:
  *  $[
@@ -180,31 +204,63 @@ map<string,map> acl_map = $[
                               ),
                    "widget_init" : maxconnWidgetInit,
                    "verification" : maxconnVerif,
-                   "options" : maxconnOptions ]
+                   "options" : maxconnOptions ],
+
+    "referer_regex" : regexp("referer_regex", "referer_regex"),
+
+    "req_header" : $[ "name" : "req_header",
+                      "widget" : `Frame( "req_header",
+                                    `VBox(
+                                        `TextEntry(`id("acl_header_name"), _("Header Name"), ""),
+                                        `TextEntry(`id("acl_regexp"), _("Regular Expression(s)"), ""),
+                                        `CheckBox(`id("acl_regexp_case_insensitive"), _("Case Insensitive"), false)
+                                    )
+                                 ),
+                      "widget_init" : headerWidgetInit,
+                      "verification" : headerVerif,
+                      "options" : headerOptions ],
+
+    "rep_header" : $[ "name" : "rep_header",
+                      "widget" : `Frame( "rep_header",
+                                    `VBox(
+                                        `TextEntry(`id("acl_header_name"), _("Header Name"), ""),
+                                        `TextEntry(`id("acl_regexp"), _("Regular Expression(s)"), ""),
+                                        `CheckBox(`id("acl_regexp_case_insensitive"), _("Case Insensitive"), false)
+                                    )
+                                 ),
+                      "widget_init" : headerWidgetInit,
+                      "verification" : headerVerif,
+                      "options" : headerOptions ],
+
+    "req_mime_type" : regexp("req_mime_type", "req_mime_type"),
+    "rep_mime_type" : regexp("rep_mime_type", "rep_mime_type"),
+
+    "arp" : $[ "name" : "arp",
+               "widget" : `Frame( "arp",
+                            `TextEntry(`id("acl_mac"), _("MAC Address"), "")
+                          ),
+               "widget_init" : arpWidgetInit,
+               "verification" : arpVerif,
+               "options" : arpOptions ]
 ];
 
 /**
- * Specify order of acls.
+ * List of available acls.
+ * Also specify order of acls.
  * Values must corespond with keys in acl_map.
  */
-list<string> acl_order = ["src",
-                          "dst",
-                          "myip",
-                          "srcdomain",
-                          "dstdomain",
-                          "srcdom_regex",
-                          "dstdom_regex",
-                          "time",
-                          "url_regex",
-                          "urlpath_regex",
-                          "port",
-                          "myport",
-                          "proto",
-                          "method",
-                          "browser",
-                          "maxconn"];
+list<string> acl = sort(getKeys(acl_map));
 
 
+
+/**
+ * Returns list of supported ACLs.
+ * It's necessary to have saved unsupported ACLs but do not handle with them.
+ */
+global list<string> SupportedACLs()
+{
+    return acl;
+}
 
 /**
  * Returns list of terms in form:
@@ -216,7 +272,7 @@ global list<term> GetTypesToComboBox()
 {
     list<term> items = [];
 
-    foreach(string value, acl_order,
+    foreach(string value, acl,
         {
             items = add(items, `item(`id(value), (acl_map[value]:$[])["name"]:""));
         });

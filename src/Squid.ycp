@@ -62,7 +62,7 @@ map <string,any> settings = $[];
 /**
  * List of http_ports. Format:
  * [ $["host" : "hostname",
- *     "port" : 3128,
+ *     "port" : "3128",
  *     "transparent" : true],
  *     ...
  * ]
@@ -92,9 +92,9 @@ list <map <string,any> > http_accesses = [];
  * List of refresh patterns. Format:
  * [ $["regexp" : "^ftp:",
  *     "case_sensitive" : true,
- *     "min" : 12,
- *     "max" : 12,
- *     "percent" : 12],
+ *     "min" : "12",
+ *     "max" : "12",
+ *     "percent" : "12"],
  *     ...
  * ]
  */
@@ -176,13 +176,17 @@ global map<string,any> GetACL(integer id_item)
 {
     return acls[id_item]:$[];
 }
-global void AddACL(map<string, any> data)
+global void AddACL(string name, string type, list<string> options)
 {
-    acls = add(acls, data);
+    acls = add(acls, $[ "name" : name,
+                        "type" : type,
+                        "options" : options]);
 }
-global void ModifyACL(integer id_item, map<string,any> value)
+global void ModifyACL(integer id_item, string name, string type, list<string> options)
 {
-    acls[id_item] = value;
+    acls[id_item] = $[ "name" : name,
+                       "type" : type,
+                       "options" : options];
 }
 global void DelACL(integer id_item)
 {
@@ -199,13 +203,15 @@ global map<string,any> GetHttpAccess(integer id_item)
 {
     return http_accesses[id_item]:$[];
 }
-global void AddHttpAccess(map<string, any> value)
+global void AddHttpAccess(boolean allow, list<string> acl)
 {
-    http_accesses = add(http_accesses, value);
+    http_accesses = add(http_accesses, $["allow" : allow,
+                                         "acl" : acl]);
 }
-global void ModifyHttpAccess(integer id_item, map<string, any> value)
+global void ModifyHttpAccess(integer id_item, boolean allow, list<string> acl)
 {
-    http_accesses[id_item] = value;
+    http_accesses[id_item] = $["allow" : allow,
+                               "acl" : acl];
 }
 global void DelHttpAccess(integer id_item)
 {
@@ -243,13 +249,21 @@ global map<string,any> GetRefreshPattern(integer id_item)
 {
     return refresh_patterns[id_item]:$[];
 }
-global void AddRefreshPattern(map<string,any> data)
+global void AddRefreshPattern(string regexp, string min, string percent, string max, boolean case_sensitive)
 {
-    refresh_patterns = add(refresh_patterns, data);
+    refresh_patterns = add(refresh_patterns, $[ "regexp" : regexp,
+                                                "min" : min,
+                                                "percent" : percent,
+                                                "max" : max,
+                                                "case_sensitive" : case_sensitive]);
 }
-global void ModifyRefreshPattern(integer id_item, map<string,any> data)
+global void ModifyRefreshPattern(integer id_item, string regexp, string min, string percent, string max, boolean case_sensitive)
 {
-    refresh_patterns[id_item] = data;
+    refresh_patterns[id_item] = $[ "regexp" : regexp,
+                                   "min" : min,
+                                   "percent" : percent,
+                                   "max" : max,
+                                   "case_sensitive" : case_sensitive];
 }
 global void DelRefreshPattern(integer id_item)
 {
@@ -272,13 +286,17 @@ global map<string, any > GetHttpPort(integer id_item)
 {
     return http_ports[id_item]:$[];
 }
-global void AddHttpPort(map<string,any> data)
+global void AddHttpPort(string host, string port, boolean transparent)
 {
-    http_ports = add(http_ports, data);
+    http_ports = add(http_ports, $["host" : host,
+                                   "port" : port,
+                                   "transparent" : transparent]);
 }
-global void ModifyHttpPort(integer id_item, map<string,any> data)
+global void ModifyHttpPort(integer id_item, string host, string port, boolean transparent)
 {
-    http_ports[id_item] = data;
+    http_ports[id_item] = $["host" : host,
+                            "port" : port,
+                            "transparent" : transparent];
 }
 global void DelHttpPort(integer id_item)
 {
@@ -423,7 +441,7 @@ boolean readRefreshPatterns()
     return ok;
 }
 
-/** TODO: Regular expressions!
+/**
  * Read setting of parameter acl.
  *      acl aclname acltype string1 string2 ...
  *
@@ -460,12 +478,24 @@ boolean readACLs()
             tmp_acl["type"] = tmp[1]:"";
             tmp_acl["options"] = remove(remove(tmp,0),0);
 
+            // Special settings:
             // concat list of regular expressions into one option
             if (contains(regexps, tmp_acl["type"]:"")){
                 if ((tmp_acl["options"]:[])[0]:"" == "-i"){
                     tmp_acl["options"] = ["-i", mergestring((list<string>)remove(tmp_acl["options"]:[], 0), " ")];
                 }else{
                     tmp_acl["options"] = [mergestring(tmp_acl["options"]:[], " ")];
+                }
+            }else
+            //format: acl aclname header_name [-i] list of regexps
+            if(tmp_acl["type"]:"" == "req_header" || tmp_acl["type"]:"" == "rep_header"){
+                if ((tmp_acl["options"]:[])[1]:"" == "-i"){
+                    tmp_acl["options"] = [(tmp_acl["options"]:[])[0]:"",
+                                          "-i",
+                                          mergestring((list<string>)remove(remove(tmp_acl["options"]:[], 0), 0), " ")];
+                }else{
+                    tmp_acl["options"] = [(tmp_acl["options"]:[])[0]:"",
+                                          mergestring((list<string>)remove(tmp_acl["options"]:[], 0), " ")];
                 }
             }
 
