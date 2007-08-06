@@ -307,7 +307,7 @@ boolean AddEditACLDialog(integer id_item)
                                    : _("Edit ACL Group"));
     term contents =
     `HBox(
-        `HWeight(50, `RichText(`id("help_text"), "Bla bla bla bla bla bla bla bla bla bla bla bla bla bla etc.")),
+        `HWeight(50, `RichText(`id("help_text"), "")),
         `HWeight(70, `VBox(
             `Label(label),
             `VSpacing(0.5),
@@ -331,7 +331,7 @@ boolean AddEditACLDialog(integer id_item)
 
     orig_type = (string)UI::QueryWidget(`id("type"), `Value);
     SquidACL::Replace(`replace_point, orig_type);
-    SquidACL::InitWidget(orig_type, id_item);
+    SquidACL::InitWidget(orig_type, id_item, "help_text");
 
     while (true){
         ui = UI::UserInput();
@@ -348,9 +348,9 @@ boolean AddEditACLDialog(integer id_item)
             type = (string)UI::QueryWidget(`id("type"), `Value);
             SquidACL::Replace(`replace_point, type);
             if (type == orig_type){
-                SquidACL::InitWidget(type, id_item);
+                SquidACL::InitWidget(type, id_item, "help_text");
             }else{
-                SquidACL::InitWidget(type, nil);
+                SquidACL::InitWidget(type, nil, "help_text");
             }
         }
     }

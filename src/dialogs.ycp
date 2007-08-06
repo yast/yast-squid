@@ -377,12 +377,12 @@ any LoggingAndTimeoutsDialog()
             `Left(`Frame(_("Timeouts"),
                 `VBox(
                     `HBox(
-                       `HSquash(`IntField(`id("connect_timeout"), _("Connection timeout"), 1, 99999, 10)),
-                       timeUnitWidget("connection_timeout_units")
+                       `IntField(`id("connect_timeout"), _("Connection timeout"), 0, 99999, 0),
+                       timeUnitWidget("connect_timeout_units")
                     ),
                     `HBox(
-                       `HSquash(`IntField(`id("client_lifetime"), _("Client Lifetime"), 1, 99999, 10)),
-                       timeUnitWidget("clien_lifetime_units")
+                       `IntField(`id("client_lifetime"), _("Client Lifetime"), 0, 99999, 0),
+                       timeUnitWidget("client_lifetime_units")
                     )
                 )
             ))
@@ -391,13 +391,18 @@ any LoggingAndTimeoutsDialog()
     Wizard::SetContentsButtons("Squid - Logging + Timeouts Setting", dialog_contents, "help",
         Label::BackButton(), Label::NextButton());
 
+    InitLoggingFrame();
+    InitTimeoutsFrame();
+
     while (true){
         ret = UI::UserInput();
 
         y2debug("BaseDialog(): ret == %1",ret);
 
-        if (ret == `next || ret == `back) break;
-        else if (ret == `abort || ret == `cancel){
+        if (ret == `next || ret == `back){
+            if(StoreDataFromLoggingFrame())
+                break;
+        }else if (ret == `abort || ret == `cancel){
             //if (Popup::ReallyAbort(true)) break;
             break;
             continue;

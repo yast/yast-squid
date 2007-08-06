@@ -197,8 +197,6 @@ void InitCache2Dialog()
         "memory_replacement_policy" : (set["memory_replacement_policy"]:[])[0]:"",
         "cache_dir" : (set["cache_dir"]:[])[1]:""
     ]);
-
-
 }
 void InitCacheDirAdvancedSettingDialog()
 {
@@ -307,6 +305,31 @@ void InitAddEditACLDialog(integer id_item)
         UI::ChangeWidget(`id("name"), `Value, acl["name"]:"");
         UI::ChangeWidget(`id("type"), `Value, acl["type"]:"");
     }
+}
+
+
+void InitLoggingFrame()
+{
+    map<string, list> set = (map<string, list>)Squid::GetSettings();
+    simpleInit($[
+        "access_log" : (set["access_log"]:[])[0]:"",
+        "cache_log" : (set["cache_log"]:[])[0]:"",
+        "cache_store_log" : (set["cache_store_log"]:[])[0]:"",
+        "cache_swap_log" : (set["cache_swap_log"]:[])[0]:"",
+
+        "emulate_httpd_log" : ((set["emulate_httpd_log"]:[])[0]:"" == "on" ? true : false)
+    ]);
+}
+
+void InitTimeoutsFrame()
+{
+    map<string, list> set = (map<string, list>)Squid::GetSettings();
+    simpleInit($[
+        "connect_timeout" : tointeger((set["connect_timeout"]:[])[0]:""),
+        "connect_timeout_units" : (set["connect_timeout"]:[])[1]:"",
+        "client_lifetime" : tointeger((set["client_lifetime"]:[])[0]:""),
+        "client_lifetime_units" : (set["client_lifetime"]:[])[1]:""
+    ]);
 }
 /*********************   INITS END  ****************/
 
@@ -515,7 +538,26 @@ boolean StoreDataFromAddEditACLDialog(integer id_item)
         if (id_item == nil){
             Squid::AddACL(name, type, options);
         }else{
-            Squid::ModifyACL(id_item, name, type, options);
+            string old_name = (Squid::GetACL(id_item))["name"]:"";
+            if (old_name != name && Squid::NumACLs(id_item) == 1){
+                list<string> affected_options = Squid::ACLIsUsedBy(id_item);
+                if (size(affected_options) > 0 && contains(affected_options, "http_access")){
+                    Report::Error( _("You can not change name of this ACL Group, because \nit's used in Access Control table."));
+                    ok = false;
+                }else if (size(affected_options) > 0){
+                    if (!Report::AnyQuestion(Label::WarningMsg(),
+                                             _("If you change name of this ACL Group these options might be affected: \n")
+                                             + "    " + mergestring(affected_options, ",\n    ") + ".\n",
+                                             _("Change name anyway"),
+                                             _("Do not change name"),
+                                             `focus_no)){
+                        ok = false;
+                    }
+                }
+            }
+            if (ok){
+                Squid::ModifyACL(id_item, name, type, options);
+            }
         }
     }else if(verification){ // -> size(name) <= 0
         ok = false;
@@ -526,13 +568,57 @@ boolean StoreDataFromAddEditACLDialog(integer id_item)
 
     return ok;
 }
+
+/**
+ * Delete ACL with id id_item.
+ * If ACL has only one occurence (one definition line) in config file and
+ * ACL is used by any option (http_access, no_cache ...) than user is asked
+ * if he really want to delete the ACL. If option 'http_access' uses this ACL
+ * than it's declined to delete the ACL.
+ */
 integer DelFromACLGroupsTable(integer id_item)
 {
-    Squid::DelACL(id_item);
-    if (id_item >= size(Squid::GetACLs())){
-        id_item = id_item - 1;
+    boolean ok = true;
+
+    if (Squid::NumACLs(id_item) == 1){
+        list<string> affected_options = Squid::ACLIsUsedBy(id_item);
+        if (size(affected_options) > 0){
+            ok = false;
+
+            if (contains(affected_options, "http_access")){
+                //Report::Error( _("This ACL Group can't be deleted.\nIt's used in Access Control table."));
+                Report::Error( _("You can not delete this ACL Group, because \nit's used in Access Control table."));
+            }else{
+                string message = _("If you delete this ACL Group these options might be affected: \n")
+                                 + "    " + mergestring(affected_options, ",\n    ") + ".\n";// +
+                                 //_("Are you sure you want to delete this ACL Group?");
+                if (Report::AnyQuestion(Label::WarningMsg(),
+                                        message,
+                                        _("Delete anyway"), //Label::YesButton(),
+                                        _("Do not delete"), //Label::NoButton(),
+                                        `focus_no)){
+                    ok = true;
+                }
+            }
+        }
     }
+
+    if (ok){
+        Squid::DelACL(id_item);
+        if (id_item >= size(Squid::GetACLs())){
+            id_item = id_item - 1;
+        }
+    }
+
     return id_item;
+}
+
+
+
+
+boolean StoreDataFromLoggingFrame()
+{
+    return true;
 }
 /********************* STORING + DELETING END ********************/
 

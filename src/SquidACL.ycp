@@ -19,7 +19,7 @@
  */
 
 /**
- * File:	include/squid/acl.ycp
+ * File:	modules/SquidACL.ycp
  * Package:	Configuration of squid
  * Summary:	Definition and handling of ACL groups in Squid configuration
  * Authors:	Daniel Fiser <dfiser@suse.cz>
@@ -86,7 +86,8 @@ map<string,map> acl_map = $[
                           ),
                "widget_init" : srcWidgetInit,
                "verification" : srcVerif,
-               "options" : srcOptions ],
+               "options" : srcOptions,
+               "help" : "This is very usefull help text." ],
 
     "dst" : $[ "name" : "dst",
                "widget" : `Frame( _("dst"),
@@ -286,8 +287,11 @@ global list<term> GetTypesToComboBox()
  * If id_item is not nil, function initialize widgets by default values
  * from module Squid.
  */
-global void InitWidget(string id_acl_type, integer id_item)
+global void InitWidget(string id_acl_type, integer id_item, any help_widget_id)
 {
+    if (help_widget_id != nil){
+        UI::ChangeWidget(`id(help_widget_id), `Value, (acl_map[id_acl_type]:$[])["help"]:"");
+    }
     void(integer) func = (void(integer))(acl_map[id_acl_type]:$[])["widget_init"]:nil;
     func(id_item);
 }

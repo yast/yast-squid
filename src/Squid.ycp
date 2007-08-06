@@ -132,6 +132,20 @@ map <string, list> parameters = $[
 ];
 
 
+/**
+ * Same as splitstring(), but returns only non-empty strings.
+ */
+list<string> split(string str, string delim)
+{
+    return filter(string value, splitstring(str, delim),
+                {
+                    //y2debug("Squid::split value: %1, size(value): %2",value, size(value));
+                    return (size(value)>0);
+                });
+}
+
+
+
 
 global boolean Modified(){
     return modified;
@@ -172,25 +186,135 @@ global list<map<string,any> > GetACLs()
 {
     return acls;
 }
+
 global map<string,any> GetACL(integer id_item)
 {
     return acls[id_item]:$[];
 }
+
 global void AddACL(string name, string type, list<string> options)
 {
     acls = add(acls, $[ "name" : name,
                         "type" : type,
                         "options" : options]);
 }
+
 global void ModifyACL(integer id_item, string name, string type, list<string> options)
 {
-    acls[id_item] = $[ "name" : name,
-                       "type" : type,
-                       "options" : options];
+    if (id_item >= 0 && id_item < size(acls)){
+        acls[id_item] = $[ "name" : name,
+                           "type" : type,
+                           "options" : options];
+    }
 }
+
 global void DelACL(integer id_item)
 {
-    acls = remove(acls, id_item);
+    if (id_item >= 0 && id_item < size(acls)){
+        acls = remove(acls, id_item);
+    }
+}
+
+
+/**
+ * Returns number of occurences of ACL (definition lines) in config file.
+ */
+global integer NumACLs(integer id_item)
+{
+    string acl = (acls[id_item]:$[])["name"]:""; //get name of acl
+    if (size(acl) == 0) return nil; //invalid id_item
+    integer ret = 0;
+
+    foreach (map<string, any> value, acls,
+        {
+            if (value["name"]:"" == acl)
+                ret = ret + 1;
+        });
+
+    y2debug("Squid::NumACLs() - acl: %1, num: %2", acl, ret);
+
+    return ret;
+}
+
+/**
+ * Returns list of options which use this ACL (identified by id_item).
+ * It's necessary to run this function before deleting ACL to know if
+ * any options are not affected.
+ */
+global list<string> ACLIsUsedBy(integer id_item)
+{
+    string acl = (GetACL(id_item))["name"]:"";
+    if (size(acl) == 0) return nil; //invalid id_item
+
+    list<string> params = [];
+    list<string> ret = [];
+
+    // options with format:
+    //      option_name something ACL ACL ACL ...
+    list<string> format1 = [
+        "no_cache", "cache",
+        "broken_vary_encoding",
+        "follow_x_forwarded_for",
+        //"http_access", -> cached in this module !!!
+        "http_reply_access",
+        "icp_access",
+        "htcp_access",
+        "miss_access",
+        "ident_lookup_access",
+        "log_access",
+        "always_direct",
+        "never_direct",
+        "snmp_access",
+        "broken_posts",
+        "deny_info"
+    ];
+    // options with format:
+    //      option_name something something ACL ACL ACL ...
+    list<string> format2 = [
+        "tcp_outgoing_tos",
+        "tcp_outgoing_address",
+        "reply_body_max_size",
+        "header_access",
+        "cache_peer_access",
+        "access_log"
+    ];
+
+    list<string> available_options = SCR::Dir(squid_path);
+
+    foreach (string value, (list<string>)merge(format1, format2),
+        {
+            if (contains(available_options, value)){
+                foreach (string val, (list<string>)SCR::Read( add(squid_path, value)),
+                    {
+                        params = remove(split(val, " \t"), 0); // remove first param
+                        if (contains(format2, value)){ // if it is format 2 remove also second param
+                            if (size(params) > 1){
+                                params = remove(params, 0);
+                            }else{
+                                break;
+                            }
+                        }
+
+                        if (contains(params, acl) || contains(params, "!"+acl)){
+                            ret = add(ret, value);
+                            break;
+                        }
+                    });
+            }
+        });
+
+    //http_access:
+    foreach (map<string, any> value, http_accesses,
+        {
+            if (contains(value["acl"]:[], acl) || contains(value["acl"]:[], "!"+acl)){
+                ret = add(ret, "http_access");
+                break;
+            }
+        });
+
+    y2debug("Squid::ACLIsUsedBy() - acl:%1, ret: %2", acl, ret);
+
+    return ret;
 }
 /******* ACL END *******/
 
@@ -199,29 +323,42 @@ global list<map<string,any> > GetHttpAccesses()
 {
     return http_accesses;
 }
+
 global map<string,any> GetHttpAccess(integer id_item)
 {
     return http_accesses[id_item]:$[];
 }
+
 global void AddHttpAccess(boolean allow, list<string> acl)
 {
     http_accesses = add(http_accesses, $["allow" : allow,
                                          "acl" : acl]);
 }
+
 global void ModifyHttpAccess(integer id_item, boolean allow, list<string> acl)
 {
-    http_accesses[id_item] = $["allow" : allow,
-                               "acl" : acl];
+    if (id_item >= 0 && id_item < size(http_accesses)){
+        http_accesses[id_item] = $["allow" : allow,
+                                   "acl" : acl];
+    }
 }
+
 global void DelHttpAccess(integer id_item)
 {
-    http_accesses = remove(http_accesses, id_item);
+    if (id_item >= 0 && id_item < size(http_accesses)){
+        http_accesses = remove(http_accesses, id_item);
+    }
 }
+
 global void MoveHttpAccess(integer id_from, integer id_to)
 {
-    map<string,any> tmp = http_accesses[id_from]:$[];
-    http_accesses[id_from] = http_accesses[id_to]:$[];
-    http_accesses[id_to] = tmp;
+    if (id_from >= 0 && id_from < size(http_accesses)
+        && id_to >= 0 && id_to < size(http_accesses)){
+
+        map<string,any> tmp = http_accesses[id_from]:$[];
+        http_accesses[id_from] = http_accesses[id_to]:$[];
+        http_accesses[id_to] = tmp;
+    }
 }
 /******* HTTP_ACCESS END ******/
 
@@ -230,14 +367,17 @@ global map<string,any> GetSettings()
 {
     return settings;
 }
+
 global list<string> GetSetting(string name)
 {
     return settings[name]:[];
 }
+
 global void SetSetting(string name, list value)
 {
     settings[name] = value;
 }
+
 /******* SETTINGS END *****/
 
 /**** REFRESH PATTERN ****/
@@ -245,10 +385,12 @@ global list <map<string,any> > GetRefreshPatterns()
 {
     return refresh_patterns;
 }
+
 global map<string,any> GetRefreshPattern(integer id_item)
 {
     return refresh_patterns[id_item]:$[];
 }
+
 global void AddRefreshPattern(string regexp, string min, string percent, string max, boolean case_sensitive)
 {
     refresh_patterns = add(refresh_patterns, $[ "regexp" : regexp,
@@ -257,23 +399,34 @@ global void AddRefreshPattern(string regexp, string min, string percent, string 
                                                 "max" : max,
                                                 "case_sensitive" : case_sensitive]);
 }
+
 global void ModifyRefreshPattern(integer id_item, string regexp, string min, string percent, string max, boolean case_sensitive)
 {
-    refresh_patterns[id_item] = $[ "regexp" : regexp,
-                                   "min" : min,
-                                   "percent" : percent,
-                                   "max" : max,
-                                   "case_sensitive" : case_sensitive];
+    if (id_item >= 0 && id_item < size(refresh_patterns)){
+        refresh_patterns[id_item] = $[ "regexp" : regexp,
+                                       "min" : min,
+                                       "percent" : percent,
+                                       "max" : max,
+                                       "case_sensitive" : case_sensitive];
+    }
 }
+
 global void DelRefreshPattern(integer id_item)
 {
-    refresh_patterns = remove(refresh_patterns, id_item);
+    if (id_item >= 0 && id_item < size(refresh_patterns)){
+        refresh_patterns = remove(refresh_patterns, id_item);
+    }
 }
+
 global void MoveRefreshPattern(integer id_from, integer id_to)
 {
-    map<string,any> tmp = refresh_patterns[id_from]:$[];
-    refresh_patterns[id_from] = refresh_patterns[id_to]:$[];
-    refresh_patterns[id_to] = tmp;
+    if (id_from >= 0 && id_from < size(refresh_patterns)
+        && id_to >= 0 && id_to < size(refresh_patterns)){
+
+        map<string,any> tmp = refresh_patterns[id_from]:$[];
+        refresh_patterns[id_from] = refresh_patterns[id_to]:$[];
+        refresh_patterns[id_to] = tmp;
+    }
 }
 /**** REFRESH PATTERN END ****/
 
@@ -282,39 +435,36 @@ global list <map<string, any> > GetHttpPorts()
 {
     return http_ports;
 }
+
 global map<string, any > GetHttpPort(integer id_item)
 {
     return http_ports[id_item]:$[];
 }
+
 global void AddHttpPort(string host, string port, boolean transparent)
 {
     http_ports = add(http_ports, $["host" : host,
                                    "port" : port,
                                    "transparent" : transparent]);
 }
+
 global void ModifyHttpPort(integer id_item, string host, string port, boolean transparent)
 {
-    http_ports[id_item] = $["host" : host,
-                            "port" : port,
-                            "transparent" : transparent];
+    if (id_item >= 0 && id_item < size(http_ports)){
+        http_ports[id_item] = $["host" : host,
+                                "port" : port,
+                                "transparent" : transparent];
+    }
 }
+
 global void DelHttpPort(integer id_item)
 {
-    http_ports = remove(http_ports, id_item);
+    if (id_item >= 0 && id_item < size(http_ports)){
+        http_ports = remove(http_ports, id_item);
+    }
 }
 /**** HTTP PORT END *****/
 
-/**
- * Same as splitstring(), but returns only non-empty strings.
- */
-list<string> split(string str, string delim)
-{
-    return filter(string value, splitstring(str, delim),
-                {
-                    //y2debug("Squid::split value: %1, size(value): %2",value, size(value));
-                    return (size(value)>0);
-                });
-}
 
 /**
  * Read setting of parameter http_port.
@@ -504,6 +654,23 @@ boolean readACLs()
     return ok;
 }
 
+string repair_timeout_period_units(string old)
+{
+    string ret = "seconds";
+    if (old == "day"){
+        ret = "days";
+    }else if (old == "hour"){
+        ret = "hours";
+    }else if (old == "minute"){
+        ret = "minutes";
+    }else if (old == "second"){
+        ret = "seconds";
+    }else if (contains(["seconds", "minutes", "hours", "days"], old)){
+        ret = old;
+    }
+
+    return ret;
+}
 /**
  * Read rest of setting.
  * return true on success
@@ -530,6 +697,10 @@ boolean readRestSetting()
     //special modification
     settings["cache_replacement_policy"] = [mergestring(settings["cache_replacement_policy"]:[]," ")];
     settings["memory_replacement_policy"] = [mergestring(settings["memory_replacement_policy"]:[]," ")];
+    settings["connect_timeout"] = [ (settings["connect_timeout"]:[])[0]:"",
+                                    repair_timeout_period_units((settings["connect_timeout"]:[])[1]:"") ];
+    settings["client_lifetime"] = [ (settings["client_lifetime"]:[])[0]:"",
+                                    repair_timeout_period_units((settings["client_lifetime"]:[])[1]:"") ];
 
     return ok;
 }
