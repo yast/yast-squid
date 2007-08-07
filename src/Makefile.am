@@ -21,7 +21,8 @@ desktop_DATA =			\
 module_DATA =			\
 	Squid.ycp		\
 	Squid2.pm \
-    SquidACL.ycp
+    SquidACL.ycp \
+    SquidErrorMessages.ycp
 
 # create a symlink for local build, #145327
 squid:

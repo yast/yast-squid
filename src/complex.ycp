@@ -40,6 +40,7 @@ import "Report";
 
 import "Squid";
 import "SquidACL";
+import "SquidErrorMessages";
 
 
 include "squid/helps.ycp";
@@ -315,7 +316,6 @@ void InitLoggingFrame()
         "access_log" : (set["access_log"]:[])[0]:"",
         "cache_log" : (set["cache_log"]:[])[0]:"",
         "cache_store_log" : (set["cache_store_log"]:[])[0]:"",
-        "cache_swap_log" : (set["cache_swap_log"]:[])[0]:"",
 
         "emulate_httpd_log" : ((set["emulate_httpd_log"]:[])[0]:"" == "on" ? true : false)
     ]);
@@ -330,6 +330,19 @@ void InitTimeoutsFrame()
         "client_lifetime" : tointeger((set["client_lifetime"]:[])[0]:""),
         "client_lifetime_units" : (set["client_lifetime"]:[])[1]:""
     ]);
+}
+
+
+void InitMiscellaneousDialog()
+{
+    simpleInit($[
+        "cache_mgr" : (Squid::GetSetting("cache_mgr"))[0]:"",
+        "ftp_passive" : (Squid::GetSetting("ftp_passive"))[0]:"" == "on" ? true : false
+    ]);
+    UI::ChangeWidget(`id("error_language"), `Items, SquidErrorMessages::GetLanguagesToComboBox());
+    UI::ChangeWidget(`id("error_language"), `Value, SquidErrorMessages::GetLanguageFromPath(
+                                                        (Squid::GetSetting("error_directory"))[0]:""
+                                                    ));
 }
 /*********************   INITS END  ****************/
 
@@ -587,7 +600,7 @@ integer DelFromACLGroupsTable(integer id_item)
 
             if (contains(affected_options, "http_access")){
                 //Report::Error( _("This ACL Group can't be deleted.\nIt's used in Access Control table."));
-                Report::Error( _("You can not delete this ACL Group, because \nit's used in Access Control table."));
+                Report::Error( _("You must not delete this ACL Group, because \nit's used in Access Control table."));
             }else{
                 string message = _("If you delete this ACL Group these options might be affected: \n")
                                  + "    " + mergestring(affected_options, ",\n    ") + ".\n";// +
@@ -616,8 +629,64 @@ integer DelFromACLGroupsTable(integer id_item)
 
 
 
+//TODO: Here must be control, if is possible to create each log file (if it's not
+//      possible it causes breakdown of squid).
 boolean StoreDataFromLoggingFrame()
 {
+    boolean ok = true;
+    string message = "";
+    string access_log = (string)UI::QueryWidget(`id("access_log"), `Value);
+    string cache_log = (string)UI::QueryWidget(`id("cache_log"), `Value);
+    string cache_store_log = (string)UI::QueryWidget(`id("cache_store_log"), `Value);
+    string emulate_httpd_log = ((boolean)UI::QueryWidget(`id("emulate_httpd_log"), `Value)
+                                ? "on" : "off");
+
+    if (size(access_log) == 0){
+        ok = false;
+        message = message + (size(message)>0 ? "\n" : "") + _("Access Log must not be empty.");
+    }
+    if (size(cache_log) == 0){
+        ok = false;
+        message = message + (size(message)>0 ? "\n" : "") + _("Cache Log must not be empty.");
+    }
+    if (size(cache_store_log) == 0){
+        ok = false;
+        message = message + (size(message)>0 ? "\n" : "") + _("Cache Store Log must not be empty.");
+    }
+
+    if (ok){
+        list<string> tmp = Squid::GetSetting("access_log");
+        Squid::SetSetting("access_log", prepend(remove(tmp, 0), access_log));
+        Squid::SetSetting("cache_log", [cache_log]);
+        Squid::SetSetting("cache_store_log", [cache_store_log]);
+        Squid::SetSetting("emulate_httpd_log", [emulate_httpd_log]);
+    }else{
+        Report::Error(message);
+    }
+
+    return ok;
+}
+
+boolean StoreDataFromTimeoutsFrame()
+{
+    Squid::SetSetting("connect_timeout", [tostring(UI::QueryWidget(`id("connect_timeout"), `Value)),
+                                          (string)UI::QueryWidget(`id("connect_timeout_units"), `Value)]);
+    Squid::SetSetting("client_lifetime", [tostring(UI::QueryWidget(`id("client_lifetime"), `Value)),
+                                          (string)UI::QueryWidget(`id("client_lifetime_units"), `Value)]);
+    return true;
+}
+
+
+boolean StoreDataFromMiscellaneousDialog()
+{
+    string error_language = (string)UI::QueryWidget(`id("error_language"), `Value);
+    string cache_mgr = (string)UI::QueryWidget(`id("cache_mgr"), `Value);
+    string ftp_passive = (boolean)UI::QueryWidget(`id("ftp_passive"), `Value) ? "on" : "off";
+
+    Squid::SetSetting("error_directory",[SquidErrorMessages::GetPath(error_language)]);
+    Squid::SetSetting("cache_mgr", [cache_mgr]);
+    Squid::SetSetting("ftp_passive", [ftp_passive]);
+
     return true;
 }
 /********************* STORING + DELETING END ********************/

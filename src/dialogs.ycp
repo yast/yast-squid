@@ -367,7 +367,6 @@ any LoggingAndTimeoutsDialog()
                     `TextEntry(`id("access_log"), _("Access Log") , ""),
                     `TextEntry(`id("cache_log"), _("Cache Log"), ""),
                     `TextEntry(`id("cache_store_log"), _("Cache Store Log"), ""),
-                    `TextEntry(`id("cache_swap_log"), _("Cache Swap Log"), ""),
                     `Left(`CheckBox(`id("emulate_httpd_log"), _("Emulate Httpd Log?")))
                 )
             )),
@@ -400,7 +399,7 @@ any LoggingAndTimeoutsDialog()
         y2debug("BaseDialog(): ret == %1",ret);
 
         if (ret == `next || ret == `back){
-            if(StoreDataFromLoggingFrame())
+            if(StoreDataFromLoggingFrame() && StoreDataFromTimeoutsFrame())
                 break;
         }else if (ret == `abort || ret == `cancel){
             //if (Popup::ReallyAbort(true)) break;
@@ -424,19 +423,23 @@ any MiscellaneousDialog()
                  `VSpacing(),
                  `Left(`TextEntry(`id("cache_mgr"), _("Administrator's e-mail"), "")),
                  `VSpacing(),
-                 `Left(`CheckBox(`id("ftp_pasive_mode"), _("Use Ftp Pasive Mode")))
+                 `Left(`CheckBox(`id("ftp_passive"), _("Use Ftp Pasive Mode")))
         ));
 
     Wizard::SetContentsButtons("Squid - Miscellaneous Setting", dialog_contents, "help",
         Label::BackButton(), Label::FinishButton());
+
+    InitMiscellaneousDialog();
 
     while (true){
         ret = UI::UserInput();
 
         y2debug("BaseDialog(): ret == %1",ret);
 
-        if (ret == `next || ret == `back) break;
-        else if (ret == `abort || ret == `cancel){
+        if (ret == `next || ret == `back){
+            if (StoreDataFromMiscellaneousDialog())
+                break;
+        }else if (ret == `abort || ret == `cancel){
             //if (Popup::ReallyAbort(true)) break;
             break;
             continue;

@@ -30,6 +30,8 @@
 {
 
 textdomain "squid";
+import "Label";
+import "SquidACL";
 
 /*****************  HTTP PORT  ********************/
 /**
@@ -225,6 +227,7 @@ boolean AddEditHttpAccessDialog(integer id_item)
     string acl = "";
     boolean not = false;
     any tmp = nil;
+    term tmp_term = nil;
     integer id_acl = 0;
     string label = (id_item == nil ? _("Add New HTTP Access")
                                    : _("Edit HTTP Access"));
@@ -233,25 +236,28 @@ boolean AddEditHttpAccessDialog(integer id_item)
             `Label(label),
             `VSpacing(0.5),
 
-            `Left(`ComboBox(`id("allow_deny"), _("Allow/Deny"),
-                [`item(`id("allow"), "allow"), `item(`id("deny"), "deny")])),
+            `ComboBox(`id("allow_deny"), _("Allow/Deny"),
+                [`item(`id("allow"), "allow"), `item(`id("deny"), "deny")]),
 
             //`VSpacing(),
 
             `MinSize(25, 7,
                 `Table(`id("acls"), `header("   ", _("ACL")), [])
             ),
-            `Left(`PushButton(`id(`del), Label::DeleteButton())),
+            `Left(`HBox(
+                `PushButton(`id(`del), Label::DeleteButton()),
+                `PushButton(`id(`opposite), _("O&pposite"))
+            )),
 
-            //`VSpacing(),
+            `VSpacing(0.5),
 
-            `Frame( _("Add ACL"),
+            `MinWidth(25, `Frame( _("Add ACL"),
                 `VSquash(`HBox(
                     `Bottom(`CheckBox(`id("acl_not"), _("not"))),
-                    `ComboBox(`id("acl"), "ACL", []),
+                    `MinWidth(15, `ComboBox(`id("acl"), "ACL", [])),
                     `Bottom(`PushButton(`id(`add), Label::AddButton()))
                 ))
-            ),
+            )),
 
             `VStretch(),
 
@@ -287,6 +293,15 @@ boolean AddEditHttpAccessDialog(integer id_item)
             id_acl = delItemFromAddEditHttpAccessDialog((integer)UI::QueryWidget(`id("acls"), `CurrentItem));
             InitAddEditHttpAccessDialog(nil);
             UI::ChangeWidget(`id("acls"), `CurrentItem, id_acl);
+        }else if (ui == `opposite){
+            id_acl = (integer)UI::QueryWidget(`id("acls"), `CurrentItem);
+            tmp_term = (term)UI::QueryWidget(`id("acls"), `Item(id_acl));
+
+            if (tmp_term[1]:"" == "not"){
+                UI::ChangeWidget(`id("acls"), `Item(id_acl, 0), "");
+            }else{
+                UI::ChangeWidget(`id("acls"), `Item(id_acl, 0), "not");
+            }
         }
     }
 

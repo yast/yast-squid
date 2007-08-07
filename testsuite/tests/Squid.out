@@ -10,7 +10,6 @@ Read	.squid."cache_mgr" ["webmaster"]
 Read	.squid."cache_replacement_policy" ["lru"]
 Read	.squid."cache_store_log" ["/var/log/squid/store.log"]
 Read	.squid."cache_swap_high" ["95"]
-Read	.squid."cache_swap_log" ["none"]
 Read	.squid."cache_swap_low" ["90"]
 Read	.squid."client_lifetime" ["1 day"]
 Read	.squid."connect_timeout" ["2 minutes"]
@@ -129,7 +128,7 @@ Dump	=================   SETTINGS  ====================
 Dump	==================================================
 Dump	
 Dump	GetSettings()
-Return	$["access_log":["/var/log/squid/access.log"], "cache_dir":["ufs", "/var/cache/squid", "100", "16", "256"], "cache_log":["/var/log/squid/cache.log"], "cache_mem":["80", "MB"], "cache_mgr":["webmaster"], "cache_replacement_policy":["lru"], "cache_store_log":["/var/log/squid/store.log"], "cache_swap_high":["95"], "cache_swap_log":["none"], "cache_swap_low":["90"], "client_lifetime":["1", "days"], "connect_timeout":["2", "minutes"], "emulate_httpd_log":["off"], "error_directory":["/usr/share/squid/errors/English"], "ftp_passive":["on"], "maximum_object_size":["4096", "KB"], "memory_replacement_policy":["heap GDSF"], "minimum_object_size":["0", "KB"]]
+Return	$["access_log":["/var/log/squid/access.log"], "cache_dir":["ufs", "/var/cache/squid", "100", "16", "256"], "cache_log":["/var/log/squid/cache.log"], "cache_mem":["80", "MB"], "cache_mgr":["webmaster"], "cache_replacement_policy":["lru"], "cache_store_log":["/var/log/squid/store.log"], "cache_swap_high":["95"], "cache_swap_low":["90"], "client_lifetime":["1", "days"], "connect_timeout":["2", "minutes"], "emulate_httpd_log":["off"], "error_directory":["/usr/share/squid/errors/English"], "ftp_passive":["on"], "maximum_object_size":["4096", "KB"], "memory_replacement_policy":["heap GDSF"], "minimum_object_size":["0", "KB"]]
 Dump	
 Dump	GetSetting("cache_dir")
 Return	["ufs", "/var/cache/squid", "100", "16", "256"]
