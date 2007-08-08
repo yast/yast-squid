@@ -1,0 +1,124 @@
+/* ------------------------------------------------------------------------------
+ * Copyright (c) 2006 Novell, Inc. All Rights Reserved.
+ *
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of version 2 of the GNU General Public License as published by the
+ * Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, contact Novell, Inc.
+ *
+ * To contact Novell about this file by physical or electronic mail, you may find
+ * current contact information at www.novell.com.
+ * ------------------------------------------------------------------------------
+ */
+
+/**
+ * File:	modules/SquidErrorMessages.ycp
+ * Package:	Configuration of squid
+ * Summary: Handle list of paths to direcotories with error messages
+ *          in different languages.
+ * Authors:	Daniel Fiser <dfiser@suse.cz>
+ *
+ * $Id$
+ *
+ */
+
+{
+
+module "SquidErrorMessages";
+textdomain "squid";
+
+/**
+ * format:
+ *      $[ "language" : "path_to_directory",
+ *         ....
+ *       ]
+ */
+map<string, string> err = $[];
+
+string err_msg_dir = "/usr/share/squid/errors";
+
+
+void read()
+{
+    //if err uninitialized
+    if (size(err) == 0){
+        map<string, any> bash_output = (map<string, any>)SCR::Execute(.target.bash_output, "cd " + err_msg_dir + "; ls -d */");
+        err = $[];
+        foreach (string dir, splitstring(bash_output["stdout"]:"","\n"),
+            {
+                dir = deletechars(dir, "/");
+                dir = mergestring(splitstring(dir, "_"), " ");
+                if (size(dir)>0)
+                    err[dir] = err_msg_dir + "/" + dir;
+            });
+
+        y2debug("SquidErrorMessages::read() - err: %1", err);
+    }
+}
+
+/**
+ * Returns list of all available languages
+ */
+global list<string> GetLanguages()
+{
+    read();
+
+    list<string> ret = [];
+    foreach (string key, any value, err,
+        {
+            ret = add(ret, key);
+        });
+    return ret;
+}
+
+/**
+ * Returns list of all available languages in form of items of ComboBox.
+ */
+global list<term> GetLanguagesToComboBox()
+{
+    read();
+
+    list<term> ret = [];
+    foreach (string language, GetLanguages(),
+        {
+            ret = add(ret, `item(`id(language), language));
+        });
+    return ret;
+}
+
+
+/**
+ * Returns path to directory containing error messages in given language.
+ */
+global string GetPath(string language)
+{
+    return err[language]:"";
+}
+
+/**
+ * Inverse function to GetPath.
+ * Returns languge which has path pth to directory containing error messages.
+ */
+global string GetLanguageFromPath(string pth)
+{
+    string ret = nil;
+    foreach (string key, string value, err,
+        {
+            if (value == pth){
+                ret = key;
+                break;
+            }
+        });
+
+    return ret;
+}
+
+}
+/* vim: set sw=4 ts=4 et ft=ycp : */
