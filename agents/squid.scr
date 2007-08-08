@@ -16,7 +16,7 @@
  *   true
  */
 
-.squid
+.etc.squid
 
 `ag_ini(
     `IniAgent("/etc/squid/squid.conf",

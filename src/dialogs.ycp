@@ -39,6 +39,8 @@ import "SquidACL";
 
 include "squid/helps.ycp";
 include "squid/popup_dialogs.ycp";
+include "squid/inits.ycp";
+include "squid/store_del.ycp";
 
 
 /**
@@ -187,6 +189,7 @@ any CacheDialog(){
 
 any Cache2Dialog(){
     any ret = nil;
+    string cache_dir = "";
     term dialog_contents =
         `VBox(
             `Top(`Left(
@@ -227,6 +230,7 @@ any Cache2Dialog(){
                     `VSpacing(),
                     `VSquash(`HBox(
                         `TextEntry(`id("cache_dir"), _("Cache Directory"), ""),
+                        `Bottom(`PushButton(`id(`browse_cache_dir), Label::BrowseButton())),
                         `Bottom(`PushButton(`id(`cache_dir), "Advanced Setting"))
                     ))
                 )
@@ -252,6 +256,11 @@ any Cache2Dialog(){
             continue;
         }else if (ret == `cache_dir){
             CacheDirAdvancedSettingDialog();
+        }else if (ret == `browse_cache_dir){
+            cache_dir = UI::AskForExistingDirectory((string)UI::QueryWidget(`id("cache_dir"), `Value), "Cache Directory");
+            if (cache_dir != nil){
+                UI::ChangeWidget(`id("cache_dir"), `Value, cache_dir);
+            }
         }
     }
 
@@ -360,13 +369,23 @@ any AccessControlDialog(){
 any LoggingAndTimeoutsDialog()
 {
     any ret = nil;
+    string tmp = nil;
     term dialog_contents =
         `Top(`VBox(
             `Left(`Frame(_("Logging"),
                 `VBox(
-                    `TextEntry(`id("access_log"), _("Access Log") , ""),
-                    `TextEntry(`id("cache_log"), _("Cache Log"), ""),
-                    `TextEntry(`id("cache_store_log"), _("Cache Store Log"), ""),
+                    `VSquash(`HBox(
+                        `TextEntry(`id("access_log"), _("Access Log") , ""),
+                        `Bottom(`PushButton(`id(`access_log_browse), Label::BrowseButton()))
+                    )),
+                    `VSquash(`HBox(
+                        `TextEntry(`id("cache_log"), _("Cache Log"), ""),
+                        `Bottom(`PushButton(`id(`cache_log_browse), Label::BrowseButton()))
+                    )),
+                    `VSquash(`HBox(
+                        `TextEntry(`id("cache_store_log"), _("Cache Store Log"), ""),
+                        `Bottom(`PushButton(`id(`cache_store_log_browse), Label::BrowseButton()))
+                    )),
                     `Left(`CheckBox(`id("emulate_httpd_log"), _("Emulate Httpd Log?")))
                 )
             )),
@@ -405,6 +424,18 @@ any LoggingAndTimeoutsDialog()
             //if (Popup::ReallyAbort(true)) break;
             break;
             continue;
+        }else if (ret == `access_log_browse){
+            tmp = UI::AskForExistingFile("/var/log", "*", "Access Log");
+            if (tmp != nil)
+                UI::ChangeWidget(`id("access_log"), `Value, tmp);
+        }else if (ret == `cache_log_browse){
+            tmp = UI::AskForExistingFile("/var/log", "*", "Cache Log");
+            if (tmp != nil)
+                UI::ChangeWidget(`id("cache_log"), `Value, tmp);
+        }else if (ret == `cache_store_log_browse){
+            tmp = UI::AskForExistingFile("/var/log", "*", "Cache Store Log");
+            if (tmp != nil)
+                UI::ChangeWidget(`id("cache_store_log"), `Value, tmp);
         }
     }
 

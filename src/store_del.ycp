@@ -1,0 +1,443 @@
+/* ------------------------------------------------------------------------------
+ * Copyright (c) 2006 Novell, Inc. All Rights Reserved.
+ *
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of version 2 of the GNU General Public License as published by the
+ * Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, contact Novell, Inc.
+ *
+ * To contact Novell about this file by physical or electronic mail, you may find
+ * current contact information at www.novell.com.
+ * ------------------------------------------------------------------------------
+ */
+
+/**
+ * File:	include/squid/store_del.ycp
+ * Package:	Configuration of squid
+ * Summary:	All Store.. Del.. Move.. functions for dialogs.
+ * Authors:	Daniel Fiser <dfiser@suse.cz>
+ *
+ * $Id$
+ */
+
+{
+
+textdomain "squid";
+
+import "Label";
+import "Report";
+import "FileUtils";
+
+import "Squid";
+import "SquidACL";
+import "SquidErrorMessages";
+
+
+include "squid/helps.ycp";
+
+
+/*****************  HTTP_PORT  ********************/
+boolean StoreDataFromAddEditHttpPortDialog(integer id_item)
+{
+    boolean ok = true;
+    string host = (string)UI::QueryWidget(`id("host"), `Value);
+    string port = (string)UI::QueryWidget(`id("port"), `Value);
+    boolean transparent = (boolean)UI::QueryWidget(`id("transparent"), `Value);
+
+    if (size(port) > 0){
+        if (id_item == nil){
+            Squid::AddHttpPort(host, port, transparent);
+        }else{
+            Squid::ModifyHttpPort(id_item, host, port, transparent);
+        }
+    }else{
+        Report::Error(_("Port number must not be empty."));
+        ok = false;
+    }
+
+    return ok;
+}
+
+integer DelFromHttpPortsTable(integer id_item)
+{
+    Squid::DelHttpPort(id_item);
+    if (id_item >= size(Squid::GetHttpPorts())){
+        id_item = id_item - 1;
+    }
+    return id_item;
+}
+/*****************  HTTP_PORT END  ****************/
+
+
+
+/**************  REFRESH_PATTERNS  ****************/
+boolean StoreDataFromAddEditRefreshPatternDialog(integer id_item)
+{
+    boolean ok = true;
+    string regexp = (string)UI::QueryWidget(`id("regexp"), `Value);
+    string min = tostring(UI::QueryWidget(`id("min"), `Value));
+    string percent = tostring(UI::QueryWidget(`id("percent"), `Value));
+    string max = tostring(UI::QueryWidget(`id("max"), `Value));
+    boolean case_sensitive = !(boolean)UI::QueryWidget(`id("regexp_case_insensitive"), `Value);
+
+    if (size(regexp) > 0){
+        if (id_item == nil){
+            Squid::AddRefreshPattern(regexp, min, percent, max, case_sensitive);
+        }else{
+            Squid::ModifyRefreshPattern(id_item, regexp, min, percent, max, case_sensitive);
+        }
+    }else{
+        Report::Error(_("Regular expression must not be empty."));
+        ok = false;
+    }
+
+    return ok;
+}
+
+integer DelFromRefreshPatternsTable(integer id_item)
+{
+    Squid::DelRefreshPattern(id_item);
+    if (id_item >= size(Squid::GetRefreshPatterns())){
+        id_item = id_item - 1;
+    }
+    return id_item;
+}
+
+/**
+ * returns new position or nil if not moved
+ */
+integer MoveUpRefreshPattern(integer id_item)
+{
+    integer ret = nil;
+
+    if (id_item > 0){
+        Squid::MoveRefreshPattern(id_item, id_item - 1);
+        ret = id_item - 1;
+    }
+    return ret;
+}
+/**
+ * returns new position or nil if not moved
+ */
+integer MoveDownRefreshPattern(integer id_item)
+{
+    integer ret = nil;
+
+    if (id_item < size(Squid::GetRefreshPatterns())-1){
+        Squid::MoveRefreshPattern(id_item, id_item + 1);
+        ret = id_item + 1;
+    }
+    return ret;
+}
+/**************  REFRESH_PATTERNS END  ************/
+
+
+
+/**************  CACHE DIALOG  ********************/
+boolean StoreDataFromCacheDirAdvancedSettingDialog()
+{
+    list set = Squid::GetSetting("cache_dir");
+    Squid::SetSetting("cache_dir",
+            [set[0]:"",
+             set[1]:"",
+             tostring(UI::QueryWidget(`id("mbytes"), `Value)),
+             tostring(UI::QueryWidget(`id("l1dirs"), `Value)),
+             tostring(UI::QueryWidget(`id("l2dirs"), `Value))]);
+    return true;
+}
+boolean StoreDataFromCache2Dialog()
+{
+    boolean ok = true;
+
+    string cache_dir = (string)UI::QueryWidget(`id("cache_dir"), `Value);
+
+    if (size(cache_dir) == 0){
+        ok = false;
+        Report::Error(_("Cache directory must not be empty."));
+    }else if (!FileUtils::CheckAndCreatePath(cache_dir)){
+        ok = false;
+    }
+
+    if (ok){
+        list set = Squid::GetSetting("cache_dir");
+
+        Squid::SetSetting("cache_dir", [set[0]:"", cache_dir, set[1]:"", set[2]:"", set[3]:""]);
+        Squid::SetSetting("cache_mem", [tostring(UI::QueryWidget(`id("cache_mem"), `Value)),
+                                        UI::QueryWidget(`id("cache_mem_units"), `Value)]);
+        Squid::SetSetting("maximum_object_size", [tostring(UI::QueryWidget(`id("cache_max_object_size"), `Value)),
+                                                  UI::QueryWidget(`id("cache_max_object_size_units"), `Value)]);
+        Squid::SetSetting("minimum_object_size", [tostring(UI::QueryWidget(`id("cache_min_object_size"), `Value)),
+                                                  UI::QueryWidget(`id("cache_min_object_size_units"), `Value)]);
+        Squid::SetSetting("cache_swap_low", [tostring(UI::QueryWidget(`id("cache_swap_low"), `Value))]);
+        Squid::SetSetting("cache_swap_high", [tostring(UI::QueryWidget(`id("cache_swap_high"), `Value))]);
+        Squid::SetSetting("cache_replacement_policy", [UI::QueryWidget(`id("cache_replacement_policy"), `Value)]);
+        Squid::SetSetting("memory_replacement_policy", [UI::QueryWidget(`id("memory_replacement_policy"), `Value)]);
+    }
+
+    return ok;
+}
+/**************  CACHE DIALOG END  ****************/
+
+
+
+/**************  HTTP_ACCESS  *********************/
+boolean StoreDataFromAddEditHttpAccessDialog(integer id_item)
+{
+    boolean ok = true;
+    boolean allow = true;
+    list<string> acls = [];
+    string tmp = "";
+
+    allow = (UI::QueryWidget(`id("allow_deny"), `Value) == "allow" ? true : false);
+    foreach(term value, (list<term>)UI::QueryWidget(`id("acls"), `Items),
+        {
+            tmp = (value[1]:"" == "not" ? "!" : "");
+            tmp = tmp + value[2]:"";
+            acls = add(acls, tmp);
+        });
+
+    if (size(acls) > 0){
+        if (id_item == nil){
+            Squid::AddHttpAccess(allow, acls);
+        }else{
+            Squid::ModifyHttpAccess(id_item, allow, acls);
+        }
+   }else{
+       ok = false;
+       Report::Error(_("ACL table must not be empty."));
+   }
+
+    return ok;
+}
+integer DelFromHttpAccessTable(integer id_item)
+{
+    Squid::DelHttpAccess(id_item);
+    if (id_item >= size(Squid::GetHttpAccesses())){
+        id_item = id_item - 1;
+    }
+    return (id_item);
+}
+integer MoveUpHttpAccess(integer id_item)
+{
+    integer ret = nil;
+
+    if (id_item > 0){
+        Squid::MoveHttpAccess(id_item, id_item - 1);
+        ret = id_item - 1;
+    }
+    return ret;
+}
+integer MoveDownHttpAccess(integer id_item)
+{
+    integer ret = nil;
+
+    if (id_item < size(Squid::GetHttpAccesses())-1){
+        Squid::MoveHttpAccess(id_item, id_item + 1);
+        ret = id_item + 1;
+    }
+    return ret;
+}
+/**************  HTTP_ACCESS END  *****************/
+
+
+
+/**************  ACL  *****************************/
+boolean StoreDataFromAddEditACLDialog(integer id_item)
+{
+    boolean ok = true;
+
+    string type = (string)UI::QueryWidget(`id("type"), `Value);
+    string name = (string)UI::QueryWidget(`id("name"), `Value);
+    list<string> options = SquidACL::GetOptions(type);
+
+    boolean verification = SquidACL::Verify(type);
+
+    list<string> affected_options = [];
+    integer num_acls = nil;
+    string old_name = nil;
+    if (id_item != nil){
+        affected_options = Squid::ACLIsUsedBy(id_item);
+        num_acls = Squid::NumACLs(id_item);
+        old_name = (Squid::GetACL(id_item))["name"]:"";
+    }
+
+    if (verification && size(name) > 0){
+        // test, if exists ACL with same name but different type
+        string existed_type = Squid::GetACLTypeByName(name);
+        if (existed_type != nil && existed_type != type){
+            boolean error = false;
+
+            if (id_item != nil){
+                integer numACLs = Squid::NumACLsByName(name);
+                if ((name != old_name && numACLs > 0) || (name == old_name && numACLs > 1)){
+                    error = true;
+                }
+            }else{
+                error = true;
+            }
+
+            if (error){
+                ok = false;
+                Report::Error( _("ACL Group '") + name + _("' already exists with different type.\n")
+                               + _("ACL Group '") + name + _("' has to have type '") + existed_type + "'.\n"
+                               + _("If you want to change type of this ACL Group you must\ndelete other ACL Groups with same name before that."));
+            }
+        }
+
+        //verification where name is changed and this ACL has 1 occurence
+        if (ok && id_item != nil && old_name != name && Squid::NumACLs(id_item) == 1){
+            //test if changed ACL is used in http_access option.
+            if (size(affected_options) > 0 && contains(affected_options, "http_access")){
+                Report::Error( _("You can not change name of this ACL Group, because \nit's used in Access Control table.\n")
+                              + _("If you want to change name of this ACL Group you must\ndelete all of its occurences in Access Control table."));
+                ok = false;
+            }else
+            //test if changed ACL is used in other option (not managed by thid module)
+            if (size(affected_options) > 0){
+                if (!Report::AnyQuestion(Label::WarningMsg(),
+                            _("If you change name of this ACL Group these options might be affected: \n")
+                            + "    " + mergestring(affected_options, ",\n    ") + ".\n",
+                            _("Change name anyway"),
+                            _("Do not change name"),
+                            `focus_no)){
+                    ok = false;
+                }
+            }
+        }
+    }else if(verification){ // -> size(name) <= 0
+        //test, if name is filled
+        ok = false;
+        Report::Error( _("Name must not be empty."));
+    }else{ // verification == false
+        ok = false;
+    }
+
+    if (ok && id_item == nil){
+        Squid::AddACL(name, type, options);
+    }else if (ok){
+        Squid::ModifyACL(id_item, name, type, options);
+    }
+    return ok;
+}
+
+/**
+ * Delete ACL with id id_item.
+ * If ACL has only one occurence (one definition line) in config file and
+ * ACL is used by any option (http_access, no_cache ...) than user is asked
+ * if he really want to delete the ACL. If option 'http_access' uses this ACL
+ * than it's unaccepted to delete the ACL.
+ */
+integer DelFromACLGroupsTable(integer id_item)
+{
+    boolean ok = true;
+
+    if (Squid::NumACLs(id_item) == 1){
+        list<string> affected_options = Squid::ACLIsUsedBy(id_item);
+        if (size(affected_options) > 0){
+            ok = false;
+
+            if (contains(affected_options, "http_access")){
+                //Report::Error( _("This ACL Group can't be deleted.\nIt's used in Access Control table."));
+                Report::Error( _("You must not delete this ACL Group, because \nit's used in Access Control table.\n")
+                              + _("If you want to change name of this ACL Group you must\ndelete all of its occurences in Access Control table."));
+            }else{
+                string message = _("If you delete this ACL Group these options might be affected: \n")
+                                 + "    " + mergestring(affected_options, ",\n    ") + ".\n";// +
+                                 //_("Are you sure you want to delete this ACL Group?");
+                if (Report::AnyQuestion(Label::WarningMsg(),
+                                        message,
+                                        _("Delete anyway"), //Label::YesButton(),
+                                        _("Do not delete"), //Label::NoButton(),
+                                        `focus_no)){
+                    ok = true;
+                }
+            }
+        }
+    }
+
+    if (ok){
+        Squid::DelACL(id_item);
+        if (id_item >= size(Squid::GetACLs())){
+            id_item = id_item - 1;
+        }
+    }
+
+    return id_item;
+}
+/**************  ACL END  *************************/
+
+
+
+
+/********  LOGGING AND TIMEOUTS DIALOG  ***********/
+//TODO: Here must be control, if is possible to create each log file (if it's not
+//      possible it causes breakdown of squid).
+boolean StoreDataFromLoggingFrame()
+{
+    boolean ok = true;
+    string message = "";
+    string access_log = (string)UI::QueryWidget(`id("access_log"), `Value);
+    string cache_log = (string)UI::QueryWidget(`id("cache_log"), `Value);
+    string cache_store_log = (string)UI::QueryWidget(`id("cache_store_log"), `Value);
+    string emulate_httpd_log = ((boolean)UI::QueryWidget(`id("emulate_httpd_log"), `Value)
+                                ? "on" : "off");
+
+    if (size(access_log) == 0){
+        ok = false;
+        message = message + (size(message)>0 ? "\n" : "") + _("Access Log must not be empty.");
+    }
+    if (size(cache_log) == 0){
+        ok = false;
+        message = message + (size(message)>0 ? "\n" : "") + _("Cache Log must not be empty.");
+    }
+    if (size(cache_store_log) == 0){
+        ok = false;
+        message = message + (size(message)>0 ? "\n" : "") + _("Cache Store Log must not be empty.");
+    }
+
+    if (ok){
+        list<string> tmp = Squid::GetSetting("access_log");
+        Squid::SetSetting("access_log", prepend(remove(tmp, 0), access_log));
+        Squid::SetSetting("cache_log", [cache_log]);
+        Squid::SetSetting("cache_store_log", [cache_store_log]);
+        Squid::SetSetting("emulate_httpd_log", [emulate_httpd_log]);
+    }else{
+        Report::Error(message);
+    }
+
+    return ok;
+}
+
+boolean StoreDataFromTimeoutsFrame()
+{
+    Squid::SetSetting("connect_timeout", [tostring(UI::QueryWidget(`id("connect_timeout"), `Value)),
+                                          (string)UI::QueryWidget(`id("connect_timeout_units"), `Value)]);
+    Squid::SetSetting("client_lifetime", [tostring(UI::QueryWidget(`id("client_lifetime"), `Value)),
+                                          (string)UI::QueryWidget(`id("client_lifetime_units"), `Value)]);
+    return true;
+}
+/********  LOGGING AND TIMEOUTS DIALOG END  *******/
+
+
+boolean StoreDataFromMiscellaneousDialog()
+{
+    string error_language = (string)UI::QueryWidget(`id("error_language"), `Value);
+    string cache_mgr = (string)UI::QueryWidget(`id("cache_mgr"), `Value);
+    string ftp_passive = (boolean)UI::QueryWidget(`id("ftp_passive"), `Value) ? "on" : "off";
+
+    Squid::SetSetting("error_directory",[SquidErrorMessages::GetPath(error_language)]);
+    Squid::SetSetting("cache_mgr", [cache_mgr]);
+    Squid::SetSetting("ftp_passive", [ftp_passive]);
+
+    return true;
+}
+/********************* STORING + DELETING END ********************/
+}
+/* vim: set sw=4 ts=4 et ft=ycp : */

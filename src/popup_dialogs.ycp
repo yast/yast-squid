@@ -33,6 +33,9 @@ textdomain "squid";
 import "Label";
 import "SquidACL";
 
+include "squid/inits.ycp";
+include "squid/store_del.ycp";
+
 /*****************  HTTP PORT  ********************/
 /**
  * returns true if something added/edited otherwise false

@@ -13,6 +13,8 @@ ynclude_DATA =			\
 	dialogs.ycp		\
     popup_dialogs.ycp \
 	complex.ycp \
+    inits.ycp \
+    store_del.ycp \
 	SquidACL_local_functions.ycp
 
 desktop_DATA =			\

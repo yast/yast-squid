@@ -43,7 +43,7 @@ import "Message";
 /**
  * Defines path used in SCR::Read/Write functions
  */
-path squid_path = .squid;
+path squid_path = .etc.squid;
 
 
 /**
@@ -191,6 +191,24 @@ global map<string,any> GetACL(integer id_item)
     return acls[id_item]:$[];
 }
 
+global string GetACLType(integer id_item)
+{
+    return (acls[id_item]:$[])["type"]:"";
+}
+
+global string GetACLTypeByName(string acl_name)
+{
+    string ret = nil;
+    foreach (map<string,any> value, acls,
+        {
+            if (value["name"]:"" == acl_name){
+                ret = value["type"]:"";
+                break;
+            }
+        });
+    return ret;
+}
+
 global void AddACL(string name, string type, list<string> options)
 {
     acls = add(acls, $[ "name" : name,
@@ -231,6 +249,27 @@ global integer NumACLs(integer id_item)
         });
 
     y2debug("Squid::NumACLs() - acl: %1, num: %2", acl, ret);
+
+    return ret;
+}
+
+/**
+ * Same as NumACLs but ACL is identified by name.
+ */
+global integer NumACLsByName(string name)
+{
+    integer ret = nil;
+    integer i = 0;
+    foreach (map<string,any> value, acls,
+        {
+            if (value["name"]:"" == name){
+                break;
+            }
+            i = i + 1;
+        });
+    if (i < size(acls)){
+        ret = NumACLs(i);
+    }
 
     return ret;
 }
@@ -464,6 +503,40 @@ global void DelHttpPort(integer id_item)
 }
 /**** HTTP PORT END *****/
 
+/**
+ * Verify and repair list of ACLs if something's wrong.
+ */
+void verifyACLs()
+{
+    //verification of ACLs
+    //There must not exist more ACLs with same name and different type
+    integer i = 0;
+    list<string> tested = [];
+    list<integer> to_remove = [];
+    integer ii = 0;
+    foreach (map<string,any> value, acls,
+        {
+            if (!contains(tested, value["name"]:"")){
+                if (NumACLs(i) > 0){
+                    to_remove = [];
+                    ii = 0;
+                    foreach (map<string,any> val, acls,
+                        {
+                            if (val["name"]:"" == value["name"]:""
+                                && val["type"]:"" != value["type"]:""){
+                                to_remove = add(to_remove, ii);
+                            }
+                            ii = ii + 1;
+                        });
+                    //delete all ACLs which has not type same as value["type"]:"" -
+                    // - it means type of first occurence of tested ACL
+                    foreach (integer val, to_remove, { acls = remove(acls, val);});
+                }
+                tested = add(tested, value["name"]:"");
+            }
+            i = i + 1;
+        });
+}
 
 /**
  * Read setting of parameter http_port.
@@ -650,6 +723,9 @@ boolean readACLs()
 
             acls = add(acls, tmp_acl);
         });
+
+    verifyACLs();
+
     return ok;
 }
 
@@ -714,7 +790,11 @@ global boolean Read() {
     Progress::New(_("Initializing squid Configuration"),
                   " ",
                   5,
-                  [_("Read the settings")],
+                  [_("Read the settings of Http Ports"),
+                   _("Read the settings of Refresh Patterns"),
+                   _("Read the settings of ACLs"),
+                   _("Read the settings of Http Accesses"),
+                   _("Read the rest settings")],
                   [_("Reading the setting ...")],
                   "");
 
@@ -722,19 +802,19 @@ global boolean Read() {
     Progress::NextStage();
 
     if (!readHttpPorts()) ok = false;
-    Progress::NextStep();
+    Progress::NextStage();
 
     if (!readRefreshPatterns()) ok = false;
-    Progress::NextStep();
+    Progress::NextStage();
 
     if (!readACLs()) ok = false;
-    Progress::NextStep();
+    Progress::NextStage();
 
     if (!readHttpAccesses()) ok = false;
-    Progress::NextStep();
+    Progress::NextStage();
 
     if (!readRestSetting()) ok = false;
-    Progress::NextStep();
+    Progress::NextStage();
 
     y2debug("================ Setting ======================");
     y2debug("Squid::Read - http_ports: %1",http_ports);
