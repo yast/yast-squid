@@ -39,6 +39,7 @@ import "Progress";
 import "Report";
 import "Summary";
 import "Message";
+import "Service";
 
 /**
  * Defines path used in SCR::Read/Write functions
@@ -144,10 +145,111 @@ list<string> split(string str, string delim)
 }
 
 
+global void SetDefaultValues()
+{
+    http_ports = [$["host" : "",
+                    "port" : "3128",
+                    "transparent" : false]];
+    acls = [
+        $[ "name":"QUERY",
+           "options":["cgi-bin \\?"],
+           "type":"urlpath_regex" ],
+        $[ "name":"apache",
+           "options":[ "Server", "^Apache" ],
+           "type":"rep_header" ],
+        $[ "name":"all",
+           "options":[ "0.0.0.0/0.0.0.0" ],
+           "type":"src" ],
+        $[ "name":"manager",
+           "options":[ "cache_object" ],
+           "type":"proto" ],
+        $[ "name":"localhost",
+           "options":[ "127.0.0.1/255.255.255.255" ],
+           "type":"src" ],
+        $[ "name":"to_localhost",
+           "options":[ "127.0.0.0/8" ],
+           "type":"dst" ],
+        $[ "name":"SSL_ports",
+           "options":[ "443" ],
+           "type":"port" ],
+        $[ "name":"Safe_ports",
+           "options":[ "80" ],
+           "type":"port" ],
+        $[ "name":"Safe_ports",
+           "options":[ "21" ],
+           "type":"port" ],
+        $[ "name":"Safe_ports",
+           "options":[ "443" ],
+           "type":"port" ],
+        $[ "name":"Safe_ports",
+           "options":[ "70" ],
+           "type":"port" ],
+        $[ "name":"Safe_ports",
+           "options":[ "210" ],
+           "type":"port" ],
+        $[ "name":"Safe_ports",
+           "options":[ "1025-65535" ],
+           "type":"port" ],
+        $[ "name":"Safe_ports",
+           "options":[ "280" ],
+           "type":"port" ],
+        $[ "name":"Safe_ports",
+           "options":[ "488" ],
+           "type":"port" ],
+        $[ "name":"Safe_ports",
+           "options":[ "591" ],
+           "type":"port" ],
+        $[ "name":"Safe_ports",
+           "options":[ "777" ],
+           "type":"port" ],
+        $[ "name":"CONNECT",
+           "options":[ "CONNECT" ],
+           "type":"method" ]
+    ];
+    http_accesses = [
+        $[ "acl":[ "manager", "localhost" ],
+           "allow":true ],
+        $[ "acl":[ "manager" ],
+           "allow":false ],
+        $[ "acl":[ "!Safe_ports" ],
+           "allow":false ],
+        $[ "acl":[ "CONNECT", "!SSL_ports" ],
+           "allow":false ],
+        $[ "acl":[ "localhost" ],
+           "allow":true ],
+        $[ "acl":[ "all" ],
+           "allow":false ]
+    ];
+    refresh_patterns = [
+        $[ "case_sensitive":true,
+           "max":"10080",
+           "min":"1440",
+           "percent":"20",
+           "regexp":"^ftp:" ],
+        $[ "case_sensitive":true,
+           "max":"1440",
+           "min":"1440",
+           "percent":"0",
+           "regexp":"^gopher:" ],
+        $[ "case_sensitive":true,
+           "max":"4320",
+           "min":"0",
+           "percent":"20",
+           "regexp":"." ]
+    ];
+    settings = parameters;
+}
 
 
-global boolean Modified(){
+
+global boolean GetModified(){
     return modified;
+}
+
+global void SetModified()
+{
+    y2debug("Squid::SetModified() - Squid modified");
+    modified = true;
 }
 
 
@@ -165,16 +267,15 @@ global boolean write_only = false;
  * Abort function
  * return boolean return true if abort
  */
-global boolean() AbortFunction = Modified;
+global boolean() AbortFunction = GetModified;
 
 /**
  * Abort function
  * @return boolean return true if abort
  */
 global define boolean Abort() ``{
-    if(AbortFunction != nil)
-    {
-	return AbortFunction () == true;
+    if (AbortFunction != nil){
+        return AbortFunction () == true;
     }
     return false;
 }
@@ -211,6 +312,7 @@ global string GetACLTypeByName(string acl_name)
 
 global void AddACL(string name, string type, list<string> options)
 {
+    SetModified();
     acls = add(acls, $[ "name" : name,
                         "type" : type,
                         "options" : options]);
@@ -219,15 +321,20 @@ global void AddACL(string name, string type, list<string> options)
 global void ModifyACL(integer id_item, string name, string type, list<string> options)
 {
     if (id_item >= 0 && id_item < size(acls)){
-        acls[id_item] = $[ "name" : name,
-                           "type" : type,
-                           "options" : options];
+        map<string, any> tmp = $[ "name" : name,
+                                  "type" : type,
+                                  "options" : options];
+        if (tmp != acls[id_item]:$[]){
+            SetModified();
+            acls[id_item] = tmp;
+        }
     }
 }
 
 global void DelACL(integer id_item)
 {
     if (id_item >= 0 && id_item < size(acls)){
+        SetModified();
         acls = remove(acls, id_item);
     }
 }
@@ -369,6 +476,7 @@ global map<string,any> GetHttpAccess(integer id_item)
 
 global void AddHttpAccess(boolean allow, list<string> acl)
 {
+    SetModified();
     http_accesses = add(http_accesses, $["allow" : allow,
                                          "acl" : acl]);
 }
@@ -376,14 +484,20 @@ global void AddHttpAccess(boolean allow, list<string> acl)
 global void ModifyHttpAccess(integer id_item, boolean allow, list<string> acl)
 {
     if (id_item >= 0 && id_item < size(http_accesses)){
-        http_accesses[id_item] = $["allow" : allow,
-                                   "acl" : acl];
+        map<string,any> tmp = $["allow" : allow,
+                                "acl" : acl];
+
+        if (tmp != http_accesses[id_item]:$[]){
+            SetModified();
+            http_accesses[id_item] = tmp;
+        }
     }
 }
 
 global void DelHttpAccess(integer id_item)
 {
     if (id_item >= 0 && id_item < size(http_accesses)){
+        SetModified();
         http_accesses = remove(http_accesses, id_item);
     }
 }
@@ -391,8 +505,10 @@ global void DelHttpAccess(integer id_item)
 global void MoveHttpAccess(integer id_from, integer id_to)
 {
     if (id_from >= 0 && id_from < size(http_accesses)
-        && id_to >= 0 && id_to < size(http_accesses)){
+        && id_to >= 0 && id_to < size(http_accesses)
+        && id_from != id_to){
 
+        SetModified();
         map<string,any> tmp = http_accesses[id_from]:$[];
         http_accesses[id_from] = http_accesses[id_to]:$[];
         http_accesses[id_to] = tmp;
@@ -413,7 +529,12 @@ global list<string> GetSetting(string name)
 
 global void SetSetting(string name, list value)
 {
-    settings[name] = value;
+    list tmp = value;
+
+    if (tmp != settings[name]:[]){
+        SetModified();
+        settings[name] = value;
+    }
 }
 
 /******* SETTINGS END *****/
@@ -431,6 +552,7 @@ global map<string,any> GetRefreshPattern(integer id_item)
 
 global void AddRefreshPattern(string regexp, string min, string percent, string max, boolean case_sensitive)
 {
+    SetModified();
     refresh_patterns = add(refresh_patterns, $[ "regexp" : regexp,
                                                 "min" : min,
                                                 "percent" : percent,
@@ -441,17 +563,22 @@ global void AddRefreshPattern(string regexp, string min, string percent, string 
 global void ModifyRefreshPattern(integer id_item, string regexp, string min, string percent, string max, boolean case_sensitive)
 {
     if (id_item >= 0 && id_item < size(refresh_patterns)){
-        refresh_patterns[id_item] = $[ "regexp" : regexp,
-                                       "min" : min,
-                                       "percent" : percent,
-                                       "max" : max,
-                                       "case_sensitive" : case_sensitive];
+        map<string,any> tmp = $[ "regexp" : regexp,
+                                 "min" : min,
+                                 "percent" : percent,
+                                 "max" : max,
+                                 "case_sensitive" : case_sensitive];
+        if (tmp != refresh_patterns[id_item]:$[]){
+            SetModified();
+            refresh_patterns[id_item] = tmp;
+        }
     }
 }
 
 global void DelRefreshPattern(integer id_item)
 {
     if (id_item >= 0 && id_item < size(refresh_patterns)){
+        SetModified();
         refresh_patterns = remove(refresh_patterns, id_item);
     }
 }
@@ -459,8 +586,10 @@ global void DelRefreshPattern(integer id_item)
 global void MoveRefreshPattern(integer id_from, integer id_to)
 {
     if (id_from >= 0 && id_from < size(refresh_patterns)
-        && id_to >= 0 && id_to < size(refresh_patterns)){
+        && id_to >= 0 && id_to < size(refresh_patterns)
+        && id_from != id_to){
 
+        SetModified();
         map<string,any> tmp = refresh_patterns[id_from]:$[];
         refresh_patterns[id_from] = refresh_patterns[id_to]:$[];
         refresh_patterns[id_to] = tmp;
@@ -481,6 +610,7 @@ global map<string, any > GetHttpPort(integer id_item)
 
 global void AddHttpPort(string host, string port, boolean transparent)
 {
+    SetModified();
     http_ports = add(http_ports, $["host" : host,
                                    "port" : port,
                                    "transparent" : transparent]);
@@ -489,19 +619,28 @@ global void AddHttpPort(string host, string port, boolean transparent)
 global void ModifyHttpPort(integer id_item, string host, string port, boolean transparent)
 {
     if (id_item >= 0 && id_item < size(http_ports)){
-        http_ports[id_item] = $["host" : host,
+        map<string,any> tmp = $["host" : host,
                                 "port" : port,
                                 "transparent" : transparent];
+        if (tmp != http_ports[id_item]:$[]){
+            SetModified();
+            http_ports[id_item] = tmp;
+        }
     }
 }
 
 global void DelHttpPort(integer id_item)
 {
     if (id_item >= 0 && id_item < size(http_ports)){
+        SetModified();
         http_ports = remove(http_ports, id_item);
     }
 }
 /**** HTTP PORT END *****/
+
+
+
+/********************  READ  **********************/
 
 /**
  * Verify and repair list of ACLs if something's wrong.
@@ -780,6 +919,28 @@ boolean readRestSetting()
     return ok;
 }
 
+boolean readAllSettings()
+{
+    boolean ok = true;
+
+    if (!readHttpPorts()) ok = false;
+    Progress::NextStep();
+
+    if (!readRefreshPatterns()) ok = false;
+    Progress::NextStep();
+
+    if (!readACLs()) ok = false;
+    Progress::NextStep();
+
+    if (!readHttpAccesses()) ok = false;
+    Progress::NextStep();
+
+    if (!readRestSetting()) ok = false;
+    Progress::NextStep();
+
+    return ok;
+}
+
 /**
  * Read all squid settings
  * @return true on success
@@ -790,101 +951,266 @@ global boolean Read() {
     Progress::New(_("Initializing squid Configuration"),
                   " ",
                   5,
-                  [_("Read the settings of Http Ports"),
-                   _("Read the settings of Refresh Patterns"),
-                   _("Read the settings of ACLs"),
-                   _("Read the settings of Http Accesses"),
-                   _("Read the rest settings")],
+                  [_("Read the settings.")],
                   [_("Reading the setting ...")],
                   "");
 
     if(Abort()) return false;
     Progress::NextStage();
 
-    if (!readHttpPorts()) ok = false;
-    Progress::NextStage();
+    ok = readAllSettings();
 
-    if (!readRefreshPatterns()) ok = false;
-    Progress::NextStage();
-
-    if (!readACLs()) ok = false;
-    Progress::NextStage();
-
-    if (!readHttpAccesses()) ok = false;
-    Progress::NextStage();
-
-    if (!readRestSetting()) ok = false;
-    Progress::NextStage();
-
-    y2debug("================ Setting ======================");
+    y2milestone("================ Setting ======================");
     y2debug("Squid::Read - http_ports: %1",http_ports);
     y2debug("Squid::Read - http_accesses: %1", http_accesses);
     y2debug("Squid::Read - acls: %1", acls);
     y2debug("Squid::Read - refresh_patterns: %1", refresh_patterns);
     y2debug("Squid::Read - settings: %1", settings);
-    y2debug("================ Setting END ==================");
+    y2milestone("================ Setting END ==================");
 
     /* Error message */
     if(!ok) Report::Error(_("Cannot read configuration file."));
 
-    return true;
+    return ok;
 }
+/********************  READ END  ******************/
+
+
+
+/********************  WRITE  *********************/
+
+
+boolean writeHttpPorts()
+{
+    boolean ok = true;
+    list<string> scr = [];
+    string tmp = "";
+
+    foreach (map<string,any> value, http_ports,
+        {
+            tmp = value["host"]:"";
+            if (size(value["host"]:"") > 0) tmp = tmp + ":";
+            tmp = tmp + value["port"]:"";
+            if (value["transparent"]:false) tmp = tmp + " transparent";
+
+            scr = add(scr, tmp);
+        });
+
+    y2debug("Squid::Write - http_port: %1", scr);
+    if (!SCR::Write(add(squid_path, "http_port"), scr))
+        ok = false;
+
+    return ok;
+}
+
+boolean writeACLs()
+{
+    boolean ok = true;
+    list<string> scr = [];
+    string tmp = "";
+
+    foreach (map<string, any> value, acls,
+        {
+            tmp = value["name"]:"";
+            tmp = tmp + " " + value["type"]:"";
+            tmp = tmp + " " + mergestring(value["options"]:[], " ");
+            scr = add(scr, tmp);
+        });
+
+    y2debug("Squid::Write - acl: %1", scr);
+    if (!SCR::Write(add(squid_path, "acl"), scr))
+        ok = false;
+
+    return ok;
+}
+
+
+boolean writeHttpAccesses()
+{
+    boolean ok = true;
+    list<string> scr = [];
+    string tmp = "";
+
+    foreach (map<string,any> value, http_accesses,
+        {
+            if (value["allow"]:true){
+                tmp = "allow";
+            }else{
+                tmp = "deny";
+            }
+            tmp = tmp + " " + mergestring(value["acl"]:[], " ");
+            scr = add(scr, tmp);
+        });
+
+    y2debug("Squid::Write - http_access: %1", scr);
+    if (!SCR::Write(add(squid_path, "http_access"), scr))
+        ok = false;
+
+    return ok;
+}
+
+
+boolean writeRefreshPatterns()
+{
+    boolean ok = true;
+    list<string> scr = [];
+    string tmp = "";
+
+    foreach (map<string,any> value, refresh_patterns,
+        {
+            tmp = "";
+            if (!value["case_sensitive"]:false) tmp = "-i ";
+            tmp = tmp + value["regexp"]:"";
+            tmp = tmp + " " + value["min"]:"";
+            tmp = tmp + " " + value["percent"]:"";
+            tmp = tmp + " " + value["max"]:"";
+            scr = add(scr, tmp);
+        });
+
+    y2debug("Squid::Write - refresh_pattern: %1", scr);
+    if (!SCR::Write(add(squid_path, "refresh_pattern"), scr))
+        ok = false;
+
+    return ok;
+}
+
+
+boolean writeRestSetting()
+{
+    boolean ok = true;
+    string tmp = "";
+    list<string> setting = nil;
+
+    foreach (string key, list value, parameters,
+        {
+            tmp = mergestring(settings[key]:[], " ");
+            if (size(tmp) > 0){
+                y2debug("Squid::Write - %1: %2", key, tmp);
+                if (!SCR::Write(add(squid_path, key), [tmp])){
+                    y2error("Squid::Write - cannot write %1 setting", key);
+                    ok = false;
+                }
+            }else{
+                y2debug("Squid::Write - %1: %2", key, nil);
+                if (!SCR::Write(add(squid_path, key), nil)){
+                    y2error("Squid::Write - cannot write %1 setting", key);
+                    ok = false;
+                }
+            }
+        });
+
+    return ok;
+}
+
+boolean writeAllSettings()
+{
+    if (!GetModified()){
+        y2debug("Squid::Write - no setting to write, because nothing's changed");
+        return true;
+    }
+    boolean ok = true;
+
+    y2milestone("Squid::writeAllSettings started");
+
+    if (!writeHttpPorts()) ok = false;
+    if (!writeACLs()) ok = false;
+    if (!writeHttpAccesses()) ok = false;
+    if (!writeRefreshPatterns()) ok = false;
+    if (!writeRestSetting()) ok = false;
+
+    if (ok){
+        if (!SCR::Write(squid_path, nil)){
+            y2error("Squid::Write - cannot write settings: `Write(%1, nil)", squid_path);
+            ok = false;
+        }
+    }
+
+    y2milestone("Squid::writeAllSettings finished");
+
+    return ok;
+}
+
+
+boolean startService()
+{
+    boolean ok = true;
+    //verify config file
+    //if ((integer)SCR::Execute(.target.bash, "squid -k parse") != 0){
+    //    y2error("Squid::Write - startService - 'squid -k parse' failed");
+    //    return false;
+    //}
+
+    if (Service::Status("squid") != 0){
+        if (!Service::Start("squid")){
+            ok = false;
+            Report::Error(Message::CannotStartService("squid"));
+        }
+    }else{
+        if (!Service::Reload("squid")){
+            ok = false;
+            Report::Error(Message::CannotRestartService("squid"));
+        }
+    }
+
+    return ok;
+}
+
 
 /**
  * Write all squid settings
  * @return true on success
  */
 global boolean Write() {
+    boolean ok = true;
 
-    /* Squid read dialog caption */
-    string caption = _("Saving squid Configuration");
-
-    // TODO FIXME And set the right number of stages
-    integer steps = 2;
-
-    integer sl = 500;
-    sleep(sl);
-
-    // TODO FIXME Names of real stages
     // We do not set help text here, because it was set outside
-    Progress::New(caption, " ", steps, [
-	    /* Progress stage 1/2 */
-	    _("Write the settings"),
-	    /* Progress stage 2/2 */
-	    _("Run SuSEconfig")
-	], [
-	    /* Progress step 1/2 */
-	    _("Writing the settings..."),
-	    /* Progress step 2/2 */
-	    _("Running SuSEconfig..."),
-	    /* Progress finished */
-	    _("Finished")
-	],
-	""
-    );
+    Progress::New(_("Saving Squid Configuration"),
+                  " ",
+                  2,
+                  [
+                    /* Progress stage 1/2 */
+                    _("Write the settings"),
+                    /* Progress stage 2/2 */
+                    _("Start Service")
+                  ],
+                  [
+                    /* Progress step 1/2 */
+                    _("Writing the settings..."),
+                    /* Progress step 2/2 */
+                    _("Starting Service..."),
+                    /* Progress finished */
+                    _("Finished")
+                  ],
+                  ""
+                 );
 
     // write settings
     if(Abort()) return false;
     Progress::NextStage();
-    /* Error message */
-    if(false) Report::Error (_("Cannot write settings."));
-    sleep(sl);
 
-    // run SuSEconfig
+    if(!writeAllSettings()){
+        Report::Error (_("Cannot write settings."));
+        ok = false;
+    }
+
+    // start Service
     if(Abort()) return false;
     Progress::NextStage ();
-    /* Error message */
-    if(false) Report::Error (Message::SuSEConfigFailed());
-    sleep(sl);
+    if (!write_only){
+        if(!startService()) ok = false;
+    }
 
     if(Abort()) return false;
     /* Progress finished */
     Progress::NextStage();
-    sleep(sl);
 
     if(Abort()) return false;
-    return true;
+    return ok;
 }
+/********************  WRITE END  *****************/
+
+
+
 
 /**
  * Get all squid settings from the first parameter
@@ -892,8 +1218,28 @@ global boolean Write() {
  * @param settings The YCP structure to be imported.
  * @return boolean True on success
  */
-global boolean Import (map settings) {
-    // TODO FIXME: your code here (fill the above mentioned variables)...
+global boolean Import (map sett) {
+    if (sett == $[]){
+        SetDefaultValues();
+        SetModified();
+        return true;
+    }
+    if (!haskey(sett, "http_ports") ||
+        !haskey(sett, "acls") ||
+        !haskey(sett, "http_accesses") ||
+        !haskey(sett, "refresh_patterns") ||
+        !haskey(sett, "settings")){
+
+        return false;
+    }
+
+    http_ports = (list<map<string,any> >)sett["http_ports"]:[];
+    acls = (list<map<string,any> >)sett["acls"]:[];
+    http_accesses = (list<map<string,any> >)sett["http_accesses"]:[];
+    refresh_patterns = (list<map<string,any> >)sett["refresh_patterns"]:[];
+    settings = (map<string,any>)sett["settings"]:$[];
+    SetModified();
+
     return true;
 }
 
@@ -903,8 +1249,11 @@ global boolean Import (map settings) {
  * @return map Dumped settings (later acceptable by Import ())
  */
 global map Export () {
-    // TODO FIXME: your code here (return the above mentioned variables)...
-    return $[];
+    return $[ "http_ports" : http_ports,
+              "acls" : acls,
+              "http_accesses" : http_accesses,
+              "refresh_patterns" : refresh_patterns,
+              "settings" : settings ];
 }
 
 /**
@@ -912,6 +1261,7 @@ global map Export () {
  * @return summary of the current configuration
  */
 global list Summary() {
+    string summary = "";
     // TODO FIXME: your code here...
     /* Configuration summary text for autoyast */
     return [ _("Configuration summary..."), [] ];
@@ -933,8 +1283,7 @@ global list Overview() {
  * @return map with 2 lists.
  */
 global map AutoPackages() {
-    // TODO FIXME: your code here...
-    return $[ "install":[], "remove":[] ];
+    return $[ "install":["squid"], "remove":[] ];
 }
 
 /* EOF */

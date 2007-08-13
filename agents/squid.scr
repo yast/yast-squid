@@ -23,7 +23,7 @@
               $["params" : [
                     $["match" : ["^[ \t]*([^ \t]+)[ \t]+(.+)[ \t]*$", "%s %s"]]
                 ],
-                "comments" : ["[ \t]*#.*$", "^[ \t]*$", "[ \t]*$"],
+                "comments" : ["#.*$", "^[ \t]*$"],
                 "options" : ["flat", "repeat_names", "global_values"]
               ]
     )

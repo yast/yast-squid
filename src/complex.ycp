@@ -46,16 +46,8 @@ include "squid/helps.ycp";
 
 
 
-/**
- * Return a modification status
- * @return true if data was modified
- */
-boolean Modified() {
-    return Squid::Modified();
-}
-
 boolean ReallyAbort() {
-    return !Squid::Modified() || Popup::ReallyAbort(true);
+    return !Squid::GetModified() || Popup::ReallyAbort(true);
 }
 
 boolean PollAbort() {
@@ -68,8 +60,8 @@ boolean PollAbort() {
  */
 symbol ReadDialog() {
     Wizard::RestoreHelp(HELPS["read"]:"");
-    // Squid::AbortFunction = PollAbort;
-    //if (!Confirm::MustBeRoot()) return `abort;
+    Squid::AbortFunction = PollAbort;
+    if (!Confirm::MustBeRoot()) return `abort;
     boolean ret = Squid::Read();
     return ret ? `next : `abort;
 }
@@ -80,7 +72,7 @@ symbol ReadDialog() {
  */
 symbol WriteDialog() {
     Wizard::RestoreHelp(HELPS["write"]:"");
-    // Squid::AbortFunction = PollAbort;
+    Squid::AbortFunction = PollAbort;
     boolean ret = Squid::Write();
     return ret ? `next : `abort;
 }

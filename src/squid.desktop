@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Categories=Qt;X-SuSE-YaST;X-SuSE-YaST-Misc;
+Categories=Qt;X-SuSE-YaST;X-SuSE-YaST-Net_advanced;
 
 X-KDE-ModuleType=Library
 X-KDE-RootOnly=true
@@ -8,10 +8,10 @@ X-KDE-HasReadOnlyMode=true
 X-KDE-Library=yast2
 X-SuSE-YaST-Call=squid
 
-X-SuSE-YaST-Group=Misc
+X-SuSE-YaST-Group=Net_advanced
 X-SuSE-YaST-Argument=
 X-SuSE-YaST-RootOnly=true
-X-SuSE-YaST-AutoInst=
+X-SuSE-YaST-AutoInst=all
 X-SuSE-YaST-Geometry=
 X-SuSE-YaST-SortKey=
 X-SuSE-YaST-AutoInstResource=squid
@@ -20,5 +20,5 @@ Icon=yast-squid
 Exec=/sbin/yast2 squid 
 
 Name=Squid
-GenericName=squid
+GenericName=Configure a Squid cache proxy server
 X-KDE-SubstituteUID=true

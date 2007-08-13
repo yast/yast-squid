@@ -43,6 +43,15 @@ include "squid/inits.ycp";
 include "squid/store_del.ycp";
 
 
+boolean reallyAbort()
+{
+    if (!Squid::GetModified())
+        return true;
+    if (Popup::ReallyAbort(true))
+        return true;
+    return false;
+}
+
 /**
  * Returns a widget with setting of units
  */
@@ -94,8 +103,7 @@ any HttpPortsDialog(){
 
         if (ret == `next) break;
         else if (ret == `abort || ret == `cancel){
-            //if (Popup::ReallyAbort(true)) break;
-            break;
+            if (reallyAbort()) break;
             continue;
         }else if (ret == `add){
             if (AddEditHttpPortDialog(nil))
@@ -152,8 +160,7 @@ any CacheDialog(){
 
         if (ret == `next || ret == `back) break;
         else if (ret == `abort || ret == `cancel){
-            //if (Popup::ReallyAbort(true)) break;
-            break;
+            if (reallyAbort()) break;
             continue;
         }else if (ret == `add){
             if (AddEditRefreshPatternDialog(nil))
@@ -251,8 +258,7 @@ any Cache2Dialog(){
             if (StoreDataFromCache2Dialog())
                 break;
         }else if (ret == `abort || ret == `cancel){
-            //if (Popup::ReallyAbort(true)) break;
-            break;
+            if (reallyAbort()) break;
             continue;
         }else if (ret == `cache_dir){
             CacheDirAdvancedSettingDialog();
@@ -314,8 +320,7 @@ any AccessControlDialog(){
 
         if (ret == `next || ret == `back) break;
         else if (ret == `abort || ret == `cancel){
-            //if (Popup::ReallyAbort(true)) break;
-            break;
+            if (reallyAbort()) break;
             continue;
         }else if (ret == `add_acl){
             if (AddEditACLDialog(nil)){
@@ -421,8 +426,7 @@ any LoggingAndTimeoutsDialog()
             if(StoreDataFromLoggingFrame() && StoreDataFromTimeoutsFrame())
                 break;
         }else if (ret == `abort || ret == `cancel){
-            //if (Popup::ReallyAbort(true)) break;
-            break;
+            if (reallyAbort()) break;
             continue;
         }else if (ret == `access_log_browse){
             tmp = UI::AskForExistingFile("/var/log", "*", "Access Log");
@@ -471,8 +475,7 @@ any MiscellaneousDialog()
             if (StoreDataFromMiscellaneousDialog())
                 break;
         }else if (ret == `abort || ret == `cancel){
-            //if (Popup::ReallyAbort(true)) break;
-            break;
+            if (reallyAbort()) break;
             continue;
         }
     }

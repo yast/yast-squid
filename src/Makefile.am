@@ -22,7 +22,6 @@ desktop_DATA =			\
 
 module_DATA =			\
 	Squid.ycp		\
-	Squid2.pm \
     SquidACL.ycp \
     SquidErrorMessages.ycp
 

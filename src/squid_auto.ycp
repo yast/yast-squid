@@ -102,6 +102,13 @@ else if (func == "Write") {
     ret = Squid::Write();
     Progress::set (progress_orig);
 }
+else if (func == "SetModified"){
+    Squid::SetModified();
+    ret = true;
+}
+else if (func == "GetModified"){
+    ret = Squid::GetModified();
+}
 /* Unknown function */
 else {
     y2error("Unknown function: %1", func);
@@ -116,3 +123,4 @@ return ret;
 
 /* EOF */
 }
+/* vim: set sw=4 ts=4 et ft=ycp : */

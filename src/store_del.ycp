@@ -34,6 +34,7 @@ textdomain "squid";
 import "Label";
 import "Report";
 import "FileUtils";
+import "Popup";
 
 import "Squid";
 import "SquidACL";
@@ -152,10 +153,31 @@ boolean StoreDataFromCacheDirAdvancedSettingDialog()
              tostring(UI::QueryWidget(`id("l2dirs"), `Value))]);
     return true;
 }
+
+/**
+ * Function which sets permissions 'chmod 750' and 'chown squid:root'
+ * to directory dir if exists.
+ * If dir does not exist, function returns true;
+ */
+boolean setWritePremissionsToCacheDir(string dir)
+{
+    if (!FileUtils::IsDirectory(dir)){
+        y2debug("store_del::checkWritePremissionsCacheDir() - '%1' is not directory", dir);
+        return true;
+    }
+
+    if ((integer)SCR::Execute(.target.bash, "chown squid:root " + dir) != 0 ||
+        (integer)SCR::Execute(.target.bash, "chmod 750 " + dir) != 0){
+        return (Popup::ContinueCancel(sformat(_("Unable to set correct permissions to directory %1."), dir)));
+    }
+
+    return true;
+}
+
 boolean StoreDataFromCache2Dialog()
 {
     boolean ok = true;
-
+    list squid_cache_dir = Squid::GetSetting("cache_dir");
     string cache_dir = (string)UI::QueryWidget(`id("cache_dir"), `Value);
 
     if (size(cache_dir) == 0){
@@ -165,10 +187,13 @@ boolean StoreDataFromCache2Dialog()
         ok = false;
     }
 
-    if (ok){
-        list set = Squid::GetSetting("cache_dir");
+    if (ok && !setWritePremissionsToCacheDir(cache_dir)){
+        ok = false;
+    }
 
-        Squid::SetSetting("cache_dir", [set[0]:"", cache_dir, set[1]:"", set[2]:"", set[3]:""]);
+    if (ok){
+        Squid::SetSetting("cache_dir", [squid_cache_dir[0]:"", cache_dir, squid_cache_dir[2]:"",
+                                        squid_cache_dir[3]:"", squid_cache_dir[4]:""]);
         Squid::SetSetting("cache_mem", [tostring(UI::QueryWidget(`id("cache_mem"), `Value)),
                                         UI::QueryWidget(`id("cache_mem_units"), `Value)]);
         Squid::SetSetting("maximum_object_size", [tostring(UI::QueryWidget(`id("cache_max_object_size"), `Value)),
@@ -377,8 +402,6 @@ integer DelFromACLGroupsTable(integer id_item)
 
 
 /********  LOGGING AND TIMEOUTS DIALOG  ***********/
-//TODO: Here must be control, if is possible to create each log file (if it's not
-//      possible it causes breakdown of squid).
 boolean StoreDataFromLoggingFrame()
 {
     boolean ok = true;
