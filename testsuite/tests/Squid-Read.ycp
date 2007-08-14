@@ -58,6 +58,7 @@ map READ = $[
        "ftp_passive" : ["on"]
     ]
 ];
+READ = $["etc" : READ];
 
 map WRITE = $[];
 map EXECUTE = $[];
@@ -119,8 +120,10 @@ TEST(``(Squid::http_ports), [], nil);
 /* Testing of using default values: */
 DUMP("------------------------------");
 DUMP("----testing defualt values----");
+READ = READ["etc"]:$[];
 READ["squid"] = remove(READ["squid"]:$[], "cache_mem");
 READ["squid"] = remove(READ["squid"]:$[], "memory_replacement_policy");
+READ = $["etc" : READ];
 
 DUMP("Squid:Read()");
 TEST(``(Squid::Read()), [READ], nil);

@@ -325,7 +325,7 @@ boolean AddEditACLDialog(integer id_item)
                                    : _("Edit ACL Group"));
     term contents =
     `HBox(
-        `HWeight(50, `RichText(`id("help_text"), "")),
+        `HWeight(30, `RichText(`id("help_text"), "")),
         `HWeight(70, `VBox(
             `Label(label),
             `VSpacing(0.5),

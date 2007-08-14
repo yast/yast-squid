@@ -60,6 +60,7 @@ map READ = $[
        "no_cache" : ["deny QUERY"]
     ]
 ];
+READ = $["etc" : READ];
 
 map WRITE = $[];
 map EXECUTE = $[];

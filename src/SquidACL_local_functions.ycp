@@ -21,7 +21,7 @@
 /**
  * File:	include/squid/SquidACL_local_functions.ycp
  * Package:	Configuration of squid
- * Summary:	Non-global functions of SquidACL module which are linked with ACL_map variable.
+ * Summary:	Non-global functions of SquidACL module which are linked with acl_map variable.
  * Authors:	Daniel Fiser <dfiser@suse.cz>
  *
  * $Id$
@@ -219,7 +219,7 @@ list<string> srcdomainOptions()
 
 /****************  REGEXP  ************************/
 /**
- * Returns univerzal widget for setting a regular expression.
+ * Returns universal widget for setting a regular expression.
  */
 term regexpWidget(string frame_title)
 {
@@ -232,7 +232,7 @@ term regexpWidget(string frame_title)
 }
 
 /**
- * Univerzal widget_init for regular expression.
+ * Universal widget_init for regular expression.
  */
 void regexpWidgetInit(integer id_item)
 {
@@ -247,7 +247,7 @@ void regexpWidgetInit(integer id_item)
     }
 }
 /**
- * Univerzal verification function for regular expression.
+ * Universal verification function for regular expression.
  */
 boolean regexpVerif()
 {
@@ -261,7 +261,7 @@ boolean regexpVerif()
     return ok;
 }
 /**
- * Univerzal options function for regular expression.
+ * Universal options function for regular expression.
  */
 list<string> regexpOptions()
 {
@@ -275,13 +275,14 @@ list<string> regexpOptions()
 /**
  * Returns map describing acl which has type of regular expression.
  */
-map<string,any> regexp(string name, string frame_title)
+map<string,any> regexp(string name, string frame_title, string help)
 {
     return $[ "name" : name,
               "widget" : regexpWidget(frame_title),
               "widget_init" : regexpWidgetInit,
               "verification" : regexpVerif,
-              "options" : regexpOptions ];
+              "options" : regexpOptions,
+              "help" : help ];
 }
 /****************  REGEXP END  ********************/
 

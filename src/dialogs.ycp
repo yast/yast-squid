@@ -35,8 +35,6 @@ import "Label";
 import "Wizard";
 import "SquidACL";
 
-//import "Squid";
-
 include "squid/helps.ycp";
 include "squid/popup_dialogs.ycp";
 include "squid/inits.ycp";
@@ -90,7 +88,7 @@ any HttpPortsDialog(){
             )
         );
 
-    Wizard::SetContentsButtons(_("Squid - HTTP Ports Setting"), dialog_contents, "help text ad",
+    Wizard::SetContentsButtons(_("Squid - HTTP Ports Setting"), dialog_contents, HELPS["http_ports"]:"",
         Label::BackButton(), Label::NextButton());
     Wizard::DisableBackButton();
 
@@ -148,7 +146,7 @@ any CacheDialog(){
             )
         );
 
-    Wizard::SetContentsButtons(_("Squid - Cache Setting"), dialog_contents, "help",
+    Wizard::SetContentsButtons(_("Squid - Cache Setting"), dialog_contents, HELPS["cache"]:"",
         Label::BackButton(), Label::NextButton());
 
     InitRefreshPatternsTable();
@@ -244,7 +242,7 @@ any Cache2Dialog(){
             ))
         );
 
-    Wizard::SetContentsButtons("Squid - Cache Setting 2", dialog_contents, "help",
+    Wizard::SetContentsButtons("Squid - Cache Setting 2", dialog_contents, HELPS["cache2"]:"",
         Label::BackButton(), Label::NextButton());
 
     InitCache2Dialog();
@@ -307,7 +305,7 @@ any AccessControlDialog(){
             )
         );
 
-    Wizard::SetContentsButtons(_("Squid - Access Control Setting"), dialog_contents, "help",
+    Wizard::SetContentsButtons(_("Squid - Access Control Setting"), dialog_contents, HELPS["access_control"]:"",
         Label::BackButton(), Label::NextButton());
 
     InitACLGroupsTable();
@@ -411,7 +409,7 @@ any LoggingAndTimeoutsDialog()
             ))
         ));
 
-    Wizard::SetContentsButtons("Squid - Logging + Timeouts Setting", dialog_contents, "help",
+    Wizard::SetContentsButtons("Squid - Logging + Timeouts Setting", dialog_contents, HELPS["logging_timeouts"]:"",
         Label::BackButton(), Label::NextButton());
 
     InitLoggingFrame();
@@ -461,7 +459,7 @@ any MiscellaneousDialog()
                  `Left(`CheckBox(`id("ftp_passive"), _("Use Ftp Pasive Mode")))
         ));
 
-    Wizard::SetContentsButtons("Squid - Miscellaneous Setting", dialog_contents, "help",
+    Wizard::SetContentsButtons("Squid - Miscellaneous Setting", dialog_contents, HELPS["miscellaneous"]:"",
         Label::BackButton(), Label::FinishButton());
 
     InitMiscellaneousDialog();

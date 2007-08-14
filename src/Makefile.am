@@ -4,8 +4,7 @@ yncludedir = @yncludedir@/squid
 
 client_DATA =			\
 	squid.ycp		\
-	squid_auto.ycp	\
-	squid_proposal.ycp
+	squid_auto.ycp
 
 ynclude_DATA =			\
 	helps.ycp		\

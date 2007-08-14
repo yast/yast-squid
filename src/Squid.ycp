@@ -40,6 +40,7 @@ import "Report";
 import "Summary";
 import "Message";
 import "Service";
+import "Summary";
 
 /**
  * Defines path used in SCR::Read/Write functions
@@ -132,6 +133,16 @@ map <string, list> parameters = $[
 ];
 
 
+
+/**
+ * Write only, used during autoinstallation.
+ * Don't run services and SuSEconfig, it's all done at one place.
+ */
+global boolean write_only = false;
+
+
+
+/*****************  HELP FUNCTIONS  ***************/
 /**
  * Same as splitstring(), but returns only non-empty strings.
  */
@@ -143,6 +154,65 @@ list<string> split(string str, string delim)
                     return (size(value)>0);
                 });
 }
+
+global integer NumACLs(integer id_item);
+/**
+ * Verify and repair list of ACLs if something's wrong.
+ */
+void verifyACLs()
+{
+    //verification of ACLs
+    //There must not exist more ACLs with same name and different type
+    integer i = 0;
+    list<string> tested = [];
+    list<integer> to_remove = [];
+    integer ii = 0;
+    foreach (map<string,any> value, acls,
+        {
+            if (!contains(tested, value["name"]:"")){
+                if (NumACLs(i) > 0){
+                    to_remove = [];
+                    ii = 0;
+                    foreach (map<string,any> val, acls,
+                        {
+                            if (val["name"]:"" == value["name"]:""
+                                && val["type"]:"" != value["type"]:""){
+                                to_remove = add(to_remove, ii);
+                            }
+                            ii = ii + 1;
+                        });
+                    //delete all ACLs which has not type same as value["type"]:"" -
+                    // - it means type of first occurence of tested ACL
+                    foreach (integer val, to_remove, { acls = remove(acls, val);});
+                }
+                tested = add(tested, value["name"]:"");
+            }
+            i = i + 1;
+        });
+}
+
+
+string repairTimeoutPeriodUnits(string old)
+{
+    string ret = "seconds";
+    if (old == "day"){
+        ret = "days";
+    }else if (old == "hour"){
+        ret = "hours";
+    }else if (old == "minute"){
+        ret = "minutes";
+    }else if (old == "second"){
+        ret = "seconds";
+    }else if (contains(["seconds", "minutes", "hours", "days"], old)){
+        ret = old;
+    }
+
+    return ret;
+}
+/*****************  HELP FUNCTIONS END  ***********/
+
+
+
 
 
 global void SetDefaultValues()
@@ -253,15 +323,7 @@ global void SetModified()
 }
 
 
-/**
- */
-global boolean proposal_valid = false;
 
-/**
- * Write only, used during autoinstallation.
- * Don't run services and SuSEconfig, it's all done at one place.
- */
-global boolean write_only = false;
 
 /**
  * Abort function
@@ -642,40 +704,6 @@ global void DelHttpPort(integer id_item)
 
 /********************  READ  **********************/
 
-/**
- * Verify and repair list of ACLs if something's wrong.
- */
-void verifyACLs()
-{
-    //verification of ACLs
-    //There must not exist more ACLs with same name and different type
-    integer i = 0;
-    list<string> tested = [];
-    list<integer> to_remove = [];
-    integer ii = 0;
-    foreach (map<string,any> value, acls,
-        {
-            if (!contains(tested, value["name"]:"")){
-                if (NumACLs(i) > 0){
-                    to_remove = [];
-                    ii = 0;
-                    foreach (map<string,any> val, acls,
-                        {
-                            if (val["name"]:"" == value["name"]:""
-                                && val["type"]:"" != value["type"]:""){
-                                to_remove = add(to_remove, ii);
-                            }
-                            ii = ii + 1;
-                        });
-                    //delete all ACLs which has not type same as value["type"]:"" -
-                    // - it means type of first occurence of tested ACL
-                    foreach (integer val, to_remove, { acls = remove(acls, val);});
-                }
-                tested = add(tested, value["name"]:"");
-            }
-            i = i + 1;
-        });
-}
 
 /**
  * Read setting of parameter http_port.
@@ -868,23 +896,6 @@ boolean readACLs()
     return ok;
 }
 
-string repair_timeout_period_units(string old)
-{
-    string ret = "seconds";
-    if (old == "day"){
-        ret = "days";
-    }else if (old == "hour"){
-        ret = "hours";
-    }else if (old == "minute"){
-        ret = "minutes";
-    }else if (old == "second"){
-        ret = "seconds";
-    }else if (contains(["seconds", "minutes", "hours", "days"], old)){
-        ret = old;
-    }
-
-    return ret;
-}
 /**
  * Read rest of setting.
  * return true on success
@@ -912,9 +923,9 @@ boolean readRestSetting()
     settings["cache_replacement_policy"] = [mergestring(settings["cache_replacement_policy"]:[]," ")];
     settings["memory_replacement_policy"] = [mergestring(settings["memory_replacement_policy"]:[]," ")];
     settings["connect_timeout"] = [ (settings["connect_timeout"]:[])[0]:"",
-                                    repair_timeout_period_units((settings["connect_timeout"]:[])[1]:"") ];
+                                    repairTimeoutPeriodUnits((settings["connect_timeout"]:[])[1]:"") ];
     settings["client_lifetime"] = [ (settings["client_lifetime"]:[])[0]:"",
-                                    repair_timeout_period_units((settings["client_lifetime"]:[])[1]:"") ];
+                                    repairTimeoutPeriodUnits((settings["client_lifetime"]:[])[1]:"") ];
 
     return ok;
 }
@@ -1131,7 +1142,19 @@ boolean writeAllSettings()
 }
 
 
-boolean startService()
+/**
+ * Returns true if Squid service is running.
+ */
+global boolean IsServiceRunning()
+{
+    return (Service::Status("squid") == 0);
+}
+
+/**
+ * Start Squid service if not running otherwise reload.
+ * Returns true if squid was successfuly started
+ */
+global boolean StartService()
 {
     boolean ok = true;
     //verify config file
@@ -1140,7 +1163,7 @@ boolean startService()
     //    return false;
     //}
 
-    if (Service::Status("squid") != 0){
+    if (!IsServiceRunning()){
         if (!Service::Start("squid")){
             ok = false;
             Report::Error(Message::CannotStartService("squid"));
@@ -1155,6 +1178,22 @@ boolean startService()
     return ok;
 }
 
+/**
+ * Stop Squid service.
+ * Returns true if squid was successfuly stopped
+ */
+global boolean StopService()
+{
+    boolean ok = true;
+
+    if (IsServiceRunning()){
+        if (!Service::Stop("squid")){
+            ok = false;
+            Report::Error(Message::CannotStopService("squid"));
+        }
+    }
+    return ok;
+}
 
 /**
  * Write all squid settings
@@ -1197,7 +1236,7 @@ global boolean Write() {
     if(Abort()) return false;
     Progress::NextStage ();
     if (!write_only){
-        if(!startService()) ok = false;
+        if(!StartService()) ok = false;
     }
 
     if(Abort()) return false;
@@ -1211,6 +1250,7 @@ global boolean Write() {
 
 
 
+/*******************  AUTOYAST  *******************/
 
 /**
  * Get all squid settings from the first parameter
@@ -1262,19 +1302,35 @@ global map Export () {
  */
 global list Summary() {
     string summary = "";
-    // TODO FIXME: your code here...
-    /* Configuration summary text for autoyast */
-    return [ _("Configuration summary..."), [] ];
+    string tmp = "";
+    if (!GetModified()){
+        summary = Summary::NotConfigured();
+    }else{
+        summary = Summary::AddHeader("", _("Squid Cache Proxy"));
+        summary = Summary::AddLine(summary, _("Configured ports:"));
+        if (size(http_ports) > 0){
+            summary = Summary::OpenList(summary);
+            foreach (map<string,any> value, http_ports,
+                {
+                    tmp = "";
+                    if (size(value["host"]:"") > 0) tmp = value["host"]:"" + ":";
+                    tmp = tmp + value["port"]:"";
+                    summary = Summary::AddListItem(summary, tmp);
+                });
+            summary = Summary::CloseList(summary);
+        }
+    }
+    return [ summary, [] ];
 }
 
 /**
  * Create an overview table with all configured cards
  * @return table items
- */
+ *
 global list Overview() {
-    // TODO FIXME: your code here...
     return [];
 }
+*/
 
 /**
  * Return packages needed to be installed and removed during
@@ -1285,6 +1341,7 @@ global list Overview() {
 global map AutoPackages() {
     return $[ "install":["squid"], "remove":[] ];
 }
+/*******************  AUTOYAST END  ***************/
 
 /* EOF */
 }

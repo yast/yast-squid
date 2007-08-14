@@ -420,10 +420,12 @@ boolean StoreDataFromLoggingFrame()
         ok = false;
         message = message + (size(message)>0 ? "\n" : "") + _("Cache Log must not be empty.");
     }
+    /*
     if (size(cache_store_log) == 0){
         ok = false;
         message = message + (size(message)>0 ? "\n" : "") + _("Cache Store Log must not be empty.");
     }
+    */
 
     if (ok){
         list<string> tmp = Squid::GetSetting("access_log");

@@ -48,23 +48,60 @@ import "Summary";
 import "CommandLine";
 include "squid/wizards.ycp";
 
+
+
+boolean startHandler(map<string,string> options)
+{
+    CommandLine::PrintNoCR("Starting service ...  ");
+    if (Squid::StartService()){
+        CommandLine::Print("Success");
+        return true;
+    }else{
+        CommandLine::Print("Failed");
+        return false;
+    }
+}
+boolean stopHandler(map<string,string> options)
+{
+    CommandLine::PrintNoCR("Stopping service ...  ");
+    if (Squid::StopService()){
+        CommandLine::Print("Success");
+        return true;
+    }else{
+        CommandLine::Print("Failed");
+        return false;
+    }
+}
+
+boolean init()
+{
+    return true;
+}
+boolean() finish = init;
+
+
+
 map cmdline_description = $[
-    "id" 	: "squid",
+    "id" : "squid",
     /* Command line help text for the Xsquid module */
-    "help"	: _("Configuration of squid"),
-    "guihandler"        : SquidSequence,
-//"initialize"        : Squid::Read,
-//    "finish"            : Squid::Write,
+    "help" : _("Configuration of Squid cache proxy"),
+    "guihandler" : SquidSequence,
+    "initialize" : init,
+    "finish"     : finish,
     "actions"           : $[
-	// FIXME TODO: fill the functionality description here
+        "start" : $[ "help" : "start squid service",
+                     "handler" : startHandler],
+        "stop" : $[ "help" : "stop squid service",
+                    "handler" : stopHandler]
     ],
     "options"		: $[
-	// FIXME TODO: fill the option descriptions here
     ],
     "mappings"		: $[
-	// FIXME TODO: fill the mappings of actions and options here
+        "start" : [],
+        "stop" : []
     ]
 ];
+
 
 /* is this proposal or not? */
 boolean propose = false;

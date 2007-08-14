@@ -21,7 +21,7 @@
 /**
  * File:	include/squid/helps.ycp
  * Package:	Configuration of squid
- * Summary:	Help texts of all the dialogs
+ * Summary:	Help texts of all the dialogs except AddEditACLDialog.
  * Authors:	Daniel Fiser <dfiser@suse.cz>
  *
  * $Id: helps.ycp 27914 2006-02-13 14:32:08Z locilka $
@@ -40,7 +40,6 @@ map HELPS = $[
     "read" : _("<p><b><big>Initializing squid Configuration</big></b><br>
 Please wait...<br></p>
 ") +
-
     /* Read dialog help 2/2 */
     _("<p><b><big>Aborting Initialization:</big></b><br>
 Safely abort the configuration utility by pressing <b>Abort</b> now.</p>
@@ -50,7 +49,6 @@ Safely abort the configuration utility by pressing <b>Abort</b> now.</p>
     "write" : _("<p><b><big>Saving squid Configuration</big></b><br>
 Please wait...<br></p>
 ") +
-
     /* Write dialog help 2/2 */
 _("<p><b><big>Aborting Saving:</big></b><br>
 Abort the save procedure by pressing <b>Abort</b>.
@@ -58,60 +56,113 @@ An additional dialog informs whether it is safe to do so.
 </p>
 "),
 
-    /* Summary dialog help 1/3 */
+    /* Summary dialog help */
     "summary" : _("<p><b><big>Squid Configuration</big></b><br>
 Configure squid here.<br></p>
-") +
-
-    /* Summary dialog help 2/3 */
-    _("<p><b><big>Adding a squid:</big></b><br>
-Choose an squid from the list of detected squids.
-If your squid was not detected, use <b>Other (not detected)</b>.
-Then press <b>Configure</b>.</p>
-") +
-
-    /* Summary dialog help 3/3 */
-    _("<p><b><big>Editing or Deleting:</big></b><br>
-If you press <b>Edit</b>, an additional dialog in which to change
-the configuration opens.</p>
 "),
 
-    /* Ovreview dialog help 1/3 */
+    /* Ovreview dialog help */
     "overview" : _("<p><b><big>Squid Configuration Overview</big></b><br>
 Obtain an overview of installed squids. Additionally
 edit their configurations.<br></p>
-") +
-
-    /* Ovreview dialog help 2/3 */
-_("<p><b><big>Adding a squid:</big></b><br>
-Press <b>Add</b> to configure a squid.</p>") +
-
-    /* Ovreview dialog help 3/3 */
-_("<p><b><big>Editing or Deleting:</big></b><br>
-Choose a squid to change or remove.
-Then press <b>Edit</b> or <b>Delete</b> as desired.</p>
 "),
 
-    /* Configure1 dialog help 1/2 */
-    "c1" : _("<p><b><big>Configuration Part One</big></b><br>
-Press <b>Next</b> to continue.
-<br></p>") +
 
-    /* Configure1 dialog help 2/2 */
-_("<p><b><big>Selecting Something</big></b><br>
-It is not possible. You must code it first. :-)
+
+    /* Http Ports Dialog */
+    "http_ports" :
+_("<p>Here you can define all ports where Squid will
+listen for clients http requests.</p>") +
+_("<p><b>Host</b> can contain hostname or ip address
+or it can be leaved empty.</p>"),
+
+
+    /* Cache Dialog */
+    "cache" :
+_("<p><b>Refresh Patterns</b> define the manner
+how Squid treats the objects in the cache.</p>") +
+_("<p>The refresh patterns are checked in the order listed here.
+The first entry which matches is used.</p>") +
+_("<p><b>Min</b> determines how long (in minutes) should be an object
+considered fresh if no explicit expire time given.") +
+_("<p><b>Percent</b> is percentage of the objects age (time since last
+modification age) an object without explicit expire time will be
+considered fresh.</p>") +
+_("<p><b>Max</b> is upper limit on how long objects without an explicit
+expiry time will be considered fresh.</p>"),
+
+
+    /* Cache 2 Dialog */
+    "cache2" :
+_("<p><b>Cache memory</b> defines the ideal amount of memory to be used for objects.</p>") +
+_("<p><b>Max Object Size</b> defines maximum size for objects to be stored
+in the disk.</p>") +
+_("<p><b>Min Object Size</b> specifies the minimum object size below which
+will not be saved to the disk.</p>") +
+_("<p>Replacement begins when the swap (disk) usage is above the
+<b>Swap Low-Water Mark</b> and attempts to maintain utilization near the
+<b>Swap Low-Water Mark</b>. As swap utilization gets close to
+<b>Swap High-Water Mark</b> object eviction becomes more aggressive.
+If utilization is close to the <b>Swap Low-Water Mark</b> less replacement
+is done each time.") +
+_("<p><b>Cache Replacement Policy</b> determines which objects are to be replaced
+when disk space is needed.
+<b>Memory Replacement Policy</b> specifies the policy for object replacement in
+memory when space for new objects is not available.
+Policies could be:
+<table>
+    <tr>
+      <td>lru</td>
+      <td>last recently used</td>
+    </tr>
+    <tr>
+      <td>heap GDSF</td>
+      <td>Greedy-Dual Size Frequency</td>
+    </tr>
+    <tr>
+      <td>heap LFUDA</td>
+      <td>Last Frequently Used with Dynamic Aging</td>
+    <tr>
+    <tr>
+      <td>heap LRU</td>
+      <td>lru policy implemented using a heap</td>
+    </tr>
+</table>
 </p>"),
 
-    /* Configure2 dialog help 1/2 */
-    "c2" : _("<p><b><big>Configuration Part Two</big></b><br>
-Press <b>Next</b> to continue.
-<br></p>
-") +
 
-    /* Configure2 dialog help 2/2 */
-_("<p><b><big>Selecting Something</big></b><br>
-It is not possible. You must code it first. :-)
-</p>"),
+    /* Access Control Dialog */
+    "access_control" :
+_("<p>Access to Squid server can be controlled via <b>ACL Groups</b>.</p>") +
+_("<p><b>ACL Group</b> has various types and description of ACL Group depends
+on them.</p>") +
+_("<p>In <b>Access Control</b> table can be denied or allowed ACL Groups.
+If there is more ACL Groups in one line it means that access will be allowed
+or denied for those who are from all ACL Groups at the same time.</p>") +
+_("<p><b>Access Control</b> table is checked in the order listed here.
+The first entry which matches is used.</p>"),
+
+
+    /* Logging and Timeouts Dialog */
+    "logging_timeouts" :
+_("<p><b>Access Log</b> defines the file where client activities are logged.</p>") +
+_("<p><b>Cache Log</b> defines the file where general informations about your
+cache's behavior is logged.</p>") +
+_("<p><b>Cache Store Log</b> defines the location where the transaction log of all
+objects that are stored in the object store, as well as the time when the object
+get deleted. This option can be leaved empty.</p>") +
+_("<p><b>Emulate Httpd Log</b> allows you to specify that Squid write its
+<b>Access Log</b> in HTTPD common log file format.</p>") +
+_("<p><b>Connection Timeout</b> is an option to force Squid to close
+connections after a specified time.</p>") +
+_("<p><b>Client Lifetime</b> defines the maximum amount of time that a client
+(browser) is allowed to remain connected to the cache process.</p>"),
+
+
+    /* Miscellaneous Dialog */
+    "miscellaneous" :
+_("<p><b>Admistrator's e-mail</b> is the address which will be added to any
+error pages that are displayed to clients. Defaults to either webmaster.</p>")
 
 ];
 
