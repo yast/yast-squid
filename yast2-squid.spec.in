@@ -26,6 +26,8 @@ Summary:	Configuration of squid
 @clientdir@/squid.ycp
 @clientdir@/squid_*.ycp
 @moduledir@/Squid.*
-@moduledir@/Squid2.*
+@moduledir@/SquidACL.*
+@moduledir@/SquidErrorMessages.*
 @desktopdir@/squid.desktop
+@scrconfdir@/*.scr
 %doc @docdir@
