@@ -155,19 +155,6 @@ integer MoveDownRefreshPattern(integer id_item)
 
 
 /**************  CACHE DIALOG  ********************/
-boolean StoreDataFromCacheDirAdvancedSettingDialog()
-{
-    list set = Squid::GetSetting("cache_dir");
-    Squid::SetSetting("cache_dir",
-            [set[0]:"",
-             set[1]:"",
-             tostring(UI::QueryWidget(`id("mbytes"), `Value)),
-             tostring(UI::QueryWidget(`id("l1dirs"), `Value)),
-             tostring(UI::QueryWidget(`id("l2dirs"), `Value))]);
-    return true;
-}
-
-
 boolean StoreDataFromCache2Dialog()
 {
     boolean ok = true;
@@ -182,8 +169,12 @@ boolean StoreDataFromCache2Dialog()
     }
 
     if (ok){
-        Squid::SetSetting("cache_dir", [squid_cache_dir[0]:"", cache_dir, squid_cache_dir[2]:"",
-                                        squid_cache_dir[3]:"", squid_cache_dir[4]:""]);
+        Squid::SetSetting("cache_dir",
+            [squid_cache_dir[0]:"",
+             cache_dir,
+             tostring(UI::QueryWidget(`id("mbytes"), `Value)),
+             tostring(UI::QueryWidget(`id("l1dirs"), `Value)),
+             tostring(UI::QueryWidget(`id("l2dirs"), `Value))]);
         Squid::SetSetting("cache_mem", [tostring(UI::QueryWidget(`id("cache_mem"), `Value)),
                                         UI::QueryWidget(`id("cache_mem_units"), `Value)]);
         Squid::SetSetting("maximum_object_size", [tostring(UI::QueryWidget(`id("cache_max_object_size"), `Value)),

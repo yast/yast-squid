@@ -138,52 +138,6 @@ boolean AddEditRefreshPatternDialog(integer id_item)
     UI::CloseDialog();
     return ret;
 }
-
-
-boolean CacheDirAdvancedSettingDialog(){
-    boolean ret = false;
-    any ui = nil;
-    term contents =
-        `VBox(
-            `Label( _("Cache Directory Advanced Setting")),
-            `VSpacing(0.5),
-
-            //`ComboBox(`id("type"), _("Type"), []),
-            `IntField(`id("mbytes"), _("Size (in MB)"), 1, 99999, 10),
-            `IntField(`id("l1dirs"), _("Level 1 Directories"), 1, 99999, 20),
-            `IntField(`id("l2dirs"), _("Level 2 Directories"), 1, 99999, 20),
-
-            `VSpacing(),
-
-            `HBox(
-                `PushButton(`id(`cancel), Label::CancelButton()),
-                `PushButton(`id(`ok), Label::OKButton())
-            )
-        );
-
-    UI::OpenDialog(contents);
-
-
-    InitCacheDirAdvancedSettingDialog();
-
-    while (true){
-        ui = UI::UserInput();
-
-        if (ui == `cancel || ui == `abort){
-            ret = false;
-            break;
-        }else if (ui == `ok){
-            if (StoreDataFromCacheDirAdvancedSettingDialog()){
-                ret = true;
-                break;
-            }
-        }
-    }
-
-
-    UI::CloseDialog();
-    return ret;
-}
 /*****************  CACHE END  ********************/
 
 

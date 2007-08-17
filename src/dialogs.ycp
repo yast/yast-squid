@@ -197,60 +197,71 @@ any Cache2Dialog(){
     string cache_dir = "";
 
     term dialog_contents =
-        `Top(`Left(`VBox(
+        `VCenter( `HBox(
+            `HSpacing(3),
             `VBox(
-                `HBox(
-                    `HWeight(1,`VBox(
-                        `VWeight(1, `HBox(
-                            `IntField(`id("cache_mem"), _("Cache Memory"), 1, 99999, 10),
-                            sizeUnitWidget("cache_mem_units")
+                `VWeight(1, `Frame(_("Cache Setting"),
+                    `HBox(
+                        `HWeight(1,`VBox(
+                            `VWeight(1, `HBox(
+                                `IntField(`id("cache_mem"), _("Cache Memory"), 1, 99999, 10),
+                                sizeUnitWidget("cache_mem_units")
+                            )),
+                            `VSpacing(0.4),
+                            `VWeight(1, `HBox(
+                                `IntField(`id("cache_max_object_size"), _("Max Object Size"), 0, 99999, 0),
+                                sizeUnitWidget("cache_max_object_size_units")
+                            )),
+                            `VSpacing(0.4),
+                            `VWeight(1, `HBox(
+                                `IntField(`id("cache_swap_low"), _("Swap Low-Water Mark (in percents)"), 0, 100, 0)
+                            )),
+                            `VSpacing(0.4),
+                            `Left(`VWeight(1, `HBox(
+                                `ComboBox(`id("cache_replacement_policy"),
+                                          _("Cache Replacement Policy"),
+                                          [`item("lru"), `item("heap GDSF"), `item("heap LFUDA"), `item("heap LRU")])
+                            )))
                         )),
-                        `VSpacing(),
-                        `VWeight(1, `HBox(
-                            `IntField(`id("cache_max_object_size"), _("Max Object Size"), 0, 99999, 0),
-                            sizeUnitWidget("cache_max_object_size_units")
-                        )),
-                        `VSpacing(),
-                        `VWeight(1, `HBox(
-                            `IntField(`id("cache_swap_low"), _("Swap Low-Water Mark"), 0, 100, 0),
-                            `Bottom(`Label("%"))
-                        )),
-                        `VSpacing(),
-                        `Left(`VWeight(1, `HBox(
-                            `ComboBox(`id("cache_replacement_policy"),
-                                      _("Cache Replacement Policy"),
-                                      [`item("lru"), `item("heap GDSF"), `item("heap LFUDA"), `item("heap LRU")])
-                        )))
-                    )),
-                    `HSpacing(3),
-                    `HWeight(1,`VBox(
-                        `VWeight(1, `HBox(`Empty())),
-                        `VSpacing(),
-                        `VWeight(1, `HBox(
-                            `IntField(`id("cache_min_object_size"), _("Min Object Size"), 0, 99999, 0),
-                            sizeUnitWidget("cache_min_object_size_units")
-                        )),
-                        `VSpacing(),
-                        `VWeight(1, `HBox(
-                            `IntField(`id("cache_swap_high"), _("Swap High-Water Mark"), 0, 100, 0),
-                            `Bottom(`Label("%"))
-                        )),
-                        `VSpacing(),
-                        `Left(`VWeight(1, `HBox(
-                            `ComboBox(`id("memory_replacement_policy"),
-                                      _("Memory Replacement Policy"),
-                                      [`item("lru"), `item("heap GDSF"), `item("heap LFUDA"), `item("heap LRU")])
-                        )))
-                    ))
-                ),
+                        `HSpacing(3),
+                        `HWeight(1,`VBox(
+                            `VWeight(1, `HBox(`Empty())),
+                            `VSpacing(0.4),
+                            `VWeight(1, `HBox(
+                                `IntField(`id("cache_min_object_size"), _("Min Object Size"), 0, 99999, 0),
+                                sizeUnitWidget("cache_min_object_size_units")
+                            )),
+                            `VSpacing(0.4),
+                            `VWeight(1, `HBox(
+                                `IntField(`id("cache_swap_high"), _("Swap High-Water Mark (in percents)"), 0, 100, 0)
+                            )),
+                            `VSpacing(0.4),
+                            `Left(`VWeight(1, `HBox(
+                                `ComboBox(`id("memory_replacement_policy"),
+                                          _("Memory Replacement Policy"),
+                                          [`item("lru"), `item("heap GDSF"), `item("heap LFUDA"), `item("heap LRU")])
+                            )))
+                        ))
+                    )
+                )),
                 `VSpacing(),
-                `VSquash(`HBox(
-                    `TextEntry(`id("cache_dir"), _("Cache Directory"), ""),
-                    `Bottom(`PushButton(`id(`browse_cache_dir), Label::BrowseButton())),
-                    `Bottom(`PushButton(`id(`cache_dir), "Advanced Setting"))
+                `VWeight(1, `Frame(_("Cache Directory"),
+                    `VBox(
+                        `VSquash(`HBox(
+                            `TextEntry(`id("cache_dir"), _("Cache Directory"), ""),
+                            `Bottom(`PushButton(`id(`browse_cache_dir), Label::BrowseButton()))
+                        )),
+                        `VSpacing(0.4),
+                        `IntField(`id("mbytes"), _("Size (in MB)"), 0, 99999, 0),
+                        `VSpacing(0.4),
+                        `IntField(`id("l1dirs"), _("Level 1 Directories"), 0, 99999, 0),
+                        `VSpacing(0.4),
+                        `IntField(`id("l2dirs"), _("Level 2 Directories"), 0, 99999, 0)
+                    )
                 ))
-            )
-        )));
+            ),
+            `HSpacing(3)
+        ));
 
     Wizard::SetContentsButtons("Squid - Cache Setting 2", dialog_contents, HELPS["cache2"]:"",
         Label::BackButton(), Label::NextButton());
@@ -268,8 +279,6 @@ any Cache2Dialog(){
         }else if (ret == `abort || ret == `cancel){
             if (reallyAbort()) break;
             continue;
-        }else if (ret == `cache_dir){
-            CacheDirAdvancedSettingDialog();
         }else if (ret == `browse_cache_dir){
             cache_dir = UI::AskForExistingDirectory((string)UI::QueryWidget(`id("cache_dir"), `Value), "Cache Directory");
             if (cache_dir != nil){
@@ -384,7 +393,7 @@ any LoggingAndTimeoutsDialog()
     any ret = nil;
     string tmp = nil;
     term dialog_contents =
-        `Left(`Top(`VBox(
+        `HBox(`HSpacing(3), `VBox(
             `Frame(_("Logging"),
                 `VBox(
                     `VSquash(`HBox(
@@ -417,7 +426,7 @@ any LoggingAndTimeoutsDialog()
                     )
                 )
             )
-        )));
+        ), `HSpacing(3));
 
     Wizard::SetContentsButtons("Squid - Logging and Timeouts Setting", dialog_contents, HELPS["logging_timeouts"]:"",
         Label::BackButton(), Label::NextButton());
@@ -459,15 +468,15 @@ any MiscellaneousDialog()
 {
     any ret = nil;
     term dialog_contents =
-        `Top(`VBox(
-                `Left(`ComboBox(`id("error_language"),
+        `HVCenter(`Frame(_("Miscellaneous Setting"), `VBox(
+                `ComboBox(`id("error_language"),
                                  _("Language of error messages"),
-                                 [])),
+                                 []),
                  `VSpacing(),
-                 `Left(`TextEntry(`id("cache_mgr"), _("Administrator's e-mail"), "")),
+                 `TextEntry(`id("cache_mgr"), _("Administrator's e-mail"), ""),
                  `VSpacing(),
-                 `Left(`CheckBox(`id("ftp_passive"), _("Use Ftp Pasive Mode")))
-        ));
+                 `CheckBox(`id("ftp_passive"), _("Use Ftp Pasive Mode"))
+        )));
 
     Wizard::SetContentsButtons("Squid - Miscellaneous Setting", dialog_contents, HELPS["miscellaneous"]:"",
         Label::BackButton(), Label::FinishButton());

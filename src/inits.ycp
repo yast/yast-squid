@@ -156,14 +156,7 @@ void InitCache2Dialog()
         "cache_swap_high" : tointeger((set["cache_swap_high"]:[])[0]:""),
         "cache_replacement_policy" : (set["cache_replacement_policy"]:[])[0]:"",
         "memory_replacement_policy" : (set["memory_replacement_policy"]:[])[0]:"",
-        "cache_dir" : (set["cache_dir"]:[])[1]:""
-    ]);
-}
-void InitCacheDirAdvancedSettingDialog()
-{
-    map<string, list> set = (map<string, list>)Squid::GetSettings();
-    simpleInit($[
-        //"type" : (set["cache_dir"]:[])[0]:"",
+        "cache_dir" : (set["cache_dir"]:[])[1]:"",
         "mbytes" : tointeger((set["cache_dir"]:[])[2]:""),
         "l1dirs" : tointeger((set["cache_dir"]:[])[3]:""),
         "l2dirs" : tointeger((set["cache_dir"]:[])[4]:"")
