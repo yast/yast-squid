@@ -53,9 +53,7 @@ boolean AddEditHttpPortDialog(integer id_item)
             `TextEntry(`id("host"), _("Host"), ""),
             `TextEntry(`id("port"), _("Port"), ""),
             `Frame(_("Options"),
-                `VBox(
                     `CheckBox(`id("transparent"), "Transparent", false)
-                )
             ),
             `VSpacing(),
             `VStretch(),
@@ -245,7 +243,7 @@ boolean AddEditHttpAccessDialog(integer id_item)
             //`VSpacing(),
 
             `MinSize(25, 7,
-                `Table(`id("acls"), `header("   ", _("ACL")), [])
+                `Table(`id("acls"), `opt(`notify), `header("   ", _("ACL")), [])
             ),
             `Left(`HBox(
                 `PushButton(`id(`del), Label::DeleteButton()),
@@ -296,7 +294,7 @@ boolean AddEditHttpAccessDialog(integer id_item)
             id_acl = delItemFromAddEditHttpAccessDialog((integer)UI::QueryWidget(`id("acls"), `CurrentItem));
             InitAddEditHttpAccessDialog(nil);
             UI::ChangeWidget(`id("acls"), `CurrentItem, id_acl);
-        }else if (ui == `opposite){
+        }else if (ui == `opposite || ui == "acls"){
             id_acl = (integer)UI::QueryWidget(`id("acls"), `CurrentItem);
             tmp_term = (term)UI::QueryWidget(`id("acls"), `Item(id_acl));
 

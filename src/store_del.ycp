@@ -35,6 +35,7 @@ import "Label";
 import "Report";
 import "FileUtils";
 import "Popup";
+import "FileUtils";
 
 import "Squid";
 import "SquidACL";
@@ -43,6 +44,18 @@ import "SquidErrorMessages";
 
 include "squid/helps.ycp";
 
+/****** help functions **********/
+boolean isCorrectPathnameOfLogFile(string str)
+{
+    boolean ok = regexpmatch(str, "^/([^/]+/)*[^/]+$");
+    if (ok){
+        list<string> dir = regexptokenize(str, "^(.+)/[^/]+$");
+        if (!FileUtils::IsDirectory(dir[0]:"/"))
+            ok = false;
+    }
+    return ok;
+}
+/****** help functions END ******/
 
 /*****************  HTTP_PORT  ********************/
 boolean StoreDataFromAddEditHttpPortDialog(integer id_item)
@@ -154,25 +167,6 @@ boolean StoreDataFromCacheDirAdvancedSettingDialog()
     return true;
 }
 
-/**
- * Function which sets permissions 'chmod 750' and 'chown squid:root'
- * to directory dir if exists.
- * If dir does not exist, function returns true;
- */
-boolean setWritePremissionsToCacheDir(string dir)
-{
-    if (!FileUtils::IsDirectory(dir)){
-        y2debug("store_del::checkWritePremissionsCacheDir() - '%1' is not directory", dir);
-        return true;
-    }
-
-    if ((integer)SCR::Execute(.target.bash, "chown squid:root " + dir) != 0 ||
-        (integer)SCR::Execute(.target.bash, "chmod 750 " + dir) != 0){
-        return (Popup::ContinueCancel(sformat(_("Unable to set correct permissions to directory %1."), dir)));
-    }
-
-    return true;
-}
 
 boolean StoreDataFromCache2Dialog()
 {
@@ -184,10 +178,6 @@ boolean StoreDataFromCache2Dialog()
         ok = false;
         Report::Error(_("Cache directory must not be empty."));
     }else if (!FileUtils::CheckAndCreatePath(cache_dir)){
-        ok = false;
-    }
-
-    if (ok && !setWritePremissionsToCacheDir(cache_dir)){
         ok = false;
     }
 
@@ -419,6 +409,18 @@ boolean StoreDataFromLoggingFrame()
     if (size(cache_log) == 0){
         ok = false;
         message = message + (size(message)>0 ? "\n" : "") + _("Cache Log must not be empty.");
+    }
+    if (size(access_log) > 0 && !isCorrectPathnameOfLogFile(access_log)){
+        ok = false;
+        message = message + (size(message)>0 ? "\n" : "") + _("Incorrect pathname in Access Log field.");
+    }
+    if (size(cache_log) > 0 && !isCorrectPathnameOfLogFile(cache_log)){
+        ok = false;
+        message = message + (size(message)>0 ? "\n" : "") + _("Incorrect pathname in Cache Log field.");
+    }
+    if (size(cache_store_log) > 0 && !isCorrectPathnameOfLogFile(cache_store_log)){
+        ok = false;
+        message = message + (size(message)>0 ? "\n" : "") + _("Incorrect pathname in Cache Store Log field.");
     }
     /*
     if (size(cache_store_log) == 0){

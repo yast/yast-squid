@@ -41,6 +41,7 @@ import "Summary";
 import "Message";
 import "Service";
 import "Summary";
+import "FileUtils";
 
 /**
  * Defines path used in SCR::Read/Write functions
@@ -208,6 +209,28 @@ string repairTimeoutPeriodUnits(string old)
     }
 
     return ret;
+}
+
+
+/**
+ * Function which sets permissions 'chmod 750' and 'chown squid:root'
+ * to directory dir if exists.
+ * If dir does not exist, function returns true;
+ */
+boolean setWritePremissionsToCacheDir(string dir)
+{
+    if (!FileUtils::IsDirectory(dir)){
+        y2debug("Squid::checkWritePremissionsCacheDir() - '%1' is not directory", dir);
+        return true;
+    }
+
+    if ((integer)SCR::Execute(.target.bash, "chown squid:root " + dir) != 0 ||
+        (integer)SCR::Execute(.target.bash, "chmod 750 " + dir) != 0){
+        return false;
+        //return (Popup::ContinueCancel(sformat(_("Unable to set correct permissions to directory %1."), dir)));
+    }
+
+    return true;
 }
 /*****************  HELP FUNCTIONS END  ***********/
 
@@ -1113,13 +1136,26 @@ boolean writeRestSetting()
     return ok;
 }
 
+boolean writePermissions()
+{
+    string cache_dir = (settings["cache_dir"]:[])[1]:"";
+    boolean ok = true;
+
+    if (!setWritePremissionsToCacheDir(cache_dir))
+        ok = false;
+    return ok;
+}
+
 boolean writeAllSettings()
 {
+    boolean ok = true;
+
+    if (!writePermissions()) ok = false;
+
     if (!GetModified()){
         y2debug("Squid::Write - no setting to write, because nothing's changed");
-        return true;
+        return ok;
     }
-    boolean ok = true;
 
     y2milestone("Squid::writeAllSettings started");
 

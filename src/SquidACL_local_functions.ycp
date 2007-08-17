@@ -226,7 +226,7 @@ term regexpWidget(string frame_title)
     return `Frame( frame_title,
                 `VBox(
                     `TextEntry(`id("acl_regexp"), _("Regular Expression"), ""),
-                    `CheckBox(`id("acl_regexp_case_insensitive"), _("Case Insensitive"), false)
+                    `Left(`CheckBox(`id("acl_regexp_case_insensitive"), _("Case Insensitive"), false))
                 )
             );
 }

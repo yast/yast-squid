@@ -225,7 +225,7 @@ map<string,map> acl_map = $[
                                     `VBox(
                                         `TextEntry(`id("acl_header_name"), _("Header Name"), ""),
                                         `TextEntry(`id("acl_regexp"), _("Regular Expression(s)"), ""),
-                                        `CheckBox(`id("acl_regexp_case_insensitive"), _("Case Insensitive"), false)
+                                        `Left(`CheckBox(`id("acl_regexp_case_insensitive"), _("Case Insensitive"), false))
                                     )
                                  ),
                       "widget_init" : headerWidgetInit,
@@ -238,7 +238,7 @@ map<string,map> acl_map = $[
                                     `VBox(
                                         `TextEntry(`id("acl_header_name"), _("Header Name"), ""),
                                         `TextEntry(`id("acl_regexp"), _("Regular Expression(s)"), ""),
-                                        `CheckBox(`id("acl_regexp_case_insensitive"), _("Case Insensitive"), false)
+                                        `Left(`CheckBox(`id("acl_regexp_case_insensitive"), _("Case Insensitive"), false))
                                     )
                                  ),
                       "widget_init" : headerWidgetInit,
