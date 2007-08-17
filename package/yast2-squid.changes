@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Fri Aug 17 15:39:44 CEST 2007 - dfiser@suse.cz
+
+- Layout improvement.
+- Changed SquidErrorMessages module to use .target.dir agent +
+  FileUtils module.
+- v2.15.1
+
+-------------------------------------------------------------------
 Wed Aug 15 13:56:05 CEST 2007 - dfiser@suse.cz
 
 - initial version
