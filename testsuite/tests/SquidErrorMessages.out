@@ -1,0 +1,16 @@
+Dump	GetLanguages()
+Read	.target.dir "/usr/share/squid/errors" ["Russian-1251", "a_file", "English", "b_file", "Simplify_Chinese", "c_file"]
+Return	["English", "Russian-1251", "Simplify Chinese"]
+Dump	
+Dump	GetLanguagesToComboBox()
+Return	[`item (`id ("English"), "English"), `item (`id ("Russian-1251"), "Russian-1251"), `item (`id ("Simplify Chinese"), "Simplify Chinese")]
+Dump	
+Dump	GetPath("English")
+Return	/usr/share/squid/errors/English
+Dump	GetPath("Simplify Chinese")
+Return	/usr/share/squid/errors/Simplify_Chinese
+Dump	
+Dump	GetLanguageFromPath(/usr/share/squid/errors/English)
+Return	English
+Dump	GetLanguageFromPath(/usr/share/squid/errors/Simplify_Chinese)
+Return	Simplify Chinese

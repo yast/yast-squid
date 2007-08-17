@@ -34,6 +34,9 @@
 module "SquidErrorMessages";
 textdomain "squid";
 
+import "FileUtils";
+
+
 /**
  * format:
  *      $[ "language" : "path_to_directory",
@@ -42,21 +45,26 @@ textdomain "squid";
  */
 map<string, string> err = $[];
 
+/**
+ * Directory where is located directories with messages in various languages.
+ */
 string err_msg_dir = "/usr/share/squid/errors";
 
 
 void read()
 {
-    //if err uninitialized
+    //if err uninitialized else do nothing
     if (size(err) == 0){
-        map<string, any> bash_output = (map<string, any>)SCR::Execute(.target.bash_output, "cd " + err_msg_dir + "; ls -d */");
         err = $[];
-        foreach (string dir, splitstring(bash_output["stdout"]:"","\n"),
+        string dir = "";
+        foreach (string value, (list<string>)SCR::Read(.target.dir, err_msg_dir),
             {
-                dir = deletechars(dir, "/");
-                dir = mergestring(splitstring(dir, "_"), " ");
-                if (size(dir)>0)
-                    err[dir] = err_msg_dir + "/" + dir;
+                if (FileUtils::IsDirectory(err_msg_dir + "/" + value)){
+                    dir = mergestring(splitstring(value, "_"), " ");
+                    if (size(dir) > 0){
+                        err[dir] = err_msg_dir + "/" + value;
+                    }
+                }
             });
 
         y2debug("SquidErrorMessages::read() - err: %1", err);
@@ -99,6 +107,8 @@ global list<term> GetLanguagesToComboBox()
  */
 global string GetPath(string language)
 {
+    read();
+
     return err[language]:"";
 }
 
@@ -108,6 +118,8 @@ global string GetPath(string language)
  */
 global string GetLanguageFromPath(string pth)
 {
+    read();
+
     string ret = nil;
     foreach (string key, string value, err,
         {

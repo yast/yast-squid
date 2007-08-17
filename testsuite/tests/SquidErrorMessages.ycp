@@ -1,0 +1,52 @@
+{
+
+// testedfiles: SquidErrorMessages.ycp
+
+any READ = [
+    $[ "target" : $[
+        "dir" : [ "Russian-1251",
+                  "a_file",
+                  "English",
+                  "b_file",
+                  "Simplify_Chinese",
+                  "c_file"]
+    ]],
+
+    $[ "target" : $[ "stat" : $[ "isdir" : true]]],
+    $[ "target" : $[ "stat" : $[ "isdir" : false]]],
+    $[ "target" : $[ "stat" : $[ "isdir" : true]]],
+    $[ "target" : $[ "stat" : $[ "isdir" : false]]],
+    $[ "target" : $[ "stat" : $[ "isdir" : true]]],
+    $[ "target" : $[ "stat" : $[ "isdir" : false]]],
+];
+
+map WRITE = $[];
+map EXECUTE = $[];
+
+include "testsuite.ycp";
+
+import "SquidErrorMessages";
+import "FileUtils";
+
+
+DUMP("GetLanguages()");
+TEST(``(SquidErrorMessages::GetLanguages()),[READ,WRITE,EXECUTE], nil);
+
+DUMP("");
+DUMP("GetLanguagesToComboBox()");
+TEST(``(SquidErrorMessages::GetLanguagesToComboBox()),[READ,WRITE,EXECUTE], nil);
+
+DUMP("");
+DUMP("GetPath(\"English\")");
+TEST(``(SquidErrorMessages::GetPath("English")),[READ,WRITE,EXECUTE], nil);
+DUMP("GetPath(\"Simplify Chinese\")");
+TEST(``(SquidErrorMessages::GetPath("Simplify Chinese")),[READ,WRITE,EXECUTE], nil);
+
+DUMP("");
+DUMP("GetLanguageFromPath(" + SquidErrorMessages::err_msg_dir + "/English" + ")");
+TEST(``(SquidErrorMessages::GetLanguageFromPath(SquidErrorMessages::err_msg_dir + "/English")),[READ,WRITE,EXECUTE], nil);
+DUMP("GetLanguageFromPath(" + SquidErrorMessages::err_msg_dir + "/Simplify_Chinese" + ")");
+TEST(``(SquidErrorMessages::GetLanguageFromPath(SquidErrorMessages::err_msg_dir + "/Simplify_Chinese")),[READ,WRITE,EXECUTE], nil);
+
+}
+/* vim: set sw=4 ts=4 et ft=ycp : */
