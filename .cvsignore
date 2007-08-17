@@ -18,3 +18,8 @@ mkinstalldirs
 stamp-h
 squid.pot
 autom4te.cache
+autodocs-cc-off.ami
+autodocs-cc-base.ami
+pluglib-bindings.ami
+autodocs-ycp.ami
+autodocs-cc.ami
