@@ -20,9 +20,7 @@
 
 /**
  * File:	include/squid/helps.ycp
- * Package:	Configuration of squid
- * Summary:	Help texts of all the dialogs except AddEditACLDialog.
- * Authors:	Daniel Fiser <dfiser@suse.cz>
+ * Package:	Configuration of squid * Summary:	Help texts of all the dialogs except AddEditACLDialog.  * Authors:	Daniel Fiser <dfiser@suse.cz>
  *
  * $Id: helps.ycp 27914 2006-02-13 14:32:08Z locilka $
  */
@@ -96,7 +94,7 @@ expiry time will be considered fresh.</p>"),
     "cache2" :
 _("<p><b>Cache memory</b> defines the ideal amount of memory to be used for objects.</p>") +
 _("<p><b>Max Object Size</b> defines maximum size for objects to be stored
-in the disk.</p>") +
+in the disk. Objects larger than this size will not be saved on disk.</p>") +
 _("<p><b>Min Object Size</b> specifies the minimum object size below which
 will not be saved to the disk.</p>") +
 _("<p>Replacement begins when the swap (disk) usage is above the

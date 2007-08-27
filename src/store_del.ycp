@@ -43,19 +43,7 @@ import "SquidErrorMessages";
 
 
 include "squid/helps.ycp";
-
-/****** help functions **********/
-boolean isCorrectPathnameOfLogFile(string str)
-{
-    boolean ok = regexpmatch(str, "^/([^/]+/)*[^/]+$");
-    if (ok){
-        list<string> dir = regexptokenize(str, "^(.+)/[^/]+$");
-        if (!FileUtils::IsDirectory(dir[0]:"/"))
-            ok = false;
-    }
-    return ok;
-}
-/****** help functions END ******/
+include "squid/helper_functions.ycp";
 
 /*****************  HTTP_PORT  ********************/
 boolean StoreDataFromAddEditHttpPortDialog(integer id_item)
@@ -64,16 +52,28 @@ boolean StoreDataFromAddEditHttpPortDialog(integer id_item)
     string host = (string)UI::QueryWidget(`id("host"), `Value);
     string port = (string)UI::QueryWidget(`id("port"), `Value);
     boolean transparent = (boolean)UI::QueryWidget(`id("transparent"), `Value);
+    string error_msg = "";
 
-    if (size(port) > 0){
+    if (size(port) == 0){
+        error_msg = error_msg + (size(error_msg)>0 ? "\n" : "") +
+                    _("Port number must not be empty.");
+        ok = false;
+    }
+    if (size(host) > 0 && !isCorrectHost(host)){
+        error_msg = error_msg + (size(error_msg)>0 ? "\n" : "") +
+                    _("Host must contain valid ip address or hostname.");
+        ok = false;
+    }
+
+
+    if (ok){
         if (id_item == nil){
             Squid::AddHttpPort(host, port, transparent);
         }else{
             Squid::ModifyHttpPort(id_item, host, port, transparent);
         }
     }else{
-        Report::Error(_("Port number must not be empty."));
-        ok = false;
+        Report::Error(error_msg);
     }
 
     return ok;
@@ -166,6 +166,17 @@ boolean StoreDataFromCache2Dialog()
         Report::Error(_("Cache directory must not be empty."));
     }else if (!FileUtils::CheckAndCreatePath(cache_dir)){
         ok = false;
+    }else{
+        integer cache_mem = (integer)UI::QueryWidget(`id("cache_mem"), `Value) *
+                            unitToMultiple((string)UI::QueryWidget(`id("cache_mem_units"), `Value));
+        integer cache_dir_mbytes = (integer)UI::QueryWidget(`id("mbytes"), `Value) * 1024 * 1024;
+        integer max_obj_size = (integer)UI::QueryWidget(`id("cache_max_object_size"), `Value) *
+                               unitToMultiple((string)UI::QueryWidget(`id("cache_max_object_size_units"), `Value));
+
+        if (max_obj_size > cache_mem + cache_dir_mbytes){
+            ok = false;
+            Report::Error( _("Cache Memory + Size of Cache Directory\nmust be more than Max Object Size."));
+        }
     }
 
     if (ok){
@@ -446,16 +457,23 @@ boolean StoreDataFromTimeoutsFrame()
 
 boolean StoreDataFromMiscellaneousDialog()
 {
+    boolean ok = true;
     string error_language = (string)UI::QueryWidget(`id("error_language"), `Value);
     string cache_mgr = (string)UI::QueryWidget(`id("cache_mgr"), `Value);
     string ftp_passive = (boolean)UI::QueryWidget(`id("ftp_passive"), `Value) ? "on" : "off";
 
-    Squid::SetSetting("error_directory",[SquidErrorMessages::GetPath(error_language)]);
-    Squid::SetSetting("cache_mgr", [cache_mgr]);
-    Squid::SetSetting("ftp_passive", [ftp_passive]);
+    if (regexpmatch(cache_mgr, "[ \t\n]")){
+        ok = false;
+        Report::Error( _("Administrator's E-mail must not contain any white spaces."));
+    }
 
-    return true;
+    if (ok){
+        Squid::SetSetting("error_directory",[SquidErrorMessages::GetPath(error_language)]);
+        Squid::SetSetting("cache_mgr", [cache_mgr]);
+        Squid::SetSetting("ftp_passive", [ftp_passive]);
+    }
+
+    return ok;
 }
-/********************* STORING + DELETING END ********************/
 }
 /* vim: set sw=4 ts=4 et ft=ycp : */

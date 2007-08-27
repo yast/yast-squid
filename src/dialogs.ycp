@@ -50,25 +50,6 @@ boolean reallyAbort()
     return false;
 }
 
-/**
- * Returns a widget with setting of units
- */
-term sizeUnitWidget(string id)
-{
-    return `ComboBox(`id(id), " ",
-                [`item("B"), `item("KB"), `item("MB")]);
-}
-/**
- * Returns a widget with setting of units
- */
-term timeUnitWidget(string id)
-{
-    return `ComboBox(`id(id), " ",
-                [`item("seconds"), `item("minutes"), `item("hours"), `item("days")]);
-}
-
-
-
 
 any HttpPortsDialog(){
     any ret = nil;
@@ -195,6 +176,8 @@ any CacheDialog(){
 any Cache2Dialog(){
     any ret = nil;
     string cache_dir = "";
+    any tmp = nil;
+    any tmp2 = nil;
 
     term dialog_contents =
         `VCenter( `HBox(
@@ -252,11 +235,11 @@ any Cache2Dialog(){
                             `Bottom(`PushButton(`id(`browse_cache_dir), Label::BrowseButton()))
                         )),
                         `VSpacing(0.4),
-                        `IntField(`id("mbytes"), _("Size (in MB)"), 0, 99999, 0),
+                        `IntField(`id("mbytes"), _("Size (in MB)"), 1, 99999, 1),
                         `VSpacing(0.4),
-                        `IntField(`id("l1dirs"), _("Level 1 Directories"), 0, 99999, 0),
+                        `IntField(`id("l1dirs"), _("Level 1 Directories"), 1, 99999, 1),
                         `VSpacing(0.4),
-                        `IntField(`id("l2dirs"), _("Level 2 Directories"), 0, 99999, 0)
+                        `IntField(`id("l2dirs"), _("Level 2 Directories"), 1, 99999, 1)
                     )
                 ))
             ),
@@ -265,6 +248,14 @@ any Cache2Dialog(){
 
     Wizard::SetContentsButtons("Squid - Cache Setting 2", dialog_contents, HELPS["cache2"]:"",
         Label::BackButton(), Label::NextButton());
+
+    UI::ChangeWidget(`id("cache_max_object_size"), `Notify, true);
+    UI::ChangeWidget(`id("cache_min_object_size"), `Notify, true);
+    UI::ChangeWidget(`id("cache_max_object_size_units"), `Notify, true);
+    UI::ChangeWidget(`id("cache_min_object_size_units"), `Notify, true);
+
+    UI::ChangeWidget(`id("cache_swap_low"), `Notify, true);
+    UI::ChangeWidget(`id("cache_swap_high"), `Notify, true);
 
     InitCache2Dialog();
 
@@ -284,6 +275,36 @@ any Cache2Dialog(){
             if (cache_dir != nil){
                 UI::ChangeWidget(`id("cache_dir"), `Value, cache_dir);
             }
+
+        //cache_min_object_size <= cache_max_object_size
+        }else if (ret == "cache_min_object_size" || ret == "cache_min_object_size_units"){
+            tmp = (integer)UI::QueryWidget(`id("cache_min_object_size"), `Value) *
+                  unitToMultiple((string)UI::QueryWidget(`id("cache_min_object_size_units"), `Value));
+            tmp2 = (integer)UI::QueryWidget(`id("cache_max_object_size"), `Value) *
+                   unitToMultiple((string)UI::QueryWidget(`id("cache_max_object_size_units"), `Value));
+            if ((integer)tmp > (integer)tmp2){
+                UI::ChangeWidget(`id("cache_max_object_size"), `Value, UI::QueryWidget(`id("cache_min_object_size"), `Value));
+                UI::ChangeWidget(`id("cache_max_object_size_units"), `Value, UI::QueryWidget(`id("cache_min_object_size_units"), `Value));
+            }
+        }else if (ret == "cache_max_object_size" || ret == "cache_max_object_size_units"){
+            tmp = (integer)UI::QueryWidget(`id("cache_min_object_size"), `Value) *
+                  unitToMultiple((string)UI::QueryWidget(`id("cache_min_object_size_units"), `Value));
+            tmp2 = (integer)UI::QueryWidget(`id("cache_max_object_size"), `Value) *
+                   unitToMultiple((string)UI::QueryWidget(`id("cache_max_object_size_units"), `Value));
+            if ((integer)tmp > (integer)tmp2){
+                UI::ChangeWidget(`id("cache_min_object_size"), `Value, UI::QueryWidget(`id("cache_max_object_size"), `Value));
+                UI::ChangeWidget(`id("cache_min_object_size_units"), `Value, UI::QueryWidget(`id("cache_max_object_size_units"), `Value));
+            }
+
+        //cache_swap_low <= cache_swap_high
+        }else if (ret == "cache_swap_low"){
+            tmp = UI::QueryWidget(`id("cache_swap_low"), `Value);
+            if ((integer)tmp > (integer)UI::QueryWidget(`id("cache_swap_high"), `Value))
+                UI::ChangeWidget(`id("cache_swap_high"), `Value, tmp);
+        }else if (ret == "cache_swap_high"){
+            tmp = UI::QueryWidget(`id("cache_swap_high"), `Value);
+            if ((integer)UI::QueryWidget(`id("cache_swap_low"), `Value) > (integer)tmp)
+                UI::ChangeWidget(`id("cache_swap_low"), `Value, tmp);
         }
     }
 

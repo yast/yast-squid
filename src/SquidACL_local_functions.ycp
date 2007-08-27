@@ -33,6 +33,8 @@ import "Report";
 
 import "Squid";
 
+include "squid/helper_functions.ycp";
+
 list<string> splitToChars(string str)
 {
     integer len = size(str);
@@ -46,10 +48,6 @@ list<string> splitToChars(string str)
     return (ret);
 }
 
-boolean isIPAddr(string str)
-{
-    return regexpmatch(str, "^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$");
-}
 boolean isMask(string str)
 {
     return regexpmatch(str, "^[0-9]+$") || isIPAddr(str);

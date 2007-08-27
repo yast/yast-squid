@@ -35,6 +35,7 @@ import "SquidACL";
 
 include "squid/inits.ycp";
 include "squid/store_del.ycp";
+include "squid/helper_functions.ycp";
 
 /*****************  HTTP PORT  ********************/
 /**
@@ -65,6 +66,7 @@ boolean AddEditHttpPortDialog(integer id_item)
 
     UI::OpenDialog(`opt(`decorated), contents);
     UI::ChangeWidget(`id("port"), `ValidChars, "1234567890");
+    UI::ChangeWidget(`id("host"), `InputMaxLength, 22);
 
     InitAddEditHttpPortDialog(id_item);
 
@@ -95,6 +97,8 @@ boolean AddEditRefreshPatternDialog(integer id_item)
     any ui = nil;
     string label = (id_item == nil ? _("Add New Refresh Pattern")
                                    : _("Edit Current refresh Pattern"));
+    any tmp = nil;
+
     term contents =
         `VBox(
             `Label(label),
@@ -104,9 +108,9 @@ boolean AddEditRefreshPatternDialog(integer id_item)
                 `TextEntry(`id("regexp"), _("Regular Expression"), ""),
                 `Bottom(`CheckBox(`id("regexp_case_insensitive"), _("Case Insensitive")))
             )),
-            `IntField(`id("min"), _("Min (in minutes)"), 0, 99999, 0),
+            `IntField(`id("min"), `opt(`notify), _("Min (in minutes)"), 0, 99999, 0),
             `IntField(`id("percent"), _("Percent"), 0, 99999, 0),
-            `IntField(`id("max"), _("Max (in minutes)"), 0, 99999, 0),
+            `IntField(`id("max"), `opt(`notify), _("Max (in minutes)"), 0, 99999, 0),
 
             `VSpacing(),
             `VStretch(),
@@ -132,6 +136,13 @@ boolean AddEditRefreshPatternDialog(integer id_item)
                 ret = true;
                 break;
             }
+        }else if (ui == "min"){
+            if ((integer)tmp > (integer)UI::QueryWidget(`id("max"), `Value))
+                UI::ChangeWidget(`id("max"), `Value, tmp);
+        }else if (ui == "max"){
+            tmp = UI::QueryWidget(`id("max"), `Value);
+            if ((integer)UI::QueryWidget(`id("min"), `Value) > (integer)tmp)
+                UI::ChangeWidget(`id("min"), `Value, tmp);
         }
     }
 
