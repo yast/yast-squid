@@ -1205,7 +1205,7 @@ global boolean StartService()
             Report::Error(Message::CannotStartService("squid"));
         }
     }else{
-        if (!Service::Reload("squid")){
+        if (!Service::Restart("squid")){
             ok = false;
             Report::Error(Message::CannotRestartService("squid"));
         }

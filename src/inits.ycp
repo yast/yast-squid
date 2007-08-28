@@ -60,7 +60,7 @@ void simpleInit(map<string,any> m)
 
 
 /********************  HTTP_PORT  *****************/
-void InitHttpPortsTable()
+void InitHttpPortsTable(string key)
 {
     list items = [];
     integer i = 0;
@@ -97,7 +97,7 @@ void InitAddEditHttpPortDialog(integer id_item)
 
 
 /*****************  REFRESH_PATTERNS  *************/
-void InitRefreshPatternsTable()
+void InitRefreshPatternsTable(string key)
 {
     list items = [];
     integer i = 0;
@@ -142,7 +142,7 @@ void InitAddEditRefreshPatternDialog(integer id_item)
 
 
 /*****************  CACHE DIALOG  *****************/
-void InitCache2Dialog()
+void InitCache2Dialog(string key)
 {
     map<string, list> set = (map<string, list>)Squid::GetSettings();
     simpleInit($[
@@ -161,12 +161,19 @@ void InitCache2Dialog()
         "l1dirs" : tointeger((set["cache_dir"]:[])[3]:""),
         "l2dirs" : tointeger((set["cache_dir"]:[])[4]:"")
     ]);
+    UI::ChangeWidget(`id("cache_max_object_size"), `Notify, true);
+    UI::ChangeWidget(`id("cache_min_object_size"), `Notify, true);
+    UI::ChangeWidget(`id("cache_max_object_size_units"), `Notify, true);
+    UI::ChangeWidget(`id("cache_min_object_size_units"), `Notify, true);
+
+    UI::ChangeWidget(`id("cache_swap_low"), `Notify, true);
+    UI::ChangeWidget(`id("cache_swap_high"), `Notify, true);
 }
 /*****************  CACHE DIALOG END  *************/
 
 
 /*****************  ACL  **************************/
-void InitACLGroupsTable()
+void InitACLGroupsTable(string key)
 {
     list items = [];
     integer i = 0;
@@ -205,7 +212,7 @@ void InitAddEditACLDialog(integer id_item)
 
 
 /*****************  HTTP_ACCESS  ******************/
-void InitHttpAccessTable()
+void InitHttpAccessTable(string key)
 {
     list items = [];
     integer i = 0;
@@ -272,7 +279,7 @@ void InitAddEditHttpAccessDialog(integer id_item)
 
 
 /**********  LOGGING AND TIMETOUS DIALOG  *********/
-void InitLoggingFrame()
+void InitLoggingFrame(string key)
 {
     map<string, list> set = (map<string, list>)Squid::GetSettings();
     simpleInit($[
@@ -284,7 +291,7 @@ void InitLoggingFrame()
     ]);
 }
 
-void InitTimeoutsFrame()
+void InitTimeoutsFrame(string key)
 {
     map<string, list> set = (map<string, list>)Squid::GetSettings();
     simpleInit($[
@@ -297,7 +304,7 @@ void InitTimeoutsFrame()
 /**********  LOGGING AND TIMETOUS DIALOG END  *****/
 
 
-void InitMiscellaneousDialog()
+void InitMiscellaneousFrame(string key)
 {
     simpleInit($[
         "cache_mgr" : (Squid::GetSetting("cache_mgr"))[0]:"",

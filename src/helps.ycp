@@ -129,11 +129,12 @@ Policies could be:
 </p>"),
 
 
-    /* Access Control Dialog */
-    "access_control" :
+    /* ACL Groups */
+    "acl_groups" :
 _("<p>Access to Squid server can be controlled via <b>ACL Groups</b>.</p>") +
 _("<p><b>ACL Group</b> has various types and description of ACL Group depends
-on them.</p>") +
+on them.</p>"),
+    "http_access" :
 _("<p>In <b>Access Control</b> table can be denied or allowed ACL Groups.
 If there is more ACL Groups in one line it means that access will be allowed
 or denied for those who are from all ACL Groups at the same time.</p>") +
@@ -142,7 +143,7 @@ The first entry which matches is used.</p>"),
 
 
     /* Logging and Timeouts Dialog */
-    "logging_timeouts" :
+    "logging" :
 _("<p><b>Access Log</b> defines the file where client activities are logged.</p>") +
 _("<p><b>Cache Log</b> defines the file where general informations about your
 cache's behavior is logged.</p>") +
@@ -150,7 +151,8 @@ _("<p><b>Cache Store Log</b> defines the location where the transaction log of a
 objects that are stored in the object store, as well as the time when the object
 get deleted. This option can be leaved empty.</p>") +
 _("<p><b>Emulate Httpd Log</b> allows you to specify that Squid write its
-<b>Access Log</b> in HTTPD common log file format.</p>") +
+<b>Access Log</b> in HTTPD common log file format.</p>"),
+    "timeouts" :
 _("<p><b>Connection Timeout</b> is an option to force Squid to close
 connections after a specified time.</p>") +
 _("<p><b>Client Lifetime</b> defines the maximum amount of time that a client

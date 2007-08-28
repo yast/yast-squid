@@ -15,7 +15,8 @@ ynclude_DATA =			\
     inits.ycp \
     store_del.ycp \
 	SquidACL_local_functions.ycp \
-    helper_functions.ycp
+    helper_functions.ycp \
+    handlers.ycp
 
 desktop_DATA =			\
 	squid.desktop

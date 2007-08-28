@@ -32,83 +32,27 @@
 textdomain "squid";
 
 import "Label";
-import "Wizard";
-import "SquidACL";
 
-include "squid/helps.ycp";
-include "squid/popup_dialogs.ycp";
-include "squid/inits.ycp";
-include "squid/store_del.ycp";
+include "squid/helper_functions.ycp";
 
 
-boolean reallyAbort()
+term HttpPortsTableWidget()
 {
-    if (!Squid::GetModified())
-        return true;
-    if (Popup::ReallyAbort(true))
-        return true;
-    return false;
+    return `VBox(
+                `Left(`Label( _("HTTP Ports"))),
+                `Table(`id("http_port"), `opt(`notify), `header(_("Host"), _("Port"), _("Options"))),
+                `HBox(
+                    `PushButton(`id(`add), Label::AddButton()),
+                    `PushButton(`id(`del), Label::DeleteButton()),
+                    `PushButton(`id(`edit), Label::EditButton()),
+                    `HStretch()
+                )
+           );
 }
 
-
-any HttpPortsDialog(){
-    any ret = nil;
-    any http_port = nil;
-    any tmp = nil;
-    integer id_item = nil;
-
-    term dialog_contents =
-        `VBox(
-            `Left(`Label( _("HTTP Ports"))),
-            `Table(`id("http_port"), `opt(`notify), `header(_("Host"), _("Port"), _("Options"))),
-            `HBox(
-                `PushButton(`id(`add), Label::AddButton()),
-                `PushButton(`id(`del), Label::DeleteButton()),
-                `PushButton(`id(`edit), Label::EditButton()),
-                `HStretch()
-            )
-        );
-
-    Wizard::SetContentsButtons(_("Squid - HTTP Ports Setting"), dialog_contents, HELPS["http_ports"]:"",
-        Label::BackButton(), Label::NextButton());
-    Wizard::DisableBackButton();
-
-    InitHttpPortsTable();
-
-    while (true){
-        ret = UI::UserInput();
-
-        y2debug("HttpPortsDialog(): ret == %1",ret);
-
-        if (ret == `next) break;
-        else if (ret == `abort || ret == `cancel){
-            if (reallyAbort()) break;
-            continue;
-        }else if (ret == `add){
-            if (AddEditHttpPortDialog(nil))
-                InitHttpPortsTable();
-        }else if (ret == `edit || ret == "http_port"){
-            id_item = (integer)UI::QueryWidget(`id("http_port"), `CurrentItem);
-            if (AddEditHttpPortDialog(id_item)){
-                InitHttpPortsTable();
-                UI::ChangeWidget(`id("http_port"), `CurrentItem, id_item);
-            }
-        }else if (ret == `del){
-            id_item = DelFromHttpPortsTable((integer)UI::QueryWidget(`id("http_port"), `CurrentItem));
-            InitHttpPortsTable();
-            UI::ChangeWidget(`id("http_port"), `CurrentItem, id_item);
-        }
-    }
-
-    return ret;
-}
-
-
-
-any CacheDialog(){
-    any ret = nil;
-    integer id_item = 0;
-    term dialog_contents =
+term RefreshPatternsTableWidget()
+{
+    return
         `VBox(
             `Left(`Label( _("Refresh Patterns"))),
             `HBox(
@@ -126,61 +70,12 @@ any CacheDialog(){
                 `HStretch()
             )
         );
-
-    Wizard::SetContentsButtons(_("Squid - Cache Setting"), dialog_contents, HELPS["cache"]:"",
-        Label::BackButton(), Label::NextButton());
-
-    InitRefreshPatternsTable();
-
-    while (true){
-        ret = UI::UserInput();
-
-        y2debug("CacheDialog(): ret == %1",ret);
-
-        if (ret == `next || ret == `back) break;
-        else if (ret == `abort || ret == `cancel){
-            if (reallyAbort()) break;
-            continue;
-        }else if (ret == `add){
-            if (AddEditRefreshPatternDialog(nil))
-                InitRefreshPatternsTable();
-        }else if (ret == `edit || ret == "refresh_patterns"){
-            id_item = (integer)UI::QueryWidget(`id("refresh_patterns"), `CurrentItem);
-            if (AddEditRefreshPatternDialog(id_item)){
-                InitRefreshPatternsTable();
-                UI::ChangeWidget(`id("refresh_patterns"), `CurrentItem, id_item);
-            }
-        }else if (ret == `del){
-            id_item = DelFromRefreshPatternsTable((integer)UI::QueryWidget(`id("refresh_patterns"), `CurrentItem));
-            InitRefreshPatternsTable();
-            UI::ChangeWidget(`id("refresh_patterns"), `CurrentItem, id_item);
-        }else if (ret == `up){
-            id_item = MoveUpRefreshPattern((integer)UI::QueryWidget(`id("refresh_patterns"), `CurrentItem));
-            if (id_item != nil){
-                InitRefreshPatternsTable();
-                UI::ChangeWidget(`id("refresh_patterns"), `CurrentItem, id_item);
-            }
-        }else if (ret == `down){
-            id_item = MoveDownRefreshPattern((integer)UI::QueryWidget(`id("refresh_patterns"), `CurrentItem));
-            if (id_item != nil){
-                InitRefreshPatternsTable();
-                UI::ChangeWidget(`id("refresh_patterns"), `CurrentItem, id_item);
-            }
-        }
-    }
-
-    return ret;
 }
 
-
-any Cache2Dialog(){
-    any ret = nil;
-    string cache_dir = "";
-    any tmp = nil;
-    any tmp2 = nil;
-
-    term dialog_contents =
-        `VCenter( `HBox(
+term Cache2DialogWidget()
+{
+    return
+        `HBox(
             `HSpacing(3),
             `VBox(
                 `VWeight(1, `Frame(_("Cache Setting"),
@@ -244,79 +139,14 @@ any Cache2Dialog(){
                 ))
             ),
             `HSpacing(3)
-        ));
-
-    Wizard::SetContentsButtons("Squid - Cache Setting 2", dialog_contents, HELPS["cache2"]:"",
-        Label::BackButton(), Label::NextButton());
-
-    UI::ChangeWidget(`id("cache_max_object_size"), `Notify, true);
-    UI::ChangeWidget(`id("cache_min_object_size"), `Notify, true);
-    UI::ChangeWidget(`id("cache_max_object_size_units"), `Notify, true);
-    UI::ChangeWidget(`id("cache_min_object_size_units"), `Notify, true);
-
-    UI::ChangeWidget(`id("cache_swap_low"), `Notify, true);
-    UI::ChangeWidget(`id("cache_swap_high"), `Notify, true);
-
-    InitCache2Dialog();
-
-    while (true){
-        ret = UI::UserInput();
-
-        y2debug("Cache2Dialog(): ret == %1",ret);
-
-        if (ret == `next || ret == `back){
-            if (StoreDataFromCache2Dialog())
-                break;
-        }else if (ret == `abort || ret == `cancel){
-            if (reallyAbort()) break;
-            continue;
-        }else if (ret == `browse_cache_dir){
-            cache_dir = UI::AskForExistingDirectory((string)UI::QueryWidget(`id("cache_dir"), `Value), "Cache Directory");
-            if (cache_dir != nil){
-                UI::ChangeWidget(`id("cache_dir"), `Value, cache_dir);
-            }
-
-        //cache_min_object_size <= cache_max_object_size
-        }else if (ret == "cache_min_object_size" || ret == "cache_min_object_size_units"){
-            tmp = (integer)UI::QueryWidget(`id("cache_min_object_size"), `Value) *
-                  unitToMultiple((string)UI::QueryWidget(`id("cache_min_object_size_units"), `Value));
-            tmp2 = (integer)UI::QueryWidget(`id("cache_max_object_size"), `Value) *
-                   unitToMultiple((string)UI::QueryWidget(`id("cache_max_object_size_units"), `Value));
-            if ((integer)tmp > (integer)tmp2){
-                UI::ChangeWidget(`id("cache_max_object_size"), `Value, UI::QueryWidget(`id("cache_min_object_size"), `Value));
-                UI::ChangeWidget(`id("cache_max_object_size_units"), `Value, UI::QueryWidget(`id("cache_min_object_size_units"), `Value));
-            }
-        }else if (ret == "cache_max_object_size" || ret == "cache_max_object_size_units"){
-            tmp = (integer)UI::QueryWidget(`id("cache_min_object_size"), `Value) *
-                  unitToMultiple((string)UI::QueryWidget(`id("cache_min_object_size_units"), `Value));
-            tmp2 = (integer)UI::QueryWidget(`id("cache_max_object_size"), `Value) *
-                   unitToMultiple((string)UI::QueryWidget(`id("cache_max_object_size_units"), `Value));
-            if ((integer)tmp > (integer)tmp2){
-                UI::ChangeWidget(`id("cache_min_object_size"), `Value, UI::QueryWidget(`id("cache_max_object_size"), `Value));
-                UI::ChangeWidget(`id("cache_min_object_size_units"), `Value, UI::QueryWidget(`id("cache_max_object_size_units"), `Value));
-            }
-
-        //cache_swap_low <= cache_swap_high
-        }else if (ret == "cache_swap_low"){
-            tmp = UI::QueryWidget(`id("cache_swap_low"), `Value);
-            if ((integer)tmp > (integer)UI::QueryWidget(`id("cache_swap_high"), `Value))
-                UI::ChangeWidget(`id("cache_swap_high"), `Value, tmp);
-        }else if (ret == "cache_swap_high"){
-            tmp = UI::QueryWidget(`id("cache_swap_high"), `Value);
-            if ((integer)UI::QueryWidget(`id("cache_swap_low"), `Value) > (integer)tmp)
-                UI::ChangeWidget(`id("cache_swap_low"), `Value, tmp);
-        }
-    }
-
-    return ret;
+        );
 }
 
 
 
-any AccessControlDialog(){
-    any ret = nil;
-    integer id_item = nil;
-    term dialog_contents =
+term ACLGroupsTableWidget()
+{
+    return
         `VBox(
             `Left(`Label(_("ACL Groups"))),
             `Table(`id("acl"), `opt(`notify), `header(_("Name"), _("Type"), _("Description"))),
@@ -325,10 +155,14 @@ any AccessControlDialog(){
                 `PushButton(`id(`del_acl), Label::DeleteButton()),
                 `PushButton(`id(`edit_acl), Label::EditButton()),
                 `HStretch()
-            ),
+            )
+        );
+}
 
-            `VSpacing(),
-
+term HttpAccessTableWidget()
+{
+    return
+        `VBox(
             `Left(`Label(_("Access Control"))),
             `HBox(
                 `Table(`id("http_access"), `opt(`keepSorting, `notify), `header(_("Allow/Deny"), _("ACL Groups"))),
@@ -344,77 +178,11 @@ any AccessControlDialog(){
                 `HStretch()
             )
         );
-
-    Wizard::SetContentsButtons(_("Squid - Access Control Setting"), dialog_contents, HELPS["access_control"]:"",
-        Label::BackButton(), Label::NextButton());
-
-    InitACLGroupsTable();
-    InitHttpAccessTable();
-
-    while (true){
-        ret = UI::UserInput();
-
-        y2debug("BaseDialog(): ret == %1",ret);
-
-        if (ret == `next || ret == `back) break;
-        else if (ret == `abort || ret == `cancel){
-            if (reallyAbort()) break;
-            continue;
-        }else if (ret == `add_acl){
-            if (AddEditACLDialog(nil)){
-                InitACLGroupsTable();
-            }
-        }else if (ret == `edit_acl || ret == "acl"){
-            id_item = (integer)UI::QueryWidget(`id("acl"), `CurrentItem);
-            if (AddEditACLDialog(id_item)){
-                InitACLGroupsTable();
-                UI::ChangeWidget(`id("acl"), `CurrentItem, id_item);
-            }
-        }else if (ret == `del_acl){
-            id_item = DelFromACLGroupsTable((integer)UI::QueryWidget(`id("acl"), `CurrentItem));
-            InitACLGroupsTable();
-            UI::ChangeWidget(`id("acl"), `CurrentItem, id_item);
-
-        }else if (ret == `add_http_access){
-            if (AddEditHttpAccessDialog(nil)){
-                InitHttpAccessTable();
-            }
-        }else if (ret == `edit_http_access || ret == "http_access"){
-            id_item = (integer)UI::QueryWidget(`id("http_access"), `CurrentItem);
-            if (AddEditHttpAccessDialog(id_item)){
-                InitHttpAccessTable();
-                UI::ChangeWidget(`id("http_access"), `CurrentItem, id_item);
-            }
-        }else if (ret == `del_http_access){
-            id_item = DelFromHttpAccessTable((integer)UI::QueryWidget(`id("http_access"), `CurrentItem));
-            InitHttpAccessTable();
-            UI::ChangeWidget(`id("http_access"), `CurrentItem, id_item);
-        }else if (ret == `up_http_access){
-            id_item = MoveUpHttpAccess((integer)UI::QueryWidget(`id("http_access"), `CurrentItem));
-            if (id_item != nil){
-                InitHttpAccessTable();
-                UI::ChangeWidget(`id("http_access"), `CurrentItem, id_item);
-            }
-        }else if (ret == `down_http_access){
-            id_item = MoveDownHttpAccess((integer)UI::QueryWidget(`id("http_access"), `CurrentItem));
-            if (id_item != nil){
-                InitHttpAccessTable();
-                UI::ChangeWidget(`id("http_access"), `CurrentItem, id_item);
-            }
-        }
-    }
-
-    return ret;
 }
 
-
-
-any LoggingAndTimeoutsDialog()
+term LoggingFrameWidget()
 {
-    any ret = nil;
-    string tmp = nil;
-    term dialog_contents =
-        `HBox(`HSpacing(3), `VBox(
+    return
             `Frame(_("Logging"),
                 `VBox(
                     `VSquash(`HBox(
@@ -431,10 +199,12 @@ any LoggingAndTimeoutsDialog()
                     )),
                     `Left(`CheckBox(`id("emulate_httpd_log"), _("Emulate Httpd Log?")))
                 )
-            ),
+            );
+}
 
-            `VSpacing(),
-
+term TimeoutsFrameWidget()
+{
+    return
             `Frame(_("Timeouts"),
                 `VBox(
                     `HBox(
@@ -446,49 +216,13 @@ any LoggingAndTimeoutsDialog()
                        timeUnitWidget("client_lifetime_units")
                     )
                 )
-            )
-        ), `HSpacing(3));
-
-    Wizard::SetContentsButtons("Squid - Logging and Timeouts Setting", dialog_contents, HELPS["logging_timeouts"]:"",
-        Label::BackButton(), Label::NextButton());
-
-    InitLoggingFrame();
-    InitTimeoutsFrame();
-
-    while (true){
-        ret = UI::UserInput();
-
-        y2debug("BaseDialog(): ret == %1",ret);
-
-        if (ret == `next || ret == `back){
-            if(StoreDataFromLoggingFrame() && StoreDataFromTimeoutsFrame())
-                break;
-        }else if (ret == `abort || ret == `cancel){
-            if (reallyAbort()) break;
-            continue;
-        }else if (ret == `access_log_browse){
-            tmp = UI::AskForExistingFile("/var/log", "*", "Access Log");
-            if (tmp != nil)
-                UI::ChangeWidget(`id("access_log"), `Value, tmp);
-        }else if (ret == `cache_log_browse){
-            tmp = UI::AskForExistingFile("/var/log", "*", "Cache Log");
-            if (tmp != nil)
-                UI::ChangeWidget(`id("cache_log"), `Value, tmp);
-        }else if (ret == `cache_store_log_browse){
-            tmp = UI::AskForExistingFile("/var/log", "*", "Cache Store Log");
-            if (tmp != nil)
-                UI::ChangeWidget(`id("cache_store_log"), `Value, tmp);
-        }
-    }
-
-    return ret;
+            );
 }
 
 
-any MiscellaneousDialog()
+term MiscellaneousFrameWidget()
 {
-    any ret = nil;
-    term dialog_contents =
+    return
         `HVCenter(`Frame(_("Miscellaneous Setting"), `VBox(
                 `ComboBox(`id("error_language"),
                                  _("Language of error messages"),
@@ -498,28 +232,8 @@ any MiscellaneousDialog()
                  `VSpacing(),
                  `CheckBox(`id("ftp_passive"), _("Use Ftp Pasive Mode"))
         )));
-
-    Wizard::SetContentsButtons("Squid - Miscellaneous Setting", dialog_contents, HELPS["miscellaneous"]:"",
-        Label::BackButton(), Label::FinishButton());
-
-    InitMiscellaneousDialog();
-
-    while (true){
-        ret = UI::UserInput();
-
-        y2debug("BaseDialog(): ret == %1",ret);
-
-        if (ret == `next || ret == `back){
-            if (StoreDataFromMiscellaneousDialog())
-                break;
-        }else if (ret == `abort || ret == `cancel){
-            if (reallyAbort()) break;
-            continue;
-        }
-    }
-
-    return ret;
 }
+
 /* EOF */
 }
 /* vim: set sw=4 ts=4 et ft=ycp : */

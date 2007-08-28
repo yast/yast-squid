@@ -31,17 +31,17 @@
 
 textdomain "squid";
 
-import "Popup";
 import "Wizard";
-import "Wizard_hw";
 import "Confirm";
-
+import "DialogTree";
+import "CWMServiceStart";
 import "Squid";
-import "SquidACL";
-import "SquidErrorMessages";
-
 
 include "squid/helps.ycp";
+include "squid/dialogs.ycp";
+include "squid/handlers.ycp";
+include "squid/store_del.ycp";
+include "squid/inits.ycp";
 
 
 
@@ -78,7 +78,193 @@ symbol WriteDialog() {
 }
 
 
+void SaveAndRestart()
+{
+    Wizard::CreateDialog();
+    WriteDialog();
+    UI::CloseDialog();
+}
 
+
+
+string main_caption = _("Squid");
+
+map<string, map<string, any> > widget_descr = $[
+        "start_stop" : CWMServiceStart::CreateStartStopWidget ($[
+                            "service_id"                : "squid",
+                            "service_running_label"     : _("Squid is running"),
+                            "service_not_running_label" : _("Squid is not running"),
+                            "start_now_button"          : _("&Start Squid Now"),
+                            "stop_now_button"           : _("S&top Squid Now"),
+                            "save_now_action"           : SaveAndRestart,
+                            "save_now_button"           : _("Sa&ve Settings and Restart Firewall Now"),
+                            //"start_now_action"          : uses the default function
+                            //"stop_now_action"           : uses the default function
+                            "help"                      : sformat (CWMServiceStart::StartStopHelpTemplate (true),
+                                            // TRANSLATORS: part of help text - push button label, NO SHORTCUT!!!
+                                            _("Start Squid Now"),
+                                            // TRANSLATORS: part of help text - push button label, NO SHORTCUT!!!
+                                            _("Stop Squid Now"),
+                                            // TRANSLATORS: part of help text - push button label, NO SHORTCUT!!!
+                                            _("Save Settings and Restart Squid Now")
+                                )
+                            ]),
+
+        "http_ports_table" : $[
+            "widget" : `custom,
+            "custom_widget" : HttpPortsTableWidget(),
+            "init" : InitHttpPortsTable,
+            "handle" : HandleHttpPortsTable,
+            "help" : HELPS["http_ports"]:""
+        ],
+
+        "refresh_patterns_table" : $[
+            "widget" : `custom,
+            "custom_widget" : RefreshPatternsTableWidget(),
+            "init" : InitRefreshPatternsTable,
+            "handle" : HandleRefreshPatternsTable,
+            "help" : HELPS["cache"]:""
+        ],
+
+        "cache2_dialog" : $[
+            "widget" : `custom,
+            "custom_widget" : Cache2DialogWidget(),
+            "init" : InitCache2Dialog,
+            "handle" : HandleCache2Dialog,
+            "store" : StoreDataFromCache2Dialog,
+            "validate_type" : `function,
+            "validate_function" : ValidateCache2Dialog,
+            "help" : HELPS["cache2"]:""
+        ],
+
+        "acl_groups_table" : $[
+            "widget" : `custom,
+            "custom_widget" : ACLGroupsTableWidget(),
+            "init" : InitACLGroupsTable,
+            "handle" : HandleAccessControlDialog,
+            "help" : HELPS["acl_groups"]:""
+        ],
+        "http_access_table" : $[
+            "widget" : `custom,
+            "custom_widget" : HttpAccessTableWidget(),
+            "init" : InitHttpAccessTable,
+            "help" : HELPS["http_access"]:""
+        ],
+
+        "logging_frame" : $[
+            "widget" : `custom,
+            "custom_widget" : LoggingFrameWidget(),
+            "init" : InitLoggingFrame,
+            "handle" : HandleLoggingFrame,
+            "store" : StoreDataFromLoggingFrame,
+            "validate_type" : `function,
+            "validate_function" : ValidateLoggingFrame,
+            "help" : HELPS["logging"]:""
+        ],
+        "timeouts_frame" : $[
+            "widget" : `custom,
+            "custom_widget" : TimeoutsFrameWidget(),
+            "init" : InitTimeoutsFrame,
+            "help" : HELPS["timeouts"]:""
+        ],
+
+        "miscellaneous_frame" : $[
+            "widget" : `custom,
+            "custom_widget" : MiscellaneousFrameWidget(),
+            "init" : InitMiscellaneousFrame,
+            "store" : StoreDataFromMiscellaneousFrame,
+            "validate_type" : `function,
+            "validate_function" : ValidateMiscellaneousFrame,
+            "help" : HELPS["miscellaneous"]:""
+        ]
+    ];
+
+map<string, map<string, any> > screens = $[
+        "s1" : $[
+            "widget_names" : ["start_stop"],
+            "contents" : `HBox(
+                            `HSpacing(3),
+                            "start_stop",
+                            `HSpacing(3)
+                         ),
+            "caption" : main_caption + ": " + _("Start-Up"),
+            "tree_item_label" : _("Start-Up")
+        ],
+
+        "s2" : $[
+            "widget_names" : ["http_ports_table"],
+            "contents" : `VBox("http_ports_table"),
+            "caption" : main_caption + ": " + _("HTTP Ports Setting"),
+            "tree_item_label" : _("HTTP Ports")
+        ],
+
+        "s3" : $[
+            "widget_names" : ["refresh_patterns_table"],
+            "contents" : `VBox("refresh_patterns_table"),
+            "caption" : main_caption + ": " + _("Refresh Patterns Setting"),
+            "tree_item_label" : _("Refresh Patterns")
+        ],
+
+        "s4" : $[
+            "widget_names" : ["cache2_dialog"],
+            "contents" : `VCenter("cache2_dialog"),
+            "caption" : main_caption + ": " + _("Cache Setting"),
+            "tree_item_label" : _("Cache Setting")
+        ],
+
+        "s5" : $[
+            "widget_names" : ["acl_groups_table", "http_access_table"],
+            "contents" : `VBox(
+                            "acl_groups_table",
+                            `VSpacing(),
+                            "http_access_table"
+                         ),
+            "caption" : main_caption + ": " + _("Access Control Setting"),
+            "tree_item_label" : _("Access Control")
+        ],
+
+        "s6" : $[
+            "widget_names" : ["logging_frame", "timeouts_frame"],
+            "contents" : `HBox(`HSpacing(3),
+                            `VBox(
+                                "logging_frame",
+                                `VSpacing(),
+                                "timeouts_frame"
+                            ),
+                         `HSpacing(3)),
+            "caption" : main_caption + ": " + _("Logging and Timeouts Setting"),
+            "tree_item_label" : _("Logging and Timeouts")
+        ],
+
+        "s7" : $[
+            "widget_names" : ["miscellaneous_frame"],
+            "contents" : `VBox("miscellaneous_frame"),
+            "caption" : main_caption + ": " + _("Miscellaneous Setting"),
+            "tree_item_label" : _("Miscellaneous")
+        ]
+    ];
+
+list<string> ids_order = ["s1", "s2", "s3", "s4", "s5", "s6", "s7"];
+string initial_screen = "s1";
+
+any MainDialog(boolean start_up_dialog)
+{
+    if (!start_up_dialog){
+        ids_order = remove(ids_order, 0);
+        initial_screen = "s2";
+    }
+
+    return DialogTree::ShowAndRun($[
+               "ids_order" : ids_order,
+               "initial_screen" : initial_screen,
+               "widget_descr" : widget_descr,
+               "screens" : screens,
+               "functions" : $[`abort : ReallyAbort],
+               "back_button" : Label::BackButton(),
+               "next_button" : Label::FinishButton(),
+               "abort_button" : Label::AbortButton()
+           ]);
+}
 
 }
 /* vim: set sw=4 ts=4 et ft=ycp : */

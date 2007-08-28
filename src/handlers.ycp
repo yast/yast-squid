@@ -1,0 +1,231 @@
+/* ------------------------------------------------------------------------------
+ * Copyright (c) 2006 Novell, Inc. All Rights Reserved.
+ *
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of version 2 of the GNU General Public License as published by the
+ * Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, contact Novell, Inc.
+ *
+ * To contact Novell about this file by physical or electronic mail, you may find
+ * current contact information at www.novell.com.
+ * ------------------------------------------------------------------------------
+ */
+
+/**
+ * File:	include/squid/handlers.ycp
+ * Package:	Configuration of squid
+ * Summary:	Handle functions to CWM
+ * Authors:	Daniel Fiser <dfiser@suse.cz>
+ *
+ * $Id: wizards.ycp 27914 2006-02-13 14:32:08Z locilka $
+ */
+
+{
+
+textdomain "squid";
+
+include "squid/inits.ycp";
+include "squid/store_del.ycp";
+include "squid/dialogs.ycp";
+include "squid/popup_dialogs.ycp";
+
+symbol HandleHttpPortsTable(string widget_id, map event_map)
+{
+    any ui = event_map["ID"]:nil;
+    integer id_item = nil;
+
+    y2debug("HandleHttpPortsTable: widget_id: %1, event_map: %2", widget_id, event_map);
+
+    if (ui == `add){
+        if (AddEditHttpPortDialog(nil))
+            InitHttpPortsTable("");
+    }else if (ui == `edit || ui == "http_port"){
+        id_item = (integer)UI::QueryWidget(`id("http_port"), `CurrentItem);
+        if (AddEditHttpPortDialog(id_item)){
+            InitHttpPortsTable("");
+            UI::ChangeWidget(`id("http_port"), `CurrentItem, id_item);
+        }
+    }else if (ui == `del){
+        id_item = DelFromHttpPortsTable((integer)UI::QueryWidget(`id("http_port"), `CurrentItem));
+        InitHttpPortsTable("");
+        UI::ChangeWidget(`id("http_port"), `CurrentItem, id_item);
+    }else{
+        return (symbol)ui;
+    }
+
+    return nil;
+}
+
+
+symbol HandleRefreshPatternsTable(string widget_id, map event_map)
+{
+    any ui = event_map["ID"]:nil;
+    integer id_item = nil;
+
+    if (ui == `add){
+        if (AddEditRefreshPatternDialog(nil))
+            InitRefreshPatternsTable("");
+    }else if (ui == `edit || ui == "refresh_patterns"){
+        id_item = (integer)UI::QueryWidget(`id("refresh_patterns"), `CurrentItem);
+        if (AddEditRefreshPatternDialog(id_item)){
+            InitRefreshPatternsTable("");
+            UI::ChangeWidget(`id("refresh_patterns"), `CurrentItem, id_item);
+        }
+    }else if (ui == `del){
+        id_item = DelFromRefreshPatternsTable((integer)UI::QueryWidget(`id("refresh_patterns"), `CurrentItem));
+        InitRefreshPatternsTable("");
+        UI::ChangeWidget(`id("refresh_patterns"), `CurrentItem, id_item);
+    }else if (ui == `up){
+        id_item = MoveUpRefreshPattern((integer)UI::QueryWidget(`id("refresh_patterns"), `CurrentItem));
+        if (id_item != nil){
+            InitRefreshPatternsTable("");
+            UI::ChangeWidget(`id("refresh_patterns"), `CurrentItem, id_item);
+        }
+    }else if (ui == `down){
+        id_item = MoveDownRefreshPattern((integer)UI::QueryWidget(`id("refresh_patterns"), `CurrentItem));
+        if (id_item != nil){
+            InitRefreshPatternsTable("");
+            UI::ChangeWidget(`id("refresh_patterns"), `CurrentItem, id_item);
+        }
+    }else{
+        return (symbol)ui;
+    }
+
+    return nil;
+}
+
+
+symbol HandleCache2Dialog(string widget_id, map event_map)
+{
+    any ui = event_map["ID"]:nil;
+    string cache_dir = "";
+    any tmp = nil;
+    any tmp2 = nil;
+
+    if (ui == `browse_cache_dir){
+        cache_dir = UI::AskForExistingDirectory((string)UI::QueryWidget(`id("cache_dir"), `Value), "Cache Directory");
+        if (cache_dir != nil){
+            UI::ChangeWidget(`id("cache_dir"), `Value, cache_dir);
+        }
+
+        //cache_min_object_size <= cache_max_object_size
+    }else if (ui == "cache_min_object_size" || ui == "cache_min_object_size_units"){
+        tmp = (integer)UI::QueryWidget(`id("cache_min_object_size"), `Value) *
+            unitToMultiple((string)UI::QueryWidget(`id("cache_min_object_size_units"), `Value));
+        tmp2 = (integer)UI::QueryWidget(`id("cache_max_object_size"), `Value) *
+            unitToMultiple((string)UI::QueryWidget(`id("cache_max_object_size_units"), `Value));
+        if ((integer)tmp > (integer)tmp2){
+            UI::ChangeWidget(`id("cache_max_object_size"), `Value, UI::QueryWidget(`id("cache_min_object_size"), `Value));
+            UI::ChangeWidget(`id("cache_max_object_size_units"), `Value, UI::QueryWidget(`id("cache_min_object_size_units"), `Value));
+        }
+    }else if (ui == "cache_max_object_size" || ui == "cache_max_object_size_units"){
+        tmp = (integer)UI::QueryWidget(`id("cache_min_object_size"), `Value) *
+            unitToMultiple((string)UI::QueryWidget(`id("cache_min_object_size_units"), `Value));
+        tmp2 = (integer)UI::QueryWidget(`id("cache_max_object_size"), `Value) *
+            unitToMultiple((string)UI::QueryWidget(`id("cache_max_object_size_units"), `Value));
+        if ((integer)tmp > (integer)tmp2){
+            UI::ChangeWidget(`id("cache_min_object_size"), `Value, UI::QueryWidget(`id("cache_max_object_size"), `Value));
+            UI::ChangeWidget(`id("cache_min_object_size_units"), `Value, UI::QueryWidget(`id("cache_max_object_size_units"), `Value));
+        }
+
+        //cache_swap_low <= cache_swap_high
+    }else if (ui == "cache_swap_low"){
+        tmp = UI::QueryWidget(`id("cache_swap_low"), `Value);
+        if ((integer)tmp > (integer)UI::QueryWidget(`id("cache_swap_high"), `Value))
+            UI::ChangeWidget(`id("cache_swap_high"), `Value, tmp);
+    }else if (ui == "cache_swap_high"){
+        tmp = UI::QueryWidget(`id("cache_swap_high"), `Value);
+        if ((integer)UI::QueryWidget(`id("cache_swap_low"), `Value) > (integer)tmp)
+            UI::ChangeWidget(`id("cache_swap_low"), `Value, tmp);
+    }else{
+        return (symbol)ui;
+    }
+
+    return nil;
+}
+
+symbol HandleAccessControlDialog(string widget_id, map event_map)
+{
+    any ui = event_map["ID"]:nil;
+    integer id_item = nil;
+
+    if (ui == `add_acl){
+        if (AddEditACLDialog(nil)){
+            InitACLGroupsTable("");
+        }
+    }else if (ui == `edit_acl || ui == "acl"){
+        id_item = (integer)UI::QueryWidget(`id("acl"), `CurrentItem);
+        if (AddEditACLDialog(id_item)){
+            InitACLGroupsTable("");
+            UI::ChangeWidget(`id("acl"), `CurrentItem, id_item);
+        }
+    }else if (ui == `del_acl){
+        id_item = DelFromACLGroupsTable((integer)UI::QueryWidget(`id("acl"), `CurrentItem));
+        InitACLGroupsTable("");
+        UI::ChangeWidget(`id("acl"), `CurrentItem, id_item);
+    }else if (ui == `add_http_access){
+        if (AddEditHttpAccessDialog(nil)){
+            InitHttpAccessTable("");
+        }
+    }else if (ui == `edit_http_access || ui == "http_access"){
+        id_item = (integer)UI::QueryWidget(`id("http_access"), `CurrentItem);
+        if (AddEditHttpAccessDialog(id_item)){
+            InitHttpAccessTable("");
+            UI::ChangeWidget(`id("http_access"), `CurrentItem, id_item);
+        }
+    }else if (ui == `del_http_access){
+        id_item = DelFromHttpAccessTable((integer)UI::QueryWidget(`id("http_access"), `CurrentItem));
+        InitHttpAccessTable("");
+        UI::ChangeWidget(`id("http_access"), `CurrentItem, id_item);
+    }else if (ui == `up_http_access){
+        id_item = MoveUpHttpAccess((integer)UI::QueryWidget(`id("http_access"), `CurrentItem));
+        if (id_item != nil){
+            InitHttpAccessTable("");
+            UI::ChangeWidget(`id("http_access"), `CurrentItem, id_item);
+        }
+    }else if (ui == `down_http_access){
+        id_item = MoveDownHttpAccess((integer)UI::QueryWidget(`id("http_access"), `CurrentItem));
+        if (id_item != nil){
+            InitHttpAccessTable("");
+            UI::ChangeWidget(`id("http_access"), `CurrentItem, id_item);
+        }
+    }else{
+        return (symbol)ui;
+    }
+
+    return nil;
+}
+
+
+symbol HandleLoggingFrame(string widget_id, map event_map)
+{
+    any ui = event_map["ID"]:nil;
+    string tmp = nil;
+
+    if (ui == `access_log_browse){
+        tmp = UI::AskForExistingFile("/var/log", "*", "Access Log");
+        if (tmp != nil)
+            UI::ChangeWidget(`id("access_log"), `Value, tmp);
+    }else if (ui == `cache_log_browse){
+        tmp = UI::AskForExistingFile("/var/log", "*", "Cache Log");
+        if (tmp != nil)
+            UI::ChangeWidget(`id("cache_log"), `Value, tmp);
+    }else if (ui == `cache_store_log_browse){
+        tmp = UI::AskForExistingFile("/var/log", "*", "Cache Store Log");
+        if (tmp != nil)
+            UI::ChangeWidget(`id("cache_store_log"), `Value, tmp);
+    }else{
+        return (symbol)ui;
+    }
+
+    return nil;
+}
+
+}

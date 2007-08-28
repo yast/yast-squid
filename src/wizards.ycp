@@ -33,53 +33,25 @@ textdomain "squid";
 
 import "Sequencer";
 import "Wizard";
+import "Label";
 
 include "squid/complex.ycp";
-include "squid/dialogs.ycp";
+
+
 
 /**
  * Main workflow of the squid configuration
  * @return sequence result
  */
-any MainSequence() {
-
-    map aliases = $[
-        "http_ports"   : ``(HttpPortsDialog()),
-        "cache"  : ``(CacheDialog()),
-        "cache2"  : ``(Cache2Dialog()),
-        "access" : ``(AccessControlDialog()),
-        "logging_and_timeouts" : ``(LoggingAndTimeoutsDialog()),
-        "miscellaneous" : ``(MiscellaneousDialog())
-    ];
-
+any MainSequence(boolean start_up_dialog) {
+    map aliases = $[ "main" : ``(MainDialog(start_up_dialog))];
     map sequence = $[
-	"ws_start" : "http_ports",
-    "http_ports" : $[
-        `abort : `abort,
-        `next  : "cache"
-    ],
-    "cache" : $[
-        `abort : `abort,
-        `next  : "cache2"
-    ],
-    "cache2" : $[
-        `abort : `abort,
-        `next  : "access"
-    ],
-    "access" : $[
-        `abort : `abort,
-        `next  : "logging_and_timeouts"
-    ],
-    "logging_and_timeouts" : $[
-        `abort : `abort,
-        `next : "miscellaneous"
-    ],
-    "miscellaneous" : $[
-        `abort : `abort,
-        `next : `next
-    ]
+        "ws_start" : "main",
+        "main" : $[
+            `abort : `abort,
+            `next : `next
+        ]
     ];
-
     any ret = Sequencer::Run(aliases, sequence);
 
     return ret;
@@ -93,7 +65,7 @@ any SquidSequence() {
 
     map aliases = $[
     "read"	: [ ``( ReadDialog() ), true ],
-	"main"	:   ``( MainSequence() ),
+	"main"	:   ``( MainSequence(true) ),
 	"write"	: [ ``( WriteDialog() ), true ]
     ];
 
@@ -137,7 +109,7 @@ any SquidAutoSequence() {
     Wizard::SetContentsButtons(caption, contents, "",
 	    Label::BackButton(), Label::NextButton());
 
-    any ret = MainSequence();
+    any ret = MainSequence(false);
 
     UI::CloseDialog();
     return ret;
