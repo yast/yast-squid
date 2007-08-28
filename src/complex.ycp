@@ -267,8 +267,8 @@ any MainDialog()
                "widget_descr" : widget_descr,
                "screens" : screens,
                "functions" : $[`abort : ReallyAbort],
-               "back_button" : Label::BackButton(),
-               "next_button" : Label::FinishButton(),
+               "back_button" : "",
+               "next_button" : Label::AcceptButton(),
                "abort_button" : Label::AbortButton()
            ]);
 }

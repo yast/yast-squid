@@ -982,22 +982,22 @@ boolean readAllSettings()
     boolean ok = true;
 
     if (!readHttpPorts()) ok = false;
-    Progress::NextStep();
+    Progress::NextStage();
 
     if (!readRefreshPatterns()) ok = false;
-    Progress::NextStep();
+    Progress::NextStage();
 
     if (!readACLs()) ok = false;
-    Progress::NextStep();
+    Progress::NextStage();
 
     if (!readHttpAccesses()) ok = false;
-    Progress::NextStep();
+    Progress::NextStage();
 
     if (!readRestSetting()) ok = false;
-    Progress::NextStep();
+    Progress::NextStage();
 
     if (!readServiceStatus()) ok = false;
-    Progress::NextStep();
+    Progress::NextStage();
 
     return ok;
 }
@@ -1012,8 +1012,18 @@ global boolean Read() {
     Progress::New(_("Initializing squid Configuration"),
                   " ",
                   6,
-                  [_("Read the settings.")],
-                  [_("Reading the setting ...")],
+                  [_("Read HTTP Ports from config file."),
+                   _("Read Refresh Patterns from config file."),
+                   _("Read ACL Groups from config file."),
+                   _("Read Access Control table from config file."),
+                   _("Read the rest settings."),
+                   _("Read service status.")],
+                  [_("Reading HTTP Ports ..."),
+                   _("Reading Refresh Patterns ..."),
+                   _("Reading ACL Groups ..."),
+                   _("Reading Access Control table ..."),
+                   _("Reading the rest settings ..."),
+                   _("Reading service status ...")],
                   "");
 
     if(Abort()) return false;
