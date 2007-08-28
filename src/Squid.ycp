@@ -55,6 +55,12 @@ path squid_path = .etc.squid;
 boolean modified = false;
 
 /**
+ * Is service enabled?
+ */
+boolean service_enabled = false;
+
+
+/**
  * Map of all configuration settings except consequential. Format:
  * $[ "parameter name" : [ list of options (rest of line) ]
  *    ...
@@ -365,6 +371,18 @@ global define boolean Abort() ``{
     return false;
 }
 
+
+/******* SERVICE *******/
+global boolean IsServiceEnabled()
+{
+    return service_enabled;
+}
+
+global void SetServiceEnabled(boolean enabled)
+{
+    service_enabled = enabled;
+}
+/******* SERVICE END  **/
 
 /******* ACL *******/
 global list<map<string,any> > GetACLs()
@@ -953,6 +971,12 @@ boolean readRestSetting()
     return ok;
 }
 
+boolean readServiceStatus()
+{
+    service_enabled = Service::Enabled("squid");
+    return true;
+}
+
 boolean readAllSettings()
 {
     boolean ok = true;
@@ -972,6 +996,9 @@ boolean readAllSettings()
     if (!readRestSetting()) ok = false;
     Progress::NextStep();
 
+    if (!readServiceStatus()) ok = false;
+    Progress::NextStep();
+
     return ok;
 }
 
@@ -984,7 +1011,7 @@ global boolean Read() {
 
     Progress::New(_("Initializing squid Configuration"),
                   " ",
-                  5,
+                  6,
                   [_("Read the settings.")],
                   [_("Reading the setting ...")],
                   "");
@@ -1000,6 +1027,7 @@ global boolean Read() {
     y2debug("Squid::Read - acls: %1", acls);
     y2debug("Squid::Read - refresh_patterns: %1", refresh_patterns);
     y2debug("Squid::Read - settings: %1", settings);
+    y2debug("Squid::Read - enabled: %1", service_enabled);
     y2milestone("================ Setting END ==================");
 
     /* Error message */
@@ -1231,6 +1259,16 @@ global boolean StopService()
     return ok;
 }
 
+global boolean EnableService()
+{
+    return Service::Enable("squid");
+}
+
+global boolean DisableService()
+{
+    return Service::Disable("squid");
+}
+
 /**
  * Write all squid settings
  * @return true on success
@@ -1267,6 +1305,10 @@ global boolean Write() {
         Report::Error (_("Cannot write settings."));
         ok = false;
     }
+
+    //enabling / disabling service
+    if (service_enabled == true) EnableService();
+    if (service_enabled == false) DisableService();
 
     // start Service
     if(Abort()) return false;

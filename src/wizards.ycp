@@ -43,8 +43,8 @@ include "squid/complex.ycp";
  * Main workflow of the squid configuration
  * @return sequence result
  */
-any MainSequence(boolean start_up_dialog) {
-    map aliases = $[ "main" : ``(MainDialog(start_up_dialog))];
+any MainSequence() {
+    map aliases = $[ "main" : ``(MainDialog())];
     map sequence = $[
         "ws_start" : "main",
         "main" : $[
@@ -65,13 +65,11 @@ any SquidSequence() {
 
     map aliases = $[
     "read"	: [ ``( ReadDialog() ), true ],
-	"main"	:   ``( MainSequence(true) ),
+	"main"	:   ``( MainSequence() ),
 	"write"	: [ ``( WriteDialog() ), true ]
     ];
 
-    map sequence = $[
-	"ws_start" : "read",
-	"read" : $[
+    map sequence = $[ "ws_start" : "read", "read" : $[
 	    `abort	: `abort,
 	    `next	: "main"
 	],
@@ -109,7 +107,7 @@ any SquidAutoSequence() {
     Wizard::SetContentsButtons(caption, contents, "",
 	    Label::BackButton(), Label::NextButton());
 
-    any ret = MainSequence(false);
+    any ret = MainSequence();
 
     UI::CloseDialog();
     return ret;

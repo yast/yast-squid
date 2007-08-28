@@ -86,11 +86,20 @@ void SaveAndRestart()
 }
 
 
-
 string main_caption = _("Squid");
 
 map<string, map<string, any> > widget_descr = $[
-        "start_stop" : CWMServiceStart::CreateStartStopWidget ($[
+        "auto_start" : CWMServiceStart::CreateAutoStartWidget($[
+                            "get_service_auto_start" : Squid::IsServiceEnabled,
+                            "set_service_auto_start" : Squid::SetServiceEnabled,
+                            "start_auto_button" : _("When &Booting"),
+                            "start_manual_button" : _("&Manually"),
+                            "help" : sformat(CWMServiceStart::AutoStartHelpTemplate(),
+                                        _("When Booting"),
+                                        _("Manually")
+                                )
+                       ]),
+        "start_stop" : CWMServiceStart::CreateStartStopWidget($[
                             "service_id"                : "squid",
                             "service_running_label"     : _("Squid is running"),
                             "service_not_running_label" : _("Squid is not running"),
@@ -108,7 +117,7 @@ map<string, map<string, any> > widget_descr = $[
                                             // TRANSLATORS: part of help text - push button label, NO SHORTCUT!!!
                                             _("Save Settings and Restart Squid Now")
                                 )
-                            ]),
+                       ]),
 
         "http_ports_table" : $[
             "widget" : `custom,
@@ -181,10 +190,13 @@ map<string, map<string, any> > widget_descr = $[
 
 map<string, map<string, any> > screens = $[
         "s1" : $[
-            "widget_names" : ["start_stop"],
+            "widget_names" : ["auto_start", "start_stop"],
             "contents" : `HBox(
                             `HSpacing(3),
-                            "start_stop",
+                            `VBox(
+                                "auto_start",
+                                "start_stop"
+                            ),
                             `HSpacing(3)
                          ),
             "caption" : main_caption + ": " + _("Start-Up"),
@@ -247,13 +259,8 @@ map<string, map<string, any> > screens = $[
 list<string> ids_order = ["s1", "s2", "s3", "s4", "s5", "s6", "s7"];
 string initial_screen = "s1";
 
-any MainDialog(boolean start_up_dialog)
+any MainDialog()
 {
-    if (!start_up_dialog){
-        ids_order = remove(ids_order, 0);
-        initial_screen = "s2";
-    }
-
     return DialogTree::ShowAndRun($[
                "ids_order" : ids_order,
                "initial_screen" : initial_screen,

@@ -56,10 +56,7 @@ symbol HandleHttpPortsTable(string widget_id, map event_map)
         id_item = DelFromHttpPortsTable((integer)UI::QueryWidget(`id("http_port"), `CurrentItem));
         InitHttpPortsTable("");
         UI::ChangeWidget(`id("http_port"), `CurrentItem, id_item);
-    }else{
-        return (symbol)ui;
     }
-
     return nil;
 }
 
@@ -94,10 +91,7 @@ symbol HandleRefreshPatternsTable(string widget_id, map event_map)
             InitRefreshPatternsTable("");
             UI::ChangeWidget(`id("refresh_patterns"), `CurrentItem, id_item);
         }
-    }else{
-        return (symbol)ui;
     }
-
     return nil;
 }
 
@@ -144,10 +138,7 @@ symbol HandleCache2Dialog(string widget_id, map event_map)
         tmp = UI::QueryWidget(`id("cache_swap_high"), `Value);
         if ((integer)UI::QueryWidget(`id("cache_swap_low"), `Value) > (integer)tmp)
             UI::ChangeWidget(`id("cache_swap_low"), `Value, tmp);
-    }else{
-        return (symbol)ui;
     }
-
     return nil;
 }
 
@@ -196,10 +187,7 @@ symbol HandleAccessControlDialog(string widget_id, map event_map)
             InitHttpAccessTable("");
             UI::ChangeWidget(`id("http_access"), `CurrentItem, id_item);
         }
-    }else{
-        return (symbol)ui;
     }
-
     return nil;
 }
 
@@ -221,10 +209,7 @@ symbol HandleLoggingFrame(string widget_id, map event_map)
         tmp = UI::AskForExistingFile("/var/log", "*", "Cache Store Log");
         if (tmp != nil)
             UI::ChangeWidget(`id("cache_store_log"), `Value, tmp);
-    }else{
-        return (symbol)ui;
     }
-
     return nil;
 }
 
