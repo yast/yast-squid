@@ -35,6 +35,7 @@ import "Wizard";
 import "Confirm";
 import "DialogTree";
 import "CWMServiceStart";
+import "PackageSystem";
 import "Squid";
 
 include "squid/helps.ycp";
@@ -62,6 +63,7 @@ symbol ReadDialog() {
     Wizard::RestoreHelp(HELPS["read"]:"");
     Squid::AbortFunction = PollAbort;
     if (!Confirm::MustBeRoot()) return `abort;
+    if (!PackageSystem::CheckAndInstallPackagesInteractive(["squid"])) return `abort;
     boolean ret = Squid::Read();
     return ret ? `next : `abort;
 }
