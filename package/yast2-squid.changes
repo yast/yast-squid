@@ -1,4 +1,16 @@
 -------------------------------------------------------------------
+Tue Aug 28 15:22:39 CEST 2007 - dfiser@suse.cz
+
+- Added checking of more input data (bug #304314).
+- Changed workflow to DialogTree-based dialogs.
+- Squid::StartService now uses Service::Restart instead of
+  Service::Reload (bug #304278).
+- Added possibility to enable/disable service (bug #304271).
+- Read dialog now shows more than one stage.
+- Added checking whether the squid package is installed (bug #304261).
+- v2.15.2
+
+-------------------------------------------------------------------
 Fri Aug 17 15:39:44 CEST 2007 - dfiser@suse.cz
 
 - Layout improvement.
