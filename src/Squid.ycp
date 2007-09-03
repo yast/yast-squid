@@ -57,7 +57,7 @@ boolean modified = false;
 /**
  * Is service enabled?
  */
-boolean service_enabled = false;
+boolean service_enabled_on_startup = false;
 
 
 /**
@@ -337,6 +337,7 @@ global void SetDefaultValues()
            "regexp":"." ]
     ];
     settings = parameters;
+    service_enabled_on_startup = false;
 }
 
 
@@ -375,12 +376,12 @@ global define boolean Abort() ``{
 /******* SERVICE *******/
 global boolean IsServiceEnabled()
 {
-    return service_enabled;
+    return service_enabled_on_startup;
 }
 
 global void SetServiceEnabled(boolean enabled)
 {
-    service_enabled = enabled;
+    service_enabled_on_startup = enabled;
 }
 /******* SERVICE END  **/
 
@@ -973,7 +974,7 @@ boolean readRestSetting()
 
 boolean readServiceStatus()
 {
-    service_enabled = Service::Enabled("squid");
+    service_enabled_on_startup = Service::Enabled("squid");
     return true;
 }
 
@@ -1037,7 +1038,7 @@ global boolean Read() {
     y2debug("Squid::Read - acls: %1", acls);
     y2debug("Squid::Read - refresh_patterns: %1", refresh_patterns);
     y2debug("Squid::Read - settings: %1", settings);
-    y2debug("Squid::Read - enabled: %1", service_enabled);
+    y2debug("Squid::Read - enabled: %1", service_enabled_on_startup);
     y2milestone("================ Setting END ==================");
 
     /* Error message */
@@ -1317,8 +1318,8 @@ global boolean Write() {
     }
 
     //enabling / disabling service
-    if (service_enabled == true) EnableService();
-    if (service_enabled == false) DisableService();
+    if (service_enabled_on_startup == true) EnableService();
+    if (service_enabled_on_startup == false) DisableService();
 
     // start Service
     if(Abort()) return false;
@@ -1347,7 +1348,7 @@ global boolean Write() {
  * @return boolean True on success
  */
 global boolean Import (map sett) {
-    if (sett == $[]){
+    if (sett == $[] || sett == nil){
         SetDefaultValues();
         SetModified();
         return true;
@@ -1356,7 +1357,8 @@ global boolean Import (map sett) {
         !haskey(sett, "acls") ||
         !haskey(sett, "http_accesses") ||
         !haskey(sett, "refresh_patterns") ||
-        !haskey(sett, "settings")){
+        !haskey(sett, "settings") ||
+        !haskey(sett, "service_enabled_on_startup")){
 
         return false;
     }
@@ -1366,6 +1368,7 @@ global boolean Import (map sett) {
     http_accesses = (list<map<string,any> >)sett["http_accesses"]:[];
     refresh_patterns = (list<map<string,any> >)sett["refresh_patterns"]:[];
     settings = (map<string,any>)sett["settings"]:$[];
+    service_enabled_on_startup = (boolean)sett["service_enabled_on_startup"]:false;
     SetModified();
 
     return true;
@@ -1381,7 +1384,8 @@ global map Export () {
               "acls" : acls,
               "http_accesses" : http_accesses,
               "refresh_patterns" : refresh_patterns,
-              "settings" : settings ];
+              "settings" : settings,
+              "service_enabled_on_startup" : service_enabled_on_startup ];
 }
 
 /**

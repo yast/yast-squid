@@ -1,6 +1,7 @@
 # Makefile.am for squid/src
 
 yncludedir = @yncludedir@/squid
+rncdir = $(schemadir)/autoyast/rnc
 
 client_DATA =			\
 	squid.ycp		\
@@ -26,11 +27,13 @@ module_DATA =			\
     SquidACL.ycp \
     SquidErrorMessages.ycp
 
+rnc_DATA = squid.rnc
+
 # create a symlink for local build, #145327
 squid:
 	ln -sf . $@
 ycpchook = squid
 
-EXTRA_DIST = $(client_DATA) $(ynclude_DATA) $(module_DATA) $(desktop_DATA)
+EXTRA_DIST = $(client_DATA) $(ynclude_DATA) $(module_DATA) $(desktop_DATA) $(rnc_DATA)
 
 include $(top_srcdir)/Makefile.am.common

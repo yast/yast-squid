@@ -37,6 +37,7 @@ import "DialogTree";
 import "CWMServiceStart";
 import "PackageSystem";
 import "Squid";
+import "Mode";
 
 include "squid/helps.ycp";
 include "squid/dialogs.ycp";
@@ -108,7 +109,7 @@ map<string, map<string, any> > widget_descr = $[
                             "start_now_button"          : _("&Start Squid Now"),
                             "stop_now_button"           : _("S&top Squid Now"),
                             "save_now_action"           : SaveAndRestart,
-                            "save_now_button"           : _("Sa&ve Settings and Restart Firewall Now"),
+                            "save_now_button"           : _("Sa&ve Settings and Restart Squid Now"),
                             //"start_now_action"          : uses the default function
                             //"stop_now_action"           : uses the default function
                             "help"                      : sformat (CWMServiceStart::StartStopHelpTemplate (true),
@@ -197,7 +198,7 @@ map<string, map<string, any> > screens = $[
                             `HSpacing(3),
                             `VBox(
                                 "auto_start",
-                                "start_stop"
+                                (Mode::normal() ? "start_stop" : `Empty())
                             ),
                             `HSpacing(3)
                          ),

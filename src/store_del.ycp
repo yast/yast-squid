@@ -36,6 +36,7 @@ import "Report";
 import "FileUtils";
 import "Popup";
 import "FileUtils";
+import "Mode";
 
 import "Squid";
 import "SquidACL";
@@ -163,7 +164,7 @@ boolean ValidateCache2Dialog(string widget_id, map event)
         if (size(cache_dir) == 0){
             ok = false;
             Report::Error(_("Cache directory must not be empty."));
-        }else if (!FileUtils::CheckAndCreatePath(cache_dir)){
+        }else if (Mode::normal() && !FileUtils::CheckAndCreatePath(cache_dir)){
             ok = false;
         }else{
             integer cache_mem = (integer)UI::QueryWidget(`id("cache_mem"), `Value) *
@@ -415,15 +416,15 @@ boolean ValidateLoggingFrame(string widget_id, map event)
             ok = false;
             message = message + (size(message)>0 ? "\n" : "") + _("Cache Log must not be empty.");
         }
-        if (size(access_log) > 0 && !isCorrectPathnameOfLogFile(access_log)){
+        if (size(access_log) > 0 && Mode::normal() && !isCorrectPathnameOfLogFile(access_log)){
             ok = false;
             message = message + (size(message)>0 ? "\n" : "") + _("Incorrect pathname in Access Log field.");
         }
-        if (size(cache_log) > 0 && !isCorrectPathnameOfLogFile(cache_log)){
+        if (size(cache_log) > 0 && Mode::normal() && !isCorrectPathnameOfLogFile(cache_log)){
             ok = false;
             message = message + (size(message)>0 ? "\n" : "") + _("Incorrect pathname in Cache Log field.");
         }
-        if (size(cache_store_log) > 0 && !isCorrectPathnameOfLogFile(cache_store_log)){
+        if (size(cache_store_log) > 0 && Mode::normal() && !isCorrectPathnameOfLogFile(cache_store_log)){
             ok = false;
             message = message + (size(message)>0 ? "\n" : "") + _("Incorrect pathname in Cache Store Log field.");
         }

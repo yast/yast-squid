@@ -62,6 +62,9 @@ if(size(WFM::Args()) > 0 && is(WFM::Args(0), string)) {
 y2debug("func=%1", func);
 y2debug("param=%1", param);
 
+if (!Squid::GetModified())
+    Squid::SetDefaultValues();
+
 /* Create a summary*/
 if(func == "Summary") {
     ret = select(Squid::Summary(), 0, "");
