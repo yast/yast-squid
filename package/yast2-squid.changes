@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Tue Sep  4 15:37:38 CEST 2007 - dfiser@suse.cz
+
+- Added .rnc schema file (bug #304267).
+- Removed some checks of local system if module is running as
+  autoyast client. In autoyast, Squid module is filled with default
+  values. (bug #304264)
+- v2.15.3
+
+-------------------------------------------------------------------
 Tue Aug 28 15:22:39 CEST 2007 - dfiser@suse.cz
 
 - Added checking of more input data (bug #304314).
