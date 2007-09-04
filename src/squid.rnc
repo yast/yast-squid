@@ -1,3 +1,15 @@
+default namespace = "http://www.suse.com/1.0/yast2ns"
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+namespace config = "http://www.suse.com/1.0/configns"
+
+
+# for testing:
+# call 'trang squid.rnc squid.rng' to generate .rng file
+# call '/usr/bin/xmllint --noout --relaxng /path/to/squid.rng /path/to/xml' to
+# verify correctness of .rnc
+#start = element profile { squid }
+#include '/usr/share/YaST2/schema/autoyast/rnc/common.rnc'
+
 squid = element squid{
     element acls{
         LIST,
@@ -39,7 +51,6 @@ squid = element squid{
         }*
     }? &
     element settings{
-        LIST,
         element access_log{
             LIST,
             element listentry{ text }*
@@ -76,7 +87,7 @@ squid = element squid{
             LIST,
             element listentry{ text }*
         }? &
-        element clien_lifetime{
+        element client_lifetime{
             LIST,
             element listentry{ text }*
         }? &

@@ -198,6 +198,7 @@ map<string, map<string, any> > screens = $[
                             `HSpacing(3),
                             `VBox(
                                 "auto_start",
+                                `VSpacing(),
                                 (Mode::normal() ? "start_stop" : `Empty())
                             ),
                             `HSpacing(3)

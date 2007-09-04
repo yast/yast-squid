@@ -132,7 +132,7 @@ map <string, list> parameters = $[
     "emulate_httpd_log" : ["off"],
 
     "connect_timeout" : ["2", "minutes"],
-    "client_lifetime" : ["1", "day"],
+    "client_lifetime" : ["1", "days"],
 
     "error_directory" : ["/usr/share/squid/errors/English"],
     "cache_mgr" : ["webmaster"],
@@ -381,6 +381,7 @@ global boolean IsServiceEnabled()
 
 global void SetServiceEnabled(boolean enabled)
 {
+    SetModified();
     service_enabled_on_startup = enabled;
 }
 /******* SERVICE END  **/
@@ -1398,19 +1399,30 @@ global list Summary() {
     if (!GetModified()){
         summary = Summary::NotConfigured();
     }else{
+        // Header
         summary = Summary::AddHeader("", _("Squid Cache Proxy"));
+
+        // Start daemon
+        summary = Summary::AddLine(summary, _("Start daemon: ") +
+                "<i>" + (service_enabled_on_startup ? _("When booting") : _("Manually")) + "</i>");
+
+        // Http Ports
         summary = Summary::AddLine(summary, _("Configured ports:"));
         if (size(http_ports) > 0){
             summary = Summary::OpenList(summary);
             foreach (map<string,any> value, http_ports,
                 {
-                    tmp = "";
-                    if (size(value["host"]:"") > 0) tmp = value["host"]:"" + ":";
-                    tmp = tmp + value["port"]:"";
+                    tmp = "<i>";
+                    if (size(value["host"]:"") > 0) tmp = tmp + value["host"]:"" + ":";
+                    tmp = tmp + value["port"]:"" + (value["transparent"]:false ? _(" (transparent)") : "");
+                    tmp = tmp + "</i>";
                     summary = Summary::AddListItem(summary, tmp);
                 });
             summary = Summary::CloseList(summary);
         }
+
+        //Cache directory
+        summary = Summary::AddLine(summary, _("Cache directory: ") + "<i>" + (settings["cache_dir"]:[])[1]:"" + "</i>");
     }
     return [ summary, [] ];
 }

@@ -29,5 +29,6 @@ Summary:	Configuration of squid
 @moduledir@/SquidACL.*
 @moduledir@/SquidErrorMessages.*
 @desktopdir@/squid.desktop
+@schemadir@/autoyast/rnc/squid.rnc
 @scrconfdir@/*.scr
 %doc @docdir@
