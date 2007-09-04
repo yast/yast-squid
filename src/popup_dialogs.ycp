@@ -59,8 +59,8 @@ boolean AddEditHttpPortDialog(integer id_item)
             `VSpacing(),
             `VStretch(),
             `HBox(
-                `PushButton(`id(`cancel), Label::CancelButton()),
-                `PushButton(`id(`ok), Label::OKButton())
+                `PushButton(`id(`ok), Label::OKButton()),
+                `PushButton(`id(`cancel), Label::CancelButton())
             )
         );
 
@@ -116,8 +116,8 @@ boolean AddEditRefreshPatternDialog(integer id_item)
             `VStretch(),
 
             `HBox(
-                `PushButton(`id(`cancel), Label::CancelButton()),
-                `PushButton(`id(`ok), Label::OKButton())
+                `PushButton(`id(`ok), Label::OKButton()),
+                `PushButton(`id(`cancel), Label::CancelButton())
             )
         );
 
@@ -228,8 +228,8 @@ boolean AddEditHttpAccessDialog(integer id_item)
             `VStretch(),
 
             `HBox(
-                `PushButton(`id(`cancel), Label::CancelButton()),
-                `PushButton(`id(`ok), Label::OKButton())
+                `PushButton(`id(`ok), Label::OKButton()),
+                `PushButton(`id(`cancel), Label::CancelButton())
             )
         );
 
@@ -300,8 +300,8 @@ boolean AddEditACLDialog(integer id_item)
             `VStretch(),
 
             `HBox(
-                `PushButton(`id(`cancel), Label::CancelButton()),
-                `PushButton(`id(`ok), Label::OKButton())
+                `PushButton(`id(`ok), Label::OKButton()),
+                `PushButton(`id(`cancel), Label::CancelButton())
             )
         ))
     );
