@@ -43,8 +43,8 @@ term HttpPortsTableWidget()
                 `Table(`id("http_port"), `opt(`notify), `header(_("Host"), _("Port"), _("Options"))),
                 `HBox(
                     `PushButton(`id(`add), Label::AddButton()),
-                    `PushButton(`id(`del), Label::DeleteButton()),
                     `PushButton(`id(`edit), Label::EditButton()),
+                    `PushButton(`id(`del), Label::DeleteButton()),
                     `HStretch()
                 )
            );
@@ -58,15 +58,15 @@ term RefreshPatternsTableWidget()
             `HBox(
                 `Table(`id("refresh_patterns"), `opt(`keepSorting, `notify),
                        `header(_("Regular Expression"), _("Min"), _("Precent"), _("Max")/*, _("Options")*/)),
-                `VBox(
+                `Top(`VBox(
                     `PushButton(`id(`up), Label::UpButton()),
                     `PushButton(`id(`down), Label::DownButton())
-                )
+                ))
             ),
             `HBox(
                 `PushButton(`id(`add), Label::AddButton()),
-                `PushButton(`id(`del), Label::DeleteButton()),
                 `PushButton(`id(`edit), Label::EditButton()),
+                `PushButton(`id(`del), Label::DeleteButton()),
                 `HStretch()
             )
         );
@@ -152,8 +152,8 @@ term ACLGroupsTableWidget()
             `Table(`id("acl"), `opt(`notify), `header(_("Name"), _("Type"), _("Description"))),
             `HBox(
                 `PushButton(`id(`add_acl), Label::AddButton()),
-                `PushButton(`id(`del_acl), Label::DeleteButton()),
                 `PushButton(`id(`edit_acl), Label::EditButton()),
+                `PushButton(`id(`del_acl), Label::DeleteButton()),
                 `HStretch()
             )
         );
@@ -166,15 +166,15 @@ term HttpAccessTableWidget()
             `Left(`Label(_("Access Control"))),
             `HBox(
                 `Table(`id("http_access"), `opt(`keepSorting, `notify), `header(_("Allow/Deny"), _("ACL Groups"))),
-                `HSquash(`VBox(
+                `HSquash(`Top(`VBox(
                     `HWeight(1, `PushButton(`id(`up_http_access), Label::UpButton())),
                     `HWeight(1, `PushButton(`id(`down_http_access), Label::DownButton()))
-                ))
+                )))
             ),
             `HBox(
                 `PushButton(`id(`add_http_access), Label::AddButton()),
-                `PushButton(`id(`del_http_access), Label::DeleteButton()),
                 `PushButton(`id(`edit_http_access), Label::EditButton()),
+                `PushButton(`id(`del_http_access), Label::DeleteButton()),
                 `HStretch()
             )
         );
@@ -230,7 +230,7 @@ term MiscellaneousFrameWidget()
                  `VSpacing(),
                  `TextEntry(`id("cache_mgr"), _("&Administrator's e-mail"), ""),
                  `VSpacing(),
-                 `CheckBox(`id("ftp_passive"), _("&Use Ftp Pasive Mode"))
+                 `Left(`CheckBox(`id("ftp_passive"), _("&Use Ftp Passive Mode")))
         )));
 }
 

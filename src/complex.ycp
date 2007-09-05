@@ -196,11 +196,11 @@ map<string, map<string, any> > screens = $[
             "widget_names" : ["auto_start", "start_stop"],
             "contents" : `HBox(
                             `HSpacing(3),
-                            `VBox(
+                            `Top(`VBox(
                                 "auto_start",
                                 `VSpacing(),
                                 (Mode::normal() ? "start_stop" : `Empty())
-                            ),
+                            )),
                             `HSpacing(3)
                          ),
             "caption" : main_caption + ": " + _("Start-Up"),

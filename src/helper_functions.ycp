@@ -37,7 +37,7 @@ import "FileUtils";
  */
 term sizeUnitWidget(string id)
 {
-    return `ComboBox(`id(id), " ",
+    return `ComboBox(`id(id), _("&Units"),
                 [`item("KB"), `item("MB")]);
 }
 
