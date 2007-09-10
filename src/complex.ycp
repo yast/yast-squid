@@ -35,6 +35,7 @@ import "Wizard";
 import "Confirm";
 import "DialogTree";
 import "CWMServiceStart";
+import "CWMFirewallInterfaces";
 import "PackageSystem";
 import "Squid";
 import "Mode";
@@ -121,6 +122,12 @@ map<string, map<string, any> > widget_descr = $[
                                             _("Save Settings and Restart Squid Now")
                                 )
                        ]),
+        "firewall" : CWMFirewallInterfaces::CreateOpenFirewallWidget($[
+                        "services" : [Squid::GetFirewallServiceName],
+                        "display_details" : true,
+                        "open_firewall_checkbox" : _("Open Ports in Firewall")
+                     ]),
+
 
         "http_ports_table" : $[
             "widget" : `custom,
@@ -193,13 +200,15 @@ map<string, map<string, any> > widget_descr = $[
 
 map<string, map<string, any> > screens = $[
         "s1" : $[
-            "widget_names" : ["auto_start", "start_stop"],
+            "widget_names" : ["auto_start", "start_stop", "firewall"],
             "contents" : `HBox(
                             `HSpacing(3),
                             `Top(`VBox(
                                 "auto_start",
                                 `VSpacing(),
-                                (Mode::normal() ? "start_stop" : `Empty())
+                                (Mode::normal() ? "start_stop" : `Empty()),
+                                `VSpacing(),
+                                `Frame(_("Firewall Settings"), "firewall")
                             )),
                             `HSpacing(3)
                          ),

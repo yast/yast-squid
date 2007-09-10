@@ -1,7 +1,7 @@
 @HEADER-COMMENT@
 
 @HEADER@
-Requires:	yast2
+Requires:	yast2 filesystem
 BuildRequires:	perl-XML-Writer update-desktop-files yast2 yast2-devtools yast2-testsuite
 
 BuildArchitectures:	noarch
@@ -22,6 +22,7 @@ Summary:	Configuration of squid
 %files
 %defattr(-,root,root)
 %dir @yncludedir@/squid
+%config /etc/sysconfig/SuSEfirewall2.d/services/squid
 @yncludedir@/squid/*
 @clientdir@/squid.ycp
 @clientdir@/squid_*.ycp

@@ -42,11 +42,26 @@ import "Message";
 import "Service";
 import "Summary";
 import "FileUtils";
+import "SuSEFirewall";
 
 /**
  * Defines path used in SCR::Read/Write functions
  */
 path squid_path = .etc.squid;
+
+/**
+ * Defines location of sysconfig file
+ */
+string sysconfig_file = "/etc/sysconfig/SuSEfirewall2.d/services/squid";
+
+/**
+ * Defines name of service which is used by firewall when it's openning ports.
+ */
+string firewall_service_name = "service:squid";
+global string GetFirewallServiceName()
+{
+    return firewall_service_name;
+}
 
 
 /**
@@ -703,6 +718,20 @@ global void MoveRefreshPattern(integer id_from, integer id_to)
 /**** REFRESH PATTERN END ****/
 
 /**** HTTP PORT *****/
+/**
+ * Returns only list of configured ports (no hosts and so on)
+ */
+global list<string> GetHttpPortsOnly()
+{
+    list<string> ret = [];
+    foreach (map<string, any> value, http_ports,
+        {
+            if (size(value["port"]:"") > 0)
+                ret = add(ret, value["port"]:"");
+        });
+    return ret;
+}
+
 global list <map<string, any> > GetHttpPorts()
 {
     return http_ports;
@@ -998,9 +1027,6 @@ boolean readAllSettings()
     if (!readRestSetting()) ok = false;
     Progress::NextStage();
 
-    if (!readServiceStatus()) ok = false;
-    Progress::NextStage();
-
     return ok;
 }
 
@@ -1013,25 +1039,44 @@ global boolean Read() {
 
     Progress::New(_("Initializing squid Configuration"),
                   " ",
-                  6,
+                  7,
                   [_("Read HTTP Ports from config file."),
                    _("Read Refresh Patterns from config file."),
                    _("Read ACL Groups from config file."),
                    _("Read Access Control table from config file."),
                    _("Read the rest settings."),
-                   _("Read service status.")],
+                   _("Read service status."),
+                   _("Read firewall settings.")],
                   [_("Reading HTTP Ports ..."),
                    _("Reading Refresh Patterns ..."),
                    _("Reading ACL Groups ..."),
                    _("Reading Access Control table ..."),
                    _("Reading the rest settings ..."),
-                   _("Reading service status ...")],
+                   _("Reading service status ..."),
+                   _("Reading firewall settings ...")],
                   "");
 
     if(Abort()) return false;
     Progress::NextStage();
 
-    ok = readAllSettings();
+    if (!readAllSettings()){
+        ok = false;
+        Report::Error(_("Cannot read configuration file."));
+    }
+
+    if (!readServiceStatus()){
+        ok = false;
+        Report::Error(_("Cannot read service status."));
+    }
+    Progress::NextStage();
+
+    Progress::set(false);
+    if (!SuSEFirewall::Read()){
+        ok = false;
+        Report::Error(_("Cannot read firewall settings."));
+    }
+    Progress::set(true);
+    Progress::NextStage();
 
     y2milestone("================ Setting ======================");
     y2debug("Squid::Read - http_ports: %1",http_ports);
@@ -1041,9 +1086,6 @@ global boolean Read() {
     y2debug("Squid::Read - settings: %1", settings);
     y2debug("Squid::Read - enabled: %1", service_enabled_on_startup);
     y2milestone("================ Setting END ==================");
-
-    /* Error message */
-    if(!ok) Report::Error(_("Cannot read configuration file."));
 
     return ok;
 }
@@ -1199,11 +1241,26 @@ boolean writeAllSettings()
 
     y2milestone("Squid::writeAllSettings started");
 
-    if (!writeHttpPorts()) ok = false;
-    if (!writeACLs()) ok = false;
-    if (!writeHttpAccesses()) ok = false;
-    if (!writeRefreshPatterns()) ok = false;
-    if (!writeRestSetting()) ok = false;
+    if (!writeHttpPorts()){
+        y2error("Squid::writeAllSettings - writeHttpPorts failed");
+        ok = false;
+    }
+    if (!writeACLs()){
+        y2error("Squid::writeAllSettings - writeACLs failed");
+        ok = false;
+    }
+    if (!writeHttpAccesses()){
+        y2error("Squid::writeAllSettings - writeHttpAccesses failed");
+        ok = false;
+    }
+    if (!writeRefreshPatterns()){
+        y2error("Squid::writeAllSettings - writeRefreshPatterns failed");
+        ok = false;
+    }
+    if (!writeRestSetting()){
+        y2error("Squid::writeAllSettings - writeRestSetting failed");
+        ok = false;
+    }
 
     if (ok){
         if (!SCR::Write(squid_path, nil)){
@@ -1217,6 +1274,51 @@ boolean writeAllSettings()
     return ok;
 }
 
+boolean writeFirewallSettings()
+{
+    boolean ok = true;
+
+    if (!GetModified()){
+        y2debug("Squid::writeFirewallSettings - no setting to write, because nothing's changed");
+        return ok;
+    }
+
+    if (!SCR::RegisterAgent (.firewall_service_definition, `ag_ini(`SysConfigFile(sysconfig_file)))){
+        ok = false;
+        y2error("Unable to register sysconfig agent for %1", sysconfig_file);
+    }
+    if (!SCR::Write(.firewall_service_definition.TCP, mergestring(GetHttpPortsOnly(), " ")) ||
+        !SCR::Write(.firewall_service_definition, nil)){
+        ok = false;
+        y2error("Unable to write settings into sysconfig file %1", sysconfig_file);
+    }
+    if (!SCR::UnregisterAgent (.firewall_service_definition)){
+        ok = false;
+        y2error("Unable to unregister sysconfig agent for %1", sysconfig_file);
+    }
+    // write /etc/sysconfig/SuSEFirewall2.d/services/squid file:
+    /*
+    string service_squid_file =
+        "## Name: Squid Service\n" +
+        "## Description: Opens ports for Squid\n" +
+        "TCP=\"" + mergestring(GetHttpPortsOnly(), " ") +"\"\n";
+    if (!SCR::Write(.target.string, "/etc/sysconfig/SuSEfirewall2.d/services/squid", service_squid_file)){
+        y2error("Squid::writeFirewallSettings - failed to write into /etc/sysconfig/SuSEfirewall2.d/services/squid file.");
+        ok = false;
+    }
+    */
+
+    // write firewall settings
+    SuSEFirewall::SetModified();
+    Progress::set(false);
+    if (!SuSEFirewall::Write()){
+        y2error("Squid::writeFirewallSettings - SuSEFirewall::Write failed");
+        ok = false;
+    }
+    Progress::set(true);
+
+    return ok;
+}
 
 /**
  * Returns true if Squid service is running.
@@ -1291,16 +1393,20 @@ global boolean Write() {
     // We do not set help text here, because it was set outside
     Progress::New(_("Saving Squid Configuration"),
                   " ",
-                  2,
+                  3,
                   [
                     /* Progress stage 1/2 */
                     _("Write the settings"),
+                    /* Progress stage 1/2 */
+                    _("Write firewall settings"),
                     /* Progress stage 2/2 */
                     _("Start Service")
                   ],
                   [
                     /* Progress step 1/2 */
                     _("Writing the settings..."),
+                    /* Progress step 1/2 */
+                    _("Writing firewall settings..."),
                     /* Progress step 2/2 */
                     _("Starting Service..."),
                     /* Progress finished */
@@ -1317,6 +1423,13 @@ global boolean Write() {
         Report::Error (_("Cannot write settings."));
         ok = false;
     }
+
+    //firewall
+    if (!writeFirewallSettings()){
+        Report::Error(_("Cannot write firewall settings."));
+        ok = false;
+    }
+    Progress::NextStage();
 
     //enabling / disabling service
     if (service_enabled_on_startup == true) EnableService();
