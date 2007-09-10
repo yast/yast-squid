@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Sep 10 16:17:06 CEST 2007 - dfiser@suse.cz
+
+- Added possibility to open configured ports in firewall.
+- Changed alignment and position of some widgets.
+- v2.15.4
+
+-------------------------------------------------------------------
 Tue Sep  4 15:37:38 CEST 2007 - dfiser@suse.cz
 
 - Added .rnc schema file (bug #304267).
