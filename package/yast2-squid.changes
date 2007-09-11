@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Sep 11 13:42:58 CEST 2007 - dfiser@suse.cz
+
+- Fixed bug in autoyast client (it did not write configuration to
+  system).
+- Changed appereance beacause of ncurses 80x25.
+- v2.15.5
+
+-------------------------------------------------------------------
 Mon Sep 10 16:17:06 CEST 2007 - dfiser@suse.cz
 
 - Added possibility to open configured ports in firewall.
