@@ -159,24 +159,16 @@ boolean ValidateCache2Dialog(string widget_id, map event)
     boolean ok = true;
 
     if (event["ID"]:nil != `abort){
-        string cache_dir = (string)UI::QueryWidget(`id("cache_dir"), `Value);
+        integer cache_mem = (integer)UI::QueryWidget(`id("cache_mem"), `Value) *
+                            unitToMultiple((string)UI::QueryWidget(`id("cache_mem_units"), `Value));
+        list<string> cache_dir_str = Squid::GetSetting("cache_dir");
+        integer cache_dir_mbytes = tointeger(cache_dir_str[2]:"0") * 1024 * 1024;
+        integer max_obj_size = (integer)UI::QueryWidget(`id("cache_max_object_size"), `Value) *
+                               unitToMultiple((string)UI::QueryWidget(`id("cache_max_object_size_units"), `Value));
 
-        if (size(cache_dir) == 0){
+        if (max_obj_size > cache_mem + cache_dir_mbytes){
             ok = false;
-            Report::Error(_("Cache directory must not be empty."));
-        }else if (Mode::normal() && !FileUtils::CheckAndCreatePath(cache_dir)){
-            ok = false;
-        }else{
-            integer cache_mem = (integer)UI::QueryWidget(`id("cache_mem"), `Value) *
-                                unitToMultiple((string)UI::QueryWidget(`id("cache_mem_units"), `Value));
-            integer cache_dir_mbytes = (integer)UI::QueryWidget(`id("mbytes"), `Value) * 1024 * 1024;
-            integer max_obj_size = (integer)UI::QueryWidget(`id("cache_max_object_size"), `Value) *
-                                   unitToMultiple((string)UI::QueryWidget(`id("cache_max_object_size_units"), `Value));
-
-            if (max_obj_size > cache_mem + cache_dir_mbytes){
-                ok = false;
-                Report::Error( _("Cache Memory + Size of Cache Directory\nmust be more than Max Object Size."));
-            }
+            Report::Error( _("Cache Memory + Size of Cache Directory\nmust be more than Max Object Size."));
         }
     }
 
@@ -184,14 +176,6 @@ boolean ValidateCache2Dialog(string widget_id, map event)
 }
 void StoreDataFromCache2Dialog(string widget_id, map event)
 {
-    list squid_cache_dir = Squid::GetSetting("cache_dir");
-
-    Squid::SetSetting("cache_dir",
-        [squid_cache_dir[0]:"",
-         (string)UI::QueryWidget(`id("cache_dir"), `Value),
-         tostring(UI::QueryWidget(`id("mbytes"), `Value)),
-         tostring(UI::QueryWidget(`id("l1dirs"), `Value)),
-         tostring(UI::QueryWidget(`id("l2dirs"), `Value))]);
     Squid::SetSetting("cache_mem", [tostring(UI::QueryWidget(`id("cache_mem"), `Value)),
                                     UI::QueryWidget(`id("cache_mem_units"), `Value)]);
     Squid::SetSetting("maximum_object_size", [tostring(UI::QueryWidget(`id("cache_max_object_size"), `Value)),
@@ -202,6 +186,47 @@ void StoreDataFromCache2Dialog(string widget_id, map event)
     Squid::SetSetting("cache_swap_high", [tostring(UI::QueryWidget(`id("cache_swap_high"), `Value))]);
     Squid::SetSetting("cache_replacement_policy", [UI::QueryWidget(`id("cache_replacement_policy"), `Value)]);
     Squid::SetSetting("memory_replacement_policy", [UI::QueryWidget(`id("memory_replacement_policy"), `Value)]);
+}
+
+
+boolean ValidateCacheDirectoryDialog(string widget_id, map event)
+{
+    boolean ok = true;
+
+    if (event["ID"]:nil != `abort){
+        string cache_dir = (string)UI::QueryWidget(`id("cache_dir"), `Value);
+
+        if (size(cache_dir) == 0){
+            ok = false;
+            Report::Error(_("Cache directory must not be empty."));
+        }else if (Mode::normal() && !FileUtils::CheckAndCreatePath(cache_dir)){
+            ok = false;
+        }else{
+            list<string> cache_mem_str = Squid::GetSetting("cache_mem");
+            integer cache_mem = tointeger(cache_mem_str[0]:"0") * unitToMultiple((string)cache_mem_str[1]:"KB");
+            integer cache_dir_mbytes = (integer)UI::QueryWidget(`id("mbytes"), `Value) * 1024 * 1024;
+            list<string> max_obj_size_str = Squid::GetSetting("maximum_object_size");
+            integer max_obj_size = tointeger(max_obj_size_str[0]:"0") * unitToMultiple((string)max_obj_size_str[1]:"KB");
+
+            if (max_obj_size > cache_mem + cache_dir_mbytes){
+                ok = false;
+                Report::Error( _("Cache Memory + Size of Cache Directory\nmust be more than Max Object Size."));
+            }
+        }
+    }
+
+    return ok;
+}
+void StoreDataFromCacheDirectoryDialog(string widget_id, map event)
+{
+    list squid_cache_dir = Squid::GetSetting("cache_dir");
+
+    Squid::SetSetting("cache_dir",
+        [squid_cache_dir[0]:"",
+         (string)UI::QueryWidget(`id("cache_dir"), `Value),
+         tostring(UI::QueryWidget(`id("mbytes"), `Value)),
+         tostring(UI::QueryWidget(`id("l1dirs"), `Value)),
+         tostring(UI::QueryWidget(`id("l2dirs"), `Value))]);
 }
 /**************  CACHE DIALOG END  ****************/
 

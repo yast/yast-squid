@@ -77,66 +77,116 @@ term Cache2DialogWidget()
     return
         `HBox(
             `HSpacing(3),
-            `VBox(
-                `VWeight(1, `Frame(_("Cache Setting"),
-                    `HBox(
-                        `HWeight(1,`VBox(
-                            `VWeight(1, `HBox(
-                                `IntField(`id("cache_mem"), _("C&ache Memory"), 1, 99999, 10),
-                                sizeUnitWidget("cache_mem_units")
-                            )),
-                            `VSpacing(0.4),
-                            `VWeight(1, `HBox(
-                                `IntField(`id("cache_max_object_size"), _("Ma&x Object Size"), 0, 99999, 0),
-                                sizeUnitWidget("cache_max_object_size_units")
-                            )),
-                            `VSpacing(0.4),
-                            `VWeight(1, `HBox(
-                                `IntField(`id("cache_swap_low"), _("Swap &Low-Water Mark (in percents)"), 0, 100, 0)
-                            )),
-                            `VSpacing(0.4),
-                            `Left(`VWeight(1, `HBox(
-                                `ComboBox(`id("cache_replacement_policy"),
-                                          _("&Cache Replacement Policy"),
-                                          [`item("lru"), `item("heap GDSF"), `item("heap LFUDA"), `item("heap LRU")])
-                            )))
-                        )),
-                        `HSpacing(3),
-                        `HWeight(1,`VBox(
-                            `VWeight(1, `HBox(`Empty())),
-                            `VSpacing(0.4),
-                            `VWeight(1, `HBox(
-                                `IntField(`id("cache_min_object_size"), _("M&in Object Size"), 0, 99999, 0),
-                                sizeUnitWidget("cache_min_object_size_units")
-                            )),
-                            `VSpacing(0.4),
-                            `VWeight(1, `HBox(
-                                `IntField(`id("cache_swap_high"), _("Swap &High-Water Mark (in percents)"), 0, 100, 0)
-                            )),
-                            `VSpacing(0.4),
-                            `Left(`VWeight(1, `HBox(
-                                `ComboBox(`id("memory_replacement_policy"),
-                                          _("&Memory Replacement Policy"),
-                                          [`item("lru"), `item("heap GDSF"), `item("heap LFUDA"), `item("heap LRU")])
-                            )))
-                        ))
-                    )
-                )),
-                `VSpacing(),
-                `VWeight(1, `Frame(_("Cache Directory"),
-                    `VBox(
-                        `VSquash(`HBox(
-                            `TextEntry(`id("cache_dir"), _("Cache &Directory"), ""),
-                            `Bottom(`PushButton(`id(`browse_cache_dir), Label::BrowseButton()))
+            `Frame(_("Cache Setting"),
+                `VBox(
+                    `VWeight(1, `HBox(
+                        `IntField(`id("cache_mem"), _("C&ache Memory"), 1, 99999, 10),
+                        sizeUnitWidget("cache_mem_units")
+                    )),
+                    `VSpacing(0.4),
+                    `VWeight(1, `HBox(
+                        `IntField(`id("cache_max_object_size"), _("Ma&x Object Size"), 0, 99999, 0),
+                        sizeUnitWidget("cache_max_object_size_units")
+                    )),
+                    `VSpacing(0.4),
+                    `VWeight(1, `HBox(
+                        `IntField(`id("cache_min_object_size"), _("M&in Object Size"), 0, 99999, 0),
+                        sizeUnitWidget("cache_min_object_size_units")
+                    )),
+                    `VSpacing(0.4),
+                    `VWeight(1, `HBox(
+                        `IntField(`id("cache_swap_low"), _("Swap &Low-Water Mark (in percents)"), 0, 100, 0)
+                    )),
+                    `VSpacing(0.4),
+                    `VWeight(1, `HBox(
+                        `IntField(`id("cache_swap_high"), _("Swap &High-Water Mark (in percents)"), 0, 100, 0)
+                    )),
+                    `VSpacing(0.4),
+                    `Left(`VWeight(1, `HBox(
+                        `ComboBox(`id("cache_replacement_policy"),
+                                  _("&Cache Replacement Policy"),
+                                  [`item("lru"), `item("heap GDSF"), `item("heap LFUDA"), `item("heap LRU")])
+                    ))),
+                    `VSpacing(0.4),
+                    `Left(`VWeight(1, `HBox(
+                        `ComboBox(`id("memory_replacement_policy"),
+                                  _("&Memory Replacement Policy"),
+                                  [`item("lru"), `item("heap GDSF"), `item("heap LFUDA"), `item("heap LRU")])
+                    )))
+                )
+            ),
+            `HSpacing(3)
+        );
+    /*
+        `HBox(
+            `HSpacing(3),
+            `Frame(_("Cache Setting"),
+                `HBox(
+                    `HWeight(1,`VBox(
+                        `VWeight(1, `HBox(
+                            `IntField(`id("cache_mem"), _("C&ache Memory"), 1, 99999, 10),
+                            sizeUnitWidget("cache_mem_units")
                         )),
                         `VSpacing(0.4),
-                        `IntField(`id("mbytes"), _("&Size (in MB)"), 1, 99999, 1),
+                        `VWeight(1, `HBox(
+                            `IntField(`id("cache_max_object_size"), _("Ma&x Object Size"), 0, 99999, 0),
+                            sizeUnitWidget("cache_max_object_size_units")
+                        )),
                         `VSpacing(0.4),
-                        `IntField(`id("l1dirs"), _("L&evel 1 Directories"), 1, 99999, 1),
+                        `VWeight(1, `HBox(
+                            `IntField(`id("cache_swap_low"), _("Swap &Low-Water Mark (in percents)"), 0, 100, 0)
+                        )),
                         `VSpacing(0.4),
-                        `IntField(`id("l2dirs"), _("Le&vel 2 Directories"), 1, 99999, 1)
-                    )
-                ))
+                        `Left(`VWeight(1, `HBox(
+                            `ComboBox(`id("cache_replacement_policy"),
+                                      _("&Cache Replacement Policy"),
+                                      [`item("lru"), `item("heap GDSF"), `item("heap LFUDA"), `item("heap LRU")])
+                        )))
+                    )),
+                    `HSpacing(3),
+                    `HWeight(1,`VBox(
+                        `VWeight(1, `HBox(`Empty())),
+                        `VSpacing(0.4),
+                        `VWeight(1, `HBox(
+                            `IntField(`id("cache_min_object_size"), _("M&in Object Size"), 0, 99999, 0),
+                            sizeUnitWidget("cache_min_object_size_units")
+                        )),
+                        `VSpacing(0.4),
+                        `VWeight(1, `HBox(
+                            `IntField(`id("cache_swap_high"), _("Swap &High-Water Mark (in percents)"), 0, 100, 0)
+                        )),
+                        `VSpacing(0.4),
+                        `Left(`VWeight(1, `HBox(
+                            `ComboBox(`id("memory_replacement_policy"),
+                                      _("&Memory Replacement Policy"),
+                                      [`item("lru"), `item("heap GDSF"), `item("heap LFUDA"), `item("heap LRU")])
+                        )))
+                    ))
+                )
+            ),
+            `HSpacing(3)
+        );
+        */
+}
+
+term CacheDirectoryDialog()
+{
+    return
+        `HBox(
+            `HSpacing(3),
+            `Frame(_("Cache Directory"),
+                `VBox(
+                    `VSquash(`HBox(
+                        `TextEntry(`id("cache_dir"), _("&Directory Name"), ""),
+                        `Bottom(`PushButton(`id(`browse_cache_dir), Label::BrowseButton()))
+                    )),
+                    `VSpacing(0.4),
+                    `IntField(`id("mbytes"), _("&Size (in MB)"), 1, 99999, 1),
+                    `VSpacing(0.4),
+                    `IntField(`id("l1dirs"), _("L&evel 1 Directories"), 1, 99999, 1),
+                    `VSpacing(0.4),
+                    `IntField(`id("l2dirs"), _("Le&vel 2 Directories"), 1, 99999, 1)
+                )
             ),
             `HSpacing(3)
         );

@@ -99,18 +99,11 @@ symbol HandleRefreshPatternsTable(string widget_id, map event_map)
 symbol HandleCache2Dialog(string widget_id, map event_map)
 {
     any ui = event_map["ID"]:nil;
-    string cache_dir = "";
     any tmp = nil;
     any tmp2 = nil;
 
-    if (ui == `browse_cache_dir){
-        cache_dir = UI::AskForExistingDirectory((string)UI::QueryWidget(`id("cache_dir"), `Value), "Cache Directory");
-        if (cache_dir != nil){
-            UI::ChangeWidget(`id("cache_dir"), `Value, cache_dir);
-        }
-
-        //cache_min_object_size <= cache_max_object_size
-    }else if (ui == "cache_min_object_size" || ui == "cache_min_object_size_units"){
+    //cache_min_object_size <= cache_max_object_size
+    if (ui == "cache_min_object_size" || ui == "cache_min_object_size_units"){
         tmp = (integer)UI::QueryWidget(`id("cache_min_object_size"), `Value) *
             unitToMultiple((string)UI::QueryWidget(`id("cache_min_object_size_units"), `Value));
         tmp2 = (integer)UI::QueryWidget(`id("cache_max_object_size"), `Value) *
@@ -139,6 +132,21 @@ symbol HandleCache2Dialog(string widget_id, map event_map)
         if ((integer)UI::QueryWidget(`id("cache_swap_low"), `Value) > (integer)tmp)
             UI::ChangeWidget(`id("cache_swap_low"), `Value, tmp);
     }
+    return nil;
+}
+
+symbol HandleCacheDirectoryDialog(string widget_id, map event_map)
+{
+    any ui = event_map["ID"]:nil;
+    string cache_dir = "";
+
+    if (ui == `browse_cache_dir){
+        cache_dir = UI::AskForExistingDirectory((string)UI::QueryWidget(`id("cache_dir"), `Value), "Cache Directory");
+        if (cache_dir != nil){
+            UI::ChangeWidget(`id("cache_dir"), `Value, cache_dir);
+        }
+    }
+
     return nil;
 }
 

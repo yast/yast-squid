@@ -128,6 +128,15 @@ Policies could be:
 </table>
 </p>"),
 
+    /* Cache Directory */
+    "cache_directory" :
+_("<p><b>Directory Name</b> defines a top-level directory where cache swap files will be stored.</p>") +
+_("<p><b>Size</b> defines the amount of disk space (in MB) to use under this directory.</p>") +
+_("<p><b>Level 1 Directories</b> defines number of first-level subdirectories which
+will be created under the <b>Directory Name</b> directory.</p>") +
+_("<p><b>Level 2 Directories</b> defines number of second-level subdirectories which will be created
+under each first-level directory.</p>"),
+
 
     /* ACL Groups */
     "acl_groups" :

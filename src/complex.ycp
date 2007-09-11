@@ -156,6 +156,17 @@ map<string, map<string, any> > widget_descr = $[
             "help" : HELPS["cache2"]:""
         ],
 
+        "cache_directory" : $[
+            "widget" : `custom,
+            "custom_widget" : CacheDirectoryDialog(),
+            "init" : InitCacheDirectoryDialog,
+            "handle" : HandleCacheDirectoryDialog,
+            "store" : StoreDataFromCacheDirectoryDialog,
+            "validate_type" : `function,
+            "validate_function" : ValidateCacheDirectoryDialog,
+            "help" : HELPS["cache_directory"]:""
+        ],
+
         "acl_groups_table" : $[
             "widget" : `custom,
             "custom_widget" : ACLGroupsTableWidget(),
@@ -201,17 +212,17 @@ map<string, map<string, any> > widget_descr = $[
 map<string, map<string, any> > screens = $[
         "s1" : $[
             "widget_names" : ["auto_start", "start_stop", "firewall"],
-            "contents" : `HBox(
+            "contents" : `VCenter(`HBox(
                             `HSpacing(3),
-                            `Top(`VBox(
+                            `VBox(
                                 "auto_start",
                                 `VSpacing(),
                                 (Mode::normal() ? "start_stop" : `Empty()),
                                 `VSpacing(),
                                 `Frame(_("Firewall Settings"), "firewall")
-                            )),
+                            ),
                             `HSpacing(3)
-                         ),
+                         )),
             "caption" : main_caption + ": " + _("Start-Up"),
             "tree_item_label" : _("Start-Up")
         ],
@@ -238,6 +249,13 @@ map<string, map<string, any> > screens = $[
         ],
 
         "s5" : $[
+            "widget_names" : ["cache_directory"],
+            "contents" : `VCenter("cache_directory"),
+            "caption" : main_caption + ": " + _("Cache Directory Setting"),
+            "tree_item_label" : _("Cache Directory")
+        ],
+
+        "s6" : $[
             "widget_names" : ["acl_groups_table", "http_access_table"],
             "contents" : `VBox(
                             "acl_groups_table",
@@ -248,7 +266,7 @@ map<string, map<string, any> > screens = $[
             "tree_item_label" : _("Access Control")
         ],
 
-        "s6" : $[
+        "s7" : $[
             "widget_names" : ["logging_frame", "timeouts_frame"],
             "contents" : `HBox(`HSpacing(3),
                             `VBox(
@@ -261,7 +279,7 @@ map<string, map<string, any> > screens = $[
             "tree_item_label" : _("Logging and Timeouts")
         ],
 
-        "s7" : $[
+        "s8" : $[
             "widget_names" : ["miscellaneous_frame"],
             "contents" : `VBox("miscellaneous_frame"),
             "caption" : main_caption + ": " + _("Miscellaneous Setting"),
@@ -269,7 +287,7 @@ map<string, map<string, any> > screens = $[
         ]
     ];
 
-list<string> ids_order = ["s1", "s2", "s3", "s4", "s5", "s6", "s7"];
+list<string> ids_order = ["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"];
 string initial_screen = "s1";
 
 any MainDialog()

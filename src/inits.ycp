@@ -155,11 +155,7 @@ void InitCache2Dialog(string key)
         "cache_swap_low" : tointeger((set["cache_swap_low"]:[])[0]:""),
         "cache_swap_high" : tointeger((set["cache_swap_high"]:[])[0]:""),
         "cache_replacement_policy" : (set["cache_replacement_policy"]:[])[0]:"",
-        "memory_replacement_policy" : (set["memory_replacement_policy"]:[])[0]:"",
-        "cache_dir" : (set["cache_dir"]:[])[1]:"",
-        "mbytes" : tointeger((set["cache_dir"]:[])[2]:""),
-        "l1dirs" : tointeger((set["cache_dir"]:[])[3]:""),
-        "l2dirs" : tointeger((set["cache_dir"]:[])[4]:"")
+        "memory_replacement_policy" : (set["memory_replacement_policy"]:[])[0]:""
     ]);
     UI::ChangeWidget(`id("cache_max_object_size"), `Notify, true);
     UI::ChangeWidget(`id("cache_min_object_size"), `Notify, true);
@@ -168,6 +164,17 @@ void InitCache2Dialog(string key)
 
     UI::ChangeWidget(`id("cache_swap_low"), `Notify, true);
     UI::ChangeWidget(`id("cache_swap_high"), `Notify, true);
+}
+
+void InitCacheDirectoryDialog(string key)
+{
+    map<string, list> set = (map<string, list>)Squid::GetSettings();
+    simpleInit($[
+        "cache_dir" : (set["cache_dir"]:[])[1]:"",
+        "mbytes" : tointeger((set["cache_dir"]:[])[2]:""),
+        "l1dirs" : tointeger((set["cache_dir"]:[])[3]:""),
+        "l2dirs" : tointeger((set["cache_dir"]:[])[4]:"")
+    ]);
 }
 /*****************  CACHE DIALOG END  *************/
 
