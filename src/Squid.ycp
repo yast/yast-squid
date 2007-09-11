@@ -374,7 +374,8 @@ global void SetModified()
  * Abort function
  * return boolean return true if abort
  */
-global boolean() AbortFunction = GetModified;
+//global boolean() AbortFunction = GetModified;
+global boolean() AbortFunction = nil;
 
 /**
  * Abort function
