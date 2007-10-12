@@ -123,7 +123,7 @@ map<string, map<string, any> > widget_descr = $[
                                 )
                        ]),
         "firewall" : CWMFirewallInterfaces::CreateOpenFirewallWidget($[
-                        "services" : [Squid::GetFirewallServiceName],
+                        "services" : [Squid::GetFirewallServiceName()],
                         "display_details" : true,
                         "open_firewall_checkbox" : _("Open Ports in Firewall")
                      ]),
