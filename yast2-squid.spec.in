@@ -1,10 +1,11 @@
 @HEADER-COMMENT@
 
 @HEADER@
-Requires:	yast2 filesystem
-BuildRequires:	perl-XML-Writer update-desktop-files yast2 yast2-devtools yast2-testsuite yast2-core-devel boost-devel
+Requires:	yast2 filesystem boost
+BuildRequires: perl-XML-Writer update-desktop-files yast2 yast2-devtools
+BuildRequires: yast2-testsuite yast2-core-devel boost-devel gcc-c++
 
-BuildArchitectures:	noarch
+#BuildArchitectures:	noarch
 
 Summary:	Configuration of squid
 
@@ -16,6 +17,7 @@ Summary:	Configuration of squid
 @BUILD@
 
 @INSTALL@
+rm -rf %{buildroot}/@plugindir@/libpy2ag_squid.la
 
 @CLEAN@
 
@@ -31,5 +33,7 @@ Summary:	Configuration of squid
 @moduledir@/SquidErrorMessages.*
 @desktopdir@/squid.desktop
 @schemadir@/autoyast/rnc/squid.rnc
+
+@plugindir@/libpy2ag_squid.so*
 @scrconfdir@/*.scr
 %doc @docdir@

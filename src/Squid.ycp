@@ -550,9 +550,9 @@ global list<string> ACLIsUsedBy(integer id_item)
     foreach (string value, (list<string>)merge(format1, format2),
         {
             if (contains(available_options, value)){
-                foreach (string val, (list<string>)SCR::Read( add(squid_path, value)),
+                foreach (list<string> params, (list<list<string> >)SCR::Read( add(squid_path, value)),
                     {
-                        params = remove(split(val, " \t"), 0); // remove first param
+                        params = remove(params, 0); // remove first param
                         if (contains(format2, value)){ // if it is format 2 remove also second param
                             if (size(params) > 1){
                                 params = remove(params, 0);

@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Fri Oct 19 12:53:19 CEST 2007 - dfiser@suse.cz
+
+- Fixed problem with OpenFirewallWidget. (It did not open port on
+  firewall)
+- Created new SCR agent for squid.conf file.
+- v2.16.0
+
+-------------------------------------------------------------------
 Tue Sep 11 13:42:58 CEST 2007 - dfiser@suse.cz
 
 - Fixed bug in autoyast client (it did not write configuration to
