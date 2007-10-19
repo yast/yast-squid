@@ -788,37 +788,33 @@ boolean readHttpPorts()
 {
     boolean ok = true;
     list tmp = [];
-    list tmp2 = [];
     map <string,any> tmp_http_port = $[];
 
     http_ports = [];
-    foreach (string value, (list<string>)SCR::Read(add(squid_path,"http_port")),
+    foreach (list<string> value, (list<list<string> >)SCR::Read(add(squid_path,"http_port")),
         {
             tmp_http_port = $[];
             tmp = [];
-            tmp2 = [];
-
-            tmp = split(value," \t");
 
             //can parse only 'http_port hostname:port [transparent]'
-            if (size(tmp) < 1 || size(tmp) > 2){
+            if (size(value) < 1 || size(value) > 2){
                 ok = false;
                 return false;
             }
 
             // hostname and port
-            tmp2 = split(tmp[0]:"",":");
-            y2debug("readHttpPorts - tmp2: %1",tmp2);
-            if (size(tmp2) == 1){
+            tmp = split(value[0]:"",":");
+            y2debug("readHttpPorts - tmp: %1",tmp);
+            if (size(tmp) == 1){
                 tmp_http_port["host"] = "";
-                tmp_http_port["port"] = tmp2[0]:"";
+                tmp_http_port["port"] = tmp[0]:"";
             }else{
-                tmp_http_port["host"] = (string)tmp2[0]:"";
-                tmp_http_port["port"] = tmp2[1]:"";
+                tmp_http_port["host"] = tmp[0]:"";
+                tmp_http_port["port"] = tmp[1]:"";
             }
 
             //transparent option
-            if (size(tmp) == 2 && tmp[1]:"" == "transparent")
+            if (size(value) == 2 && value[1]:"" == "transparent")
                 tmp_http_port["transparent"] = true;
 
             http_ports = add(http_ports, tmp_http_port);
@@ -836,23 +832,20 @@ boolean readHttpPorts()
 boolean readHttpAccesses()
 {
     boolean ok = true;
-    list tmp = [];
     map <string,any> tmp_http_access = $[];
 
     http_accesses = [];
-    foreach (string value, (list<string>)SCR::Read( add(squid_path,"http_access")),
+    foreach (list<string> value, (list<list<string> >)SCR::Read( add(squid_path,"http_access")),
         {
             tmp_http_access = $[];
 
-            tmp = split(value, " \t");
-
-            if (tmp[0]:"" != "allow" && tmp[0]:"" != "deny"){
+            if (value[0]:"" != "allow" && value[0]:"" != "deny"){
                 ok = false;
                 return false;
             }
 
-            tmp_http_access["allow"] = (tmp[0]:"" == "allow" ? true : false);
-            tmp_http_access["acl"] = remove(tmp, 0);
+            tmp_http_access["allow"] = (value[0]:"" == "allow" ? true : false);
+            tmp_http_access["acl"] = remove(value, 0);
 
             http_accesses = add(http_accesses, tmp_http_access);
         });
@@ -869,33 +862,30 @@ boolean readHttpAccesses()
 boolean readRefreshPatterns()
 {
     boolean ok = true;
-    list tmp = [];
     map <string,any> tmp_refresh_pattern = $[];
 
     refresh_patterns = [];
-    foreach (string value, (list<string>)SCR::Read( add(squid_path, "refresh_pattern")),
+    foreach (list<string> value, (list<list<string> >)SCR::Read( add(squid_path, "refresh_pattern")),
         {
             tmp_refresh_pattern = $[];
 
-            tmp = split(value, " \t");
-
             //case-insesitive
-            if (tmp[0]:"" == "-i"){
+            if (value[0]:"" == "-i"){
                 tmp_refresh_pattern["case_sensitive"] = false;
-                tmp = remove(tmp, 0);
+                value = remove(value, 0);
             }else{
                 tmp_refresh_pattern["case_sensitive"] = true;
             }
 
-            if (size(tmp) < 4){
+            if (size(value) < 4){
                 ok = false;
                 return false;
             }
 
-            tmp_refresh_pattern["regexp"] = tmp[0]:"";
-            tmp_refresh_pattern["min"] = tmp[1]:"";
-            tmp_refresh_pattern["percent"] = deletechars(tmp[2]:"","%");
-            tmp_refresh_pattern["max"] = tmp[3]:"";
+            tmp_refresh_pattern["regexp"] = value[0]:"";
+            tmp_refresh_pattern["min"] = value[1]:"";
+            tmp_refresh_pattern["percent"] = deletechars(value[2]:"","%");
+            tmp_refresh_pattern["max"] = value[3]:"";
 
             refresh_patterns = add(refresh_patterns, tmp_refresh_pattern);
         });
@@ -912,7 +902,6 @@ boolean readRefreshPatterns()
 boolean readACLs()
 {
     boolean ok = true;
-    list tmp = [];
     map <string, any> tmp_acl = $[];
 
     //list of types which contains regular expression
@@ -925,20 +914,18 @@ boolean readACLs()
     ];
 
     acls = [];
-    foreach (string value, (list<string>)SCR::Read( add(squid_path, "acl")),
+    foreach (list<string> value, (list<list<string> >)SCR::Read( add(squid_path, "acl")),
         {
             tmp_acl = $[];
 
-            tmp = split(value, " \t");
-
-            if (size(tmp) < 3){
+            if (size(value) < 3){
                 ok = false;
                 return false;
             }
 
-            tmp_acl["name"] = tmp[0]:"";
-            tmp_acl["type"] = tmp[1]:"";
-            tmp_acl["options"] = remove(remove(tmp,0),0);
+            tmp_acl["name"] = value[0]:"";
+            tmp_acl["type"] = value[1]:"";
+            tmp_acl["options"] = remove(remove(value,0),0);
 
             // Special settings:
             // concat list of regular expressions into one option
@@ -981,8 +968,9 @@ boolean readRestSetting()
     settings = $[];
     foreach (string key, list value, parameters,
         {
-            tmp = (list <string>)SCR::Read( add(squid_path, key));
-            tmp = split(tmp[0]:"", " \t");
+            tmp = (list<list<string> >)SCR::Read( add(squid_path, key));
+            //tmp = split(tmp[0]:"", " \t");
+            tmp = tmp[0]:[];
 
             if (size(tmp) > 0){
                 settings[key] = tmp;
@@ -1100,15 +1088,19 @@ global boolean Read() {
 boolean writeHttpPorts()
 {
     boolean ok = true;
-    list<string> scr = [];
-    string tmp = "";
+    list<list<string> > scr = [];
+    list<string> tmp = [];
 
     foreach (map<string,any> value, http_ports,
         {
-            tmp = value["host"]:"";
-            if (size(value["host"]:"") > 0) tmp = tmp + ":";
-            tmp = tmp + value["port"]:"";
-            if (value["transparent"]:false) tmp = tmp + " transparent";
+            tmp = [];
+
+            if (size(value["host"]:"") > 0){
+                tmp[0] = value["host"]:"" + ":" + value["port"]:"";
+            }else{
+                tmp[0] = value["port"]:"";
+            }
+            if (value["transparent"]:false) tmp[1] = "transparent";
 
             scr = add(scr, tmp);
         });
@@ -1123,14 +1115,16 @@ boolean writeHttpPorts()
 boolean writeACLs()
 {
     boolean ok = true;
-    list<string> scr = [];
-    string tmp = "";
+    list<list<string> > scr = [];
+    list<string> tmp = [];
 
     foreach (map<string, any> value, acls,
         {
-            tmp = value["name"]:"";
-            tmp = tmp + " " + value["type"]:"";
-            tmp = tmp + " " + mergestring(value["options"]:[], " ");
+            tmp = [];
+
+            tmp[0] = value["name"]:"";
+            tmp[1] = value["type"]:"";
+            tmp = (list<string>)merge(tmp, value["options"]:[]);
             scr = add(scr, tmp);
         });
 
@@ -1145,17 +1139,19 @@ boolean writeACLs()
 boolean writeHttpAccesses()
 {
     boolean ok = true;
-    list<string> scr = [];
-    string tmp = "";
+    list<list<string> > scr = [];
+    list<string> tmp = [];
 
     foreach (map<string,any> value, http_accesses,
         {
+            tmp = [];
+
             if (value["allow"]:true){
-                tmp = "allow";
+                tmp[0] = "allow";
             }else{
-                tmp = "deny";
+                tmp[0] = "deny";
             }
-            tmp = tmp + " " + mergestring(value["acl"]:[], " ");
+            tmp = (list<string>)merge(tmp, (list<string>)value["acl"]:[]);
             scr = add(scr, tmp);
         });
 
@@ -1170,17 +1166,18 @@ boolean writeHttpAccesses()
 boolean writeRefreshPatterns()
 {
     boolean ok = true;
-    list<string> scr = [];
-    string tmp = "";
+    list<list<string> > scr = [];
+    list<string> tmp = [];
 
     foreach (map<string,any> value, refresh_patterns,
         {
-            tmp = "";
-            if (!value["case_sensitive"]:false) tmp = "-i ";
-            tmp = tmp + value["regexp"]:"";
-            tmp = tmp + " " + value["min"]:"";
-            tmp = tmp + " " + value["percent"]:"";
-            tmp = tmp + " " + value["max"]:"";
+            tmp = [];
+
+            if (!value["case_sensitive"]:false) tmp[0] = "-i ";
+            tmp = add(tmp, value["regexp"]:"");
+            tmp = add(tmp, value["min"]:"");
+            tmp = add(tmp, value["percent"]:"");
+            tmp = add(tmp, value["max"]:"");
             scr = add(scr, tmp);
         });
 
@@ -1195,15 +1192,13 @@ boolean writeRefreshPatterns()
 boolean writeRestSetting()
 {
     boolean ok = true;
-    string tmp = "";
     list<string> setting = nil;
 
     foreach (string key, list value, parameters,
         {
-            tmp = mergestring(settings[key]:[], " ");
-            if (size(tmp) > 0){
-                y2debug("Squid::Write - %1: %2", key, tmp);
-                if (!SCR::Write(add(squid_path, key), [tmp])){
+            if (size(value) > 0){
+                y2debug("Squid::Write - %1: %2", key, value);
+                if (!SCR::Write(add(squid_path, key), [value])){
                     y2error("Squid::Write - cannot write %1 setting", key);
                     ok = false;
                 }

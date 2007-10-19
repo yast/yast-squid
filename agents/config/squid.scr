@@ -1,0 +1,35 @@
+/**
+ * File: squid.scr
+ * Summary:
+ *   SCR agent for reading/writing /etc/squid/squid.conf using
+ *   ini-agent
+ * Access: read/write
+ * Authors: Daniel Fiser <dfiser@suse.cz>
+ * Example:
+ *   `Dir(.squid)
+ *   (["http_port", "hierarchy_stoplist", "acl", "cache", "acl", ... ])
+ *
+ *   `Read(.squid.http_port)
+ *   (["3128 transparent"])
+ *
+ *   `Write(.squid.http_port,"3128 accel")
+ *   true
+ * 
+ * .etc.squid
+ * 
+ * `ag_ini(
+ *     `IniAgent("/etc/squid/squid.conf",
+ *               $["params" : [
+ *                     $["match" : ["^[ \t]*([^ \t]+)[ \t]+(.+)[ \t]*$", "%s %s"]]
+ *                 ],
+ *                 "comments" : ["#.*$", "^[ \t]*$"],
+ *                 "options" : ["flat", "repeat_names", "global_values"]
+ *               ]
+ *     )
+ * )
+ */
+.etc.squid
+
+`ag_squid(
+    `SquidAgent("/etc/squid/squid.conf")
+)

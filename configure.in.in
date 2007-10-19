@@ -2,10 +2,16 @@
 
 ## Initialize
 @YAST2-INIT-COMMON@
+@YAST2-INIT-PROGRAM@
 @YAST2-INIT-YCP@
+
+#PKG_CHECK_MODULES([Y2UTIL], [liby2util])
+#    AC_SUBST(Y2UTIL_CFLAGS)
+#    AC_SUBST(Y2UTIL_LIBS)
 
 ## some common checks
 @YAST2-CHECKS-COMMON@
+@YAST2-CHECKS-PROGRAM@
 @YAST2-CHECKS-YCP@
 
 ## and generate the output...

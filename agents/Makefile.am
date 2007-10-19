@@ -1,7 +1,3 @@
 # Makefile.am for squid/agents
+SUBDIRS = src config
 
-agent_SCRIPTS =
-
-scrconf_DATA = squid.scr
-
-EXTRA_DIST = $(agent_SCRIPTS) $(scrconf_DATA)
