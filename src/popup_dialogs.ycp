@@ -53,7 +53,7 @@ boolean AddEditHttpPortDialog(integer id_item)
             `VSpacing(0.5),
             `TextEntry(`id("host"), _("Host"), ""),
             `TextEntry(`id("port"), _("Port"), ""),
-            `Left(`CheckBox(`id("transparent"), "Transparent", false)),
+            `Left(`CheckBox(`id("transparent"), _("Transparent"), false)),
             `VSpacing(),
             `VStretch(),
             `HBox(
