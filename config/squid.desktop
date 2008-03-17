@@ -23,3 +23,4 @@ Exec=/sbin/yast2 squid
 Name=Squid
 GenericName=Configure a Squid cache proxy server
 X-KDE-SubstituteUID=true
+StartupNotify=true
