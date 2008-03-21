@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Mar 21 13:22:21 CET 2008 - jsrain@suse.cz
+
+- changed 'Accept' button to 'Finish' (fate #120373)
+- 2.16.3
+
+-------------------------------------------------------------------
 Mon Mar 17 12:43:32 CET 2008 - jsrain@suse.cz
 
 - added 'StartupNotify=true' to the desktop file (bnc #304964)

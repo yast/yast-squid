@@ -299,7 +299,7 @@ any MainDialog()
                "screens" : screens,
                "functions" : $[`abort : ReallyAbort],
                "back_button" : "",
-               "next_button" : Label::AcceptButton(),
+               "next_button" : Label::FinishButton(),
                "abort_button" : Label::AbortButton()
            ]);
 }
