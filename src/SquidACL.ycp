@@ -87,7 +87,7 @@ map<string,map> acl_map = $[
                "widget_init" : srcWidgetInit,
                "verification" : srcVerif,
                "options" : srcOptions,
-               "help" : _("The IP address of the requesting client, or the clients IP Address.") ],
+               "help" : _("The IP address of the requesting client.") ],
 
     "dst" : $[ "name" : "dst",
                "widget" : `Frame( _("dst"),
@@ -180,7 +180,7 @@ map<string,map> acl_map = $[
                   "widget_init" : myportWidgetInit,
                   "verification" : myportVerif,
                   "options" : portOptions,
-                  "help" : _("This provides match against local socket TCP port.") ],
+                  "help" : _("This provides match against local TCP port number.") ],
 
     "proto" : $[ "name" : "proto",
                  "widget" : `Frame ( _("proto"),

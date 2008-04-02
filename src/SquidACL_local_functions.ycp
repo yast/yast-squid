@@ -311,7 +311,7 @@ boolean timeVerif()
 
     if (selected_items == 0){
         ok = false;
-        Report::Error( _("You must select at least on day."));
+        Report::Error( _("You must select at least one day."));
     }else if (!isHHMMFormat(from) || !isHHMMFormat(to)){
         ok = false;
         Report::Error( _("Time is not filled in correct format."));
@@ -518,10 +518,12 @@ boolean arpVerif()
     string mac = (string)UI::QueryWidget(`id("acl_mac"), `Value);
     if (size(mac) == 0){
         ok = false;
+	// error report
         Report::Error( _("MAC Address must not be empty."));
     }else if (!regexpmatch(mac, "^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$")){
         ok = false;
-        Report::Error( _("Incorrect formar of MAC Address."));
+	// error report
+        Report::Error( _("Incorrect format of MAC Address."));
     }
     return ok;
 }

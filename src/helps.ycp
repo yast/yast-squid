@@ -84,7 +84,7 @@ The first entry which matches is used.</p>") +
 _("<p><b>Min</b> determines how long (in minutes) should be an object
 considered fresh if no explicit expire time given.") +
 _("<p><b>Percent</b> is percentage of the objects age (time since last
-modification age) an object without explicit expire time will be
+modification) an object without explicit expire time will be
 considered fresh.</p>") +
 _("<p><b>Max</b> is upper limit on how long objects without an explicit
 expiry time will be considered fresh.</p>"),
@@ -144,9 +144,9 @@ _("<p>Access to Squid server can be controlled via <b>ACL Groups</b>.</p>") +
 _("<p><b>ACL Group</b> has various types and description of ACL Group depends
 on them.</p>"),
     "http_access" :
-_("<p>In <b>Access Control</b> table can be denied or allowed ACL Groups.
-If there is more ACL Groups in one line it means that access will be allowed
-or denied for those who are from all ACL Groups at the same time.</p>") +
+_("<p>In the <b>Access Control</b> table access can be denied or allowed to ACL Groups.
+If there are more ACL Groups in one line, it means that access will be allowed
+or denied for those who belong to all ACL Groups at the same time.</p>") +
 _("<p><b>Access Control</b> table is checked in the order listed here.
 The first entry which matches is used.</p>"),
 

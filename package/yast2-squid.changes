@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Apr  2 11:51:34 CEST 2008 - jsrain@suse.cz
+
+- fixed some texts (bnc #373131, bnc #373103, bnc #373109)
+
+-------------------------------------------------------------------
 Fri Mar 21 13:22:21 CET 2008 - jsrain@suse.cz
 
 - changed 'Accept' button to 'Finish' (fate #120373)
