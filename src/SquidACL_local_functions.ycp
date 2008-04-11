@@ -317,7 +317,7 @@ boolean timeVerif()
         Report::Error( _("Time is not filled in correct format."));
     }else if (!isCorrectFromTo(from, to)){// from must be less then to
         ok = false;
-        Report::Error( _("From must be less then To."));//TODO: better error message
+        Report::Error( _("From must be less than To."));//TODO: better error message
     }
     return ok;
 }

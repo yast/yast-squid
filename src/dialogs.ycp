@@ -57,7 +57,13 @@ term RefreshPatternsTableWidget()
             `Left(`Label( _("Refresh Patterns"))),
             `HBox(
                 `Table(`id("refresh_patterns"), `opt(`keepSorting, `notify),
-                       `header(_("Regular Expression"), _("Min"), _("Precent"), _("Max")/*, _("Options")*/)),
+                       `header(_("Regular Expression"),
+			    // table header, stands for minimum
+			    _("Min"),
+			    // table header
+			    _("Percent"),
+			    // table header, stands for maximum
+			    _("Max")/*, _("Options")*/)),
                 `Top(`VBox(
                     `PushButton(`id(`up), Label::UpButton()),
                     `PushButton(`id(`down), Label::DownButton())

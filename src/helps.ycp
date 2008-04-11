@@ -142,7 +142,7 @@ under each first-level directory.</p>"),
     "acl_groups" :
 _("<p>Access to Squid server can be controlled via <b>ACL Groups</b>.</p>") +
 _("<p><b>ACL Group</b> has various types and description of ACL Group depends
-on them.</p>"),
+on the particular type.</p>"),
     "http_access" :
 _("<p>In the <b>Access Control</b> table access can be denied or allowed to ACL Groups.
 If there are more ACL Groups in one line, it means that access will be allowed

@@ -1033,16 +1033,16 @@ global boolean Read() {
                    _("Read Refresh Patterns from config file."),
                    _("Read ACL Groups from config file."),
                    _("Read Access Control table from config file."),
-                   _("Read the rest settings."),
-                   _("Read service status."),
-                   _("Read firewall settings.")],
+                   _("Read Other Settings."),
+                   _("Read Service Status."),
+                   _("Read Firewall Settings.")],
                   [_("Reading HTTP Ports ..."),
                    _("Reading Refresh Patterns ..."),
                    _("Reading ACL Groups ..."),
                    _("Reading Access Control table ..."),
-                   _("Reading the rest settings ..."),
-                   _("Reading service status ..."),
-                   _("Reading firewall settings ...")],
+                   _("Reading Other Settings ..."),
+                   _("Reading Service Status ..."),
+                   _("Reading Firewall Settings ...")],
                   "");
 
     if(Abort()) return false;

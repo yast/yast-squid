@@ -330,8 +330,8 @@ boolean StoreDataFromAddEditACLDialog(integer id_item)
 
             if (error){
                 ok = false;
-                Report::Error( _("ACL Group '") + name + _("' already exists with different type.\n")
-                               + _("ACL Group '") + name + _("' has to have type '") + existed_type + "'.\n"
+                Report::Error( sformat (_("ACL Group '%1' already exists with different type.\n"), name)
+                               + sformat (_("ACL Group '%1' has to have type '%2'.\n", name, existed_type)
                                + _("If you want to change type of this ACL Group you must\ndelete other ACL Groups with same name before that."));
             }
         }
