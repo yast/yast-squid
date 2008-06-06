@@ -154,11 +154,11 @@ The first entry which matches is used.</p>"),
     /* Logging and Timeouts Dialog */
     "logging" :
 _("<p><b>Access Log</b> defines the file where client activities are logged.</p>") +
-_("<p><b>Cache Log</b> defines the file where general informations about your
+_("<p><b>Cache Log</b> defines the file where general information about your
 cache's behavior is logged.</p>") +
 _("<p><b>Cache Store Log</b> defines the location where the transaction log of all
 objects that are stored in the object store, as well as the time when the object
-get deleted. This option can be leaved empty.</p>") +
+gets deleted. This option can be left empty.</p>") +
 _("<p><b>Emulate Httpd Log</b> allows you to specify that Squid write its
 <b>Access Log</b> in HTTPD common log file format.</p>"),
     "timeouts" :
@@ -170,7 +170,7 @@ _("<p><b>Client Lifetime</b> defines the maximum amount of time that a client
 
     /* Miscellaneous Dialog */
     "miscellaneous" :
-_("<p><b>Admistrator's e-mail</b> is the address which will be added to any
+_("<p><b>Administrator's e-mail</b> is the address which will be added to any
 error pages that are displayed to clients. Defaults to either webmaster.</p>")
 
 ];

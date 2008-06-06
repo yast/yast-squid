@@ -101,11 +101,11 @@ term Cache2DialogWidget()
                     )),
                     `VSpacing(0.4),
                     `VWeight(1, `HBox(
-                        `IntField(`id("cache_swap_low"), _("Swap &Low-Water Mark (in percents)"), 0, 100, 0)
+                        `IntField(`id("cache_swap_low"), _("Swap &Low-Water Mark (percentage)"), 0, 100, 0)
                     )),
                     `VSpacing(0.4),
                     `VWeight(1, `HBox(
-                        `IntField(`id("cache_swap_high"), _("Swap &High-Water Mark (in percents)"), 0, 100, 0)
+                        `IntField(`id("cache_swap_high"), _("Swap &High-Water Mark (percentage)"), 0, 100, 0)
                     )),
                     `VSpacing(0.4),
                     `Left(`VWeight(1, `HBox(
