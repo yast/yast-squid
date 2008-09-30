@@ -1192,10 +1192,10 @@ boolean writeRefreshPatterns()
 boolean writeRestSetting()
 {
     boolean ok = true;
-    list<string> setting = nil;
 
     foreach (string key, list value, parameters,
         {
+	    value = settings[key]:[];
             if (size(value) > 0){
                 y2debug("Squid::Write - %1: %2", key, value);
                 if (!SCR::Write(add(squid_path, key), [value])){
