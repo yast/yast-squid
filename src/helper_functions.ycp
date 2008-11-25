@@ -57,7 +57,10 @@ integer unitToMultiple(string unit)
 term timeUnitWidget(string id)
 {
     return `ComboBox(`id(id), " ",
-                [`item("seconds"), `item("minutes"), `item("hours"), `item("days")]);
+                [`item(`id ("seconds"), _("seconds")),
+		 `item(`id ("minutes"), _("minutes")),
+		 `item(`id ("hours"), _("hours")),
+		 `item(`id ("days"), _("dny"))]);
 }
 
 
