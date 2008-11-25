@@ -60,7 +60,7 @@ term timeUnitWidget(string id)
                 [`item(`id ("seconds"), _("seconds")),
 		 `item(`id ("minutes"), _("minutes")),
 		 `item(`id ("hours"), _("hours")),
-		 `item(`id ("days"), _("dny"))]);
+		 `item(`id ("days"), _("days"))]);
 }
 
 
