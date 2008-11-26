@@ -142,13 +142,13 @@ map<string,map> acl_map = $[
                 "widget" : `Frame( _("time"),
                              `VBox(
                                  `HWeight(1, `MinHeight(8, `MultiSelectionBox(`id("acl_days"), _("Days"),
-                                                                [`item(`id("M"), "Monday"),
-                                                                 `item(`id("T"), "Tuesday"),
-                                                                 `item(`id("W"), "Wednesday"),
-                                                                 `item(`id("H"), "Thursday"),
-                                                                 `item(`id("F"), "Friday"),
-                                                                 `item(`id("A"), "Saturday"),
-                                                                 `item(`id("S"), "Sunday")]))),
+                                                                [`item(`id("M"), _("Monday")),
+                                                                 `item(`id("T"), _("Tuesday")),
+                                                                 `item(`id("W"), _("Wednesday")),
+                                                                 `item(`id("H"), _("Thursday")),
+                                                                 `item(`id("F"), _("Friday")),
+                                                                 `item(`id("A"), _("Saturday")),
+                                                                 `item(`id("S"), _("Sunday"))]))),
                                  `HWeight(1, `HBox(
                                      `TextEntry(`id("acl_from"), `opt(`shrinkable), _("From (H:M)"), ""),
                                      `TextEntry(`id("acl_to"), `opt(`shrinkable), _("To (H:M)"), "")
