@@ -206,15 +206,15 @@ symbol HandleLoggingFrame(string widget_id, map event_map)
     string tmp = nil;
 
     if (ui == `access_log_browse){
-        tmp = UI::AskForExistingFile("/var/log", "*", "Access Log");
+        tmp = UI::AskForExistingFile("/var/log", "*", _("Access Log"));
         if (tmp != nil)
             UI::ChangeWidget(`id("access_log"), `Value, tmp);
     }else if (ui == `cache_log_browse){
-        tmp = UI::AskForExistingFile("/var/log", "*", "Cache Log");
+        tmp = UI::AskForExistingFile("/var/log", "*", _("Cache Log"));
         if (tmp != nil)
             UI::ChangeWidget(`id("cache_log"), `Value, tmp);
     }else if (ui == `cache_store_log_browse){
-        tmp = UI::AskForExistingFile("/var/log", "*", "Cache Store Log");
+        tmp = UI::AskForExistingFile("/var/log", "*", _("Cache Store Log"));
         if (tmp != nil)
             UI::ChangeWidget(`id("cache_store_log"), `Value, tmp);
     }
