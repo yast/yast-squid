@@ -201,7 +201,7 @@ boolean AddEditHttpAccessDialog(integer id_item)
             `VSpacing(0.5),
 
             `ComboBox(`id("allow_deny"), _("Allow/Deny"),
-                [`item(`id("allow"), "allow"), `item(`id("deny"), "deny")]),
+                [`item(`id("allow"), _("Allow")), `item(`id("deny"), _("Deny"))]),
 
             //`VSpacing(),
 
