@@ -68,7 +68,8 @@ void InitHttpPortsTable(string key)
     foreach(map<string,any> value, Squid::GetHttpPorts(),
         {
             items = add(items, `item(`id(i), value["host"]:"", value["port"]:"",
-                                      (value["transparent"]:false ? "transparent" : "")));
+									// table cell
+                                      (value["transparent"]:false ? _("Transparent") : "")));
             i = i+1;
         });
 
