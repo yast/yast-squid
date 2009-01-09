@@ -128,7 +128,7 @@ map<string,string> trans_map = $[
     // language name - combo box entry; don't translate the encoding suffix
     "Russian-koi8-r" : _("Russian-koi8-r"),
     // language name - combo box entry
-    "Simplify_Chinese" : _("Simplify Chinese"),
+    "Simplify_Chinese" : _("Simplified Chinese"),
     // language name - combo box entry
     "Swedish" : _("Swedish"),
     // language name - combo box entry; don't translate the encoding suffix
