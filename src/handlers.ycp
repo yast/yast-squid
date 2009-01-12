@@ -141,7 +141,7 @@ symbol HandleCacheDirectoryDialog(string widget_id, map event_map)
     string cache_dir = "";
 
     if (ui == `browse_cache_dir){
-        cache_dir = UI::AskForExistingDirectory((string)UI::QueryWidget(`id("cache_dir"), `Value), "Cache Directory");
+        cache_dir = UI::AskForExistingDirectory((string)UI::QueryWidget(`id("cache_dir"), `Value), _("Cache Directory"));
         if (cache_dir != nil){
             UI::ChangeWidget(`id("cache_dir"), `Value, cache_dir);
         }
