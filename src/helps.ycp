@@ -111,7 +111,7 @@ Policies could be:
 <table>
     <tr>
       <td>lru</td>
-      <td>last recently used</td>
+      <td>least recently used</td>
     </tr>
     <tr>
       <td>heap GDSF</td>
@@ -119,7 +119,7 @@ Policies could be:
     </tr>
     <tr>
       <td>heap LFUDA</td>
-      <td>Last Frequently Used with Dynamic Aging</td>
+      <td>Least Frequently Used with Dynamic Aging</td>
     <tr>
     <tr>
       <td>heap LRU</td>
