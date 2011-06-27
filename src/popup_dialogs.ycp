@@ -56,7 +56,7 @@ boolean AddEditHttpPortDialog(integer id_item)
             `Left(`CheckBox(`id("transparent"), _("Transparent"), false)),
             `VSpacing(),
             `VStretch(),
-            `HBox(
+            `ButtonBox(
                 `PushButton(`id(`ok), Label::OKButton()),
                 `PushButton(`id(`cancel), Label::CancelButton())
             )
@@ -113,7 +113,7 @@ boolean AddEditRefreshPatternDialog(integer id_item)
             `VSpacing(),
             `VStretch(),
 
-            `HBox(
+            `ButtonBox(
                 `PushButton(`id(`ok), Label::OKButton()),
                 `PushButton(`id(`cancel), Label::CancelButton())
             )
@@ -225,7 +225,7 @@ boolean AddEditHttpAccessDialog(integer id_item)
 
             `VStretch(),
 
-            `HBox(
+            `ButtonBox(
                 `PushButton(`id(`ok), Label::OKButton()),
                 `PushButton(`id(`cancel), Label::CancelButton())
             )
@@ -297,7 +297,7 @@ boolean AddEditACLDialog(integer id_item)
 
             `VStretch(),
 
-            `HBox(
+            `ButtonBox(
                 `PushButton(`id(`ok), Label::OKButton()),
                 `PushButton(`id(`cancel), Label::CancelButton())
             )
