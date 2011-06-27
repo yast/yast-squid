@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Jun 27 13:42:41 UTC 2011 - jreidinger@novell.com
+
+- use ButtonBox instead of HBox for OK/Cancel buttons (bnc#701271) 
+- 2.21.0
+
+-------------------------------------------------------------------
 Wed May  4 13:41:11 CEST 2011 - jsrain@suse.cz
 
 - fixed typos (bnc#690239)
