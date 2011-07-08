@@ -336,12 +336,12 @@ boolean StoreDataFromAddEditACLDialog(integer id_item)
             }
         }
 
-        //verification where name is changed and this ACL has 1 occurence
+        //verification where name is changed and this ACL has 1 occurrence
         if (ok && id_item != nil && old_name != name && Squid::NumACLs(id_item) == 1){
             //test if changed ACL is used in http_access option.
             if (size(affected_options) > 0 && contains(affected_options, "http_access")){
                 Report::Error( _("You can not change name of this ACL Group, because \nit's used in Access Control table.\n")
-                              + _("If you want to change name of this ACL Group you must\ndelete all of its occurences in Access Control table."));
+                              + _("If you want to change name of this ACL Group you must\ndelete all of its occurrences in Access Control table."));
                 ok = false;
             }else
             //test if changed ACL is used in other option (not managed by thid module)
@@ -374,7 +374,7 @@ boolean StoreDataFromAddEditACLDialog(integer id_item)
 
 /**
  * Delete ACL with id id_item.
- * If ACL has only one occurence (one definition line) in config file and
+ * If ACL has only one occurrence (one definition line) in config file and
  * ACL is used by any option (http_access, no_cache ...) than user is asked
  * if he really want to delete the ACL. If option 'http_access' uses this ACL
  * than it's unaccepted to delete the ACL.
@@ -391,7 +391,7 @@ integer DelFromACLGroupsTable(integer id_item)
             if (contains(affected_options, "http_access")){
                 //Report::Error( _("This ACL Group can't be deleted.\nIt's used in Access Control table."));
                 Report::Error( _("You must not delete this ACL Group, because \nit's used in Access Control table.\n")
-                              + _("If you want to change name of this ACL Group you must\ndelete all of its occurences in Access Control table."));
+                              + _("If you want to change name of this ACL Group you must\ndelete all of its occurrences in Access Control table."));
             }else{
                 string message = _("If you delete this ACL Group these options might be affected: \n")
                                  + "    " + mergestring(affected_options, ",\n    ") + ".\n";// +
