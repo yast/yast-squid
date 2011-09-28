@@ -3,7 +3,7 @@
 @HEADER@
 Group:	System/YaST
 License: GPL v2 only
-Requires:	yast2
+Requires:	yast2 >= 2.21.22
 BuildRequires: perl-XML-Writer update-desktop-files yast2 yast2-devtools
 BuildRequires: yast2-testsuite yast2-core-devel boost-devel gcc-c++
 

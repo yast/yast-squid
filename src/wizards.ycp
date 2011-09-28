@@ -84,6 +84,7 @@ any SquidSequence() {
     ];
 
     Wizard::CreateDialog();
+    Wizard::SetDesktopTitleAndIcon();
 
     any ret = Sequencer::Run(aliases, sequence);
 
