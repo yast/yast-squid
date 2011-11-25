@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Nov 25 12:25:37 UTC 2011 - coolo@suse.com
+
+- add libtool as buildrequire to avoid implicit dependency
+
+-------------------------------------------------------------------
 Wed Sep 28 22:59:06 CEST 2011 - visnov@suse.cz
 
 - set dialog title
