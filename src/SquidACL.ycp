@@ -122,7 +122,7 @@ map<string,map> acl_map = $[
                      "widget_init" : srcdomainWidgetInit,
                      "verification" : srcdomainVerif,
                      "options" : srcdomainOptions,
-                     "help" : _("This type matches against the client's domain name.") ],
+                     "help" : _("This type matches the client's domain name.") ],
 
     "dstdomain" : $[ "name" : "dstdomain",
                      "widget" : `Frame( _("dstdomain"),
@@ -133,10 +133,10 @@ map<string,map> acl_map = $[
                      "widget_init" : srcdomainWidgetInit,
                      "verification" : srcdomainVerif,
                      "options" : srcdomainOptions,
-                     "help" : _("This refers to destination domain i.e. the source domain where the origin server is located.") ],
+                     "help" : _("This refers to the destination domain, i.e. the source domain where the origin server is located.") ],
 
-    "srcdom_regex" : regexp("srcdom_regex", "srcdom_regex", _("Matches against the client domain name.")),
-    "dstdom_regex" : regexp("dstdom_regex", "dstdom_regex", _("Provides match against destination domain.")),
+    "srcdom_regex" : regexp("srcdom_regex", "srcdom_regex", _("Matches the client domain name.")),
+    "dstdom_regex" : regexp("dstdom_regex", "dstdom_regex", _("Provides match for destination domain.")),
 
     "time" : $[ "name" : "time",
                 "widget" : `Frame( _("time"),
@@ -162,7 +162,7 @@ map<string,map> acl_map = $[
 
     "url_regex" : regexp("url_regex", "url_regex", _("Matches using a regular expression on the complete URL.")),
     "urlpath_regex" : regexp("urlpath_regex", "urlpath_regex",
-                             _("Matches on the URL path minus any protocol, port, and host name information")),
+                             _("Matches the URL path minus any protocol, port, and host name information")),
 
     "port" : $[ "name" : "port",
                 "widget" : `Frame( _("port"),
@@ -171,7 +171,7 @@ map<string,map> acl_map = $[
                 "widget_init" : portWidgetInit,
                 "verification" : portVerif,
                 "options" : portOptions,
-                "help" : _("Matches on the destination port for the request.") ],
+                "help" : _("Matches the destination port for the request.") ],
 
     "myport" : $[ "name" : "myport",
                   "widget" : `Frame( _("myport"),
@@ -180,7 +180,7 @@ map<string,map> acl_map = $[
                   "widget_init" : myportWidgetInit,
                   "verification" : myportVerif,
                   "options" : portOptions,
-                  "help" : _("This provides match against local TCP port number.") ],
+                  "help" : _("Provides match for local TCP port number.") ],
 
     "proto" : $[ "name" : "proto",
                  "widget" : `Frame ( _("proto"),
@@ -189,7 +189,7 @@ map<string,map> acl_map = $[
                  "widget_init" : protoWidgetInit,
                  "verification" : protoVerif,
                  "options" : protoOptions,
-                 "help" : _("Matches on the protocol of the request.") ],
+                 "help" : _("Matches the protocol of the request.") ],
 
     "method" : $[ "name" : "method",
                   "widget" : `Frame( _("method"),
@@ -207,7 +207,7 @@ map<string,map> acl_map = $[
                   "options" : methodOptions,
                   "help" : _("This type matches the HTTP method in the request headers.") ],
 
-    "browser" : regexp("browser", "browser", _("A regular expression that matches the clients browser type based on the user agent header.")),
+    "browser" : regexp("browser", "browser", _("A regular expression that matches the client's browser type based on the user agent header.")),
 
     "maxconn" : $[ "name" : "maxconn",
                    "widget" : `Frame("maxconn",
@@ -218,7 +218,7 @@ map<string,map> acl_map = $[
                    "options" : maxconnOptions,
                    "help" : _("Matches when the client's IP address has more than the specified number of HTTP connections established.") ],
 
-    "referer_regex" : regexp("referer_regex", "referer_regex", _("Matches against Referer header.")),
+    "referer_regex" : regexp("referer_regex", "referer_regex", _("Matches Referer header.")),
 
     "req_header" : $[ "name" : "req_header",
                       "widget" : `Frame( "req_header",
@@ -231,7 +231,7 @@ map<string,map> acl_map = $[
                       "widget_init" : headerWidgetInit,
                       "verification" : headerVerif,
                       "options" : headerOptions,
-                      "help" : _("Regular expression matching against any of the known request headers.") ],
+                      "help" : _("Regular expression matching any of the known request headers.") ],
 
     "rep_header" : $[ "name" : "rep_header",
                       "widget" : `Frame( "rep_header",
@@ -244,11 +244,12 @@ map<string,map> acl_map = $[
                       "widget_init" : headerWidgetInit,
                       "verification" : headerVerif,
                       "options" : headerOptions,
-                      "help" : _("Regular expression matching against the mime type of the reply received by
-squid. Can be used to detect file download or some types HTTP tunnelling requests.") ],
+                      "help" : _("Regular expression matching the mime type of the reply received by squid. Can
+be used to detect file download or some types of HTTP tunnelling requests.
+") ],
 
-    "req_mime_type" : regexp("req_mime_type", "req_mime_type", _("Match against the mime type of the request generated by the client.")),
-    "rep_mime_type" : regexp("rep_mime_type", "rep_mime_type", _("Match against the mime type of the reply received by Squid.")),
+    "req_mime_type" : regexp("req_mime_type", "req_mime_type", _("Match the mime type of the request generated by the client.")),
+    "rep_mime_type" : regexp("rep_mime_type", "rep_mime_type", _("Match the mime type of the reply received by Squid.")),
 
     "arp" : $[ "name" : "arp",
                "widget" : `Frame( "arp",

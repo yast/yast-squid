@@ -253,7 +253,7 @@ term LoggingFrameWidget()
                         `TextEntry(`id("cache_store_log"), _("Cache &Store Log"), ""),
                         `Bottom(`PushButton(`id(`cache_store_log_browse), Label::BrowseButton()))
                     )),
-                    `Left(`CheckBox(`id("emulate_httpd_log"), _("&Emulate Httpd Log?")))
+                    `Left(`CheckBox(`id("emulate_httpd_log"), _("&Emulate httpd Log?")))
                 )
             );
 }
@@ -284,9 +284,9 @@ term MiscellaneousFrameWidget()
                                  _("&Language of error messages"),
                                  []),
                  `VSpacing(),
-                 `TextEntry(`id("cache_mgr"), _("&Administrator's e-mail"), ""),
+                 `TextEntry(`id("cache_mgr"), _("&Administrator's email"), ""),
                  `VSpacing(),
-                 `Left(`CheckBox(`id("ftp_passive"), _("&Use Ftp Passive Mode")))
+                 `Left(`CheckBox(`id("ftp_passive"), _("&Use FTP Passive Mode")))
         )));
 }
 

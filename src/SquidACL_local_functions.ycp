@@ -314,7 +314,7 @@ boolean timeVerif()
         Report::Error( _("You must select at least one day."));
     }else if (!isHHMMFormat(from) || !isHHMMFormat(to)){
         ok = false;
-        Report::Error( _("Time is not filled in correct format."));
+        Report::Error( _("Time is not set in correct format."));
     }else if (!isCorrectFromTo(from, to)){// from must be less then to
         ok = false;
         Report::Error( _("From must be less than To."));//TODO: better error message
