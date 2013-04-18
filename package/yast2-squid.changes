@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Apr 18 16:54:12 CEST 2013 - locilka@suse.com
+
+- Do not block squid configuration if SuSEfirewall can't be read
+  (bnc#808722)
+- 2.21.2.1
+
+-------------------------------------------------------------------
 Fri Nov 25 12:25:37 UTC 2011 - coolo@suse.com
 
 - add libtool as buildrequire to avoid implicit dependency
