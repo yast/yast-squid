@@ -10,7 +10,7 @@ BuildRequires: yast2-testsuite yast2-core-devel boost-devel gcc-c++
 Summary:	Configuration of squid
 
 %description
--
+Configuration of squid
 
 @PREP@
 
