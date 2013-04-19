@@ -1061,8 +1061,9 @@ global boolean Read() {
 
     Progress::set(false);
     if (!SuSEFirewall::Read()){
-        ok = false;
-        Report::Error(_("Cannot read firewall settings."));
+        // bnc#808722: yast2 squid fail if SuSEfirewall in not installed
+        // other or no firewall can be installed
+        y2warning("Cannot read firewall settings.");
     }
     Progress::set(true);
     Progress::NextStage();
