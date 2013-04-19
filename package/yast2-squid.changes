@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Apr 18 16:54:12 CEST 2013 - locilka@suse.com
+
+- Do not block squid configuration if SuSEfirewall can't be read
+  (bnc#808722)
+- 2.17.12
+
+-------------------------------------------------------------------
 Fri Feb 26 12:28:31 CET 2010 - jsrain@suse.cz
 
 - fixed translations of language names (bnc#580494)
