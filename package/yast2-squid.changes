@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Apr 18 16:54:12 CEST 2013 - locilka@suse.com
+
+- Do not block squid configuration if SuSEfirewall can't be read
+  (bnc#808722)
+- 2.21.3
+
+-------------------------------------------------------------------
 Thu Mar 29 16:04:47 CEST 2012 - jsuchome@suse.cz
 
 - merge proofread texts 
