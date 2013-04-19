@@ -3,7 +3,7 @@ Read	.target.dir "/usr/share/squid/errors" ["Russian-1251", "a_file", "English",
 Return	["English", "Russian-1251", "Simplify Chinese"]
 Dump	
 Dump	GetLanguagesToComboBox()
-Return	[`item (`id ("English"), "English"), `item (`id ("Russian-1251"), "Russian-1251"), `item (`id ("Simplify Chinese"), "Simplify Chinese")]
+Return	[`item (`id ("English"), "English"), `item (`id ("Russian-1251"), "Russian-1251"), `item (`id ("Simplify Chinese"), "Simplified Chinese")]
 Dump	
 Dump	GetPath("English")
 Return	/usr/share/squid/errors/English
