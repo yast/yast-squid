@@ -1,3 +1,3 @@
 # Makefile.am for squid/agents
-SUBDIRS = src config
+SUBDIRS = src
 
