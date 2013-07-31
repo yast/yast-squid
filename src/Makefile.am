@@ -1,33 +1,37 @@
-# Makefile.am for squid/src
+# Sources for squid
+
+module_DATA = \
+  modules/Squid.rb \
+  modules/SquidErrorMessages.rb \
+  modules/SquidACL.rb
+
+client_DATA = \
+  clients/squid.rb \
+  clients/squid_auto.rb
 
 yncludedir = @yncludedir@/squid
+ynclude_DATA = \
+  include/squid/store_del.rb \
+  include/squid/wizards.rb \
+  include/squid/SquidACL_local_functions.rb \
+  include/squid/inits.rb \
+  include/squid/popup_dialogs.rb \
+  include/squid/helper_functions.rb \
+  include/squid/dialogs.rb \
+  include/squid/complex.rb \
+  include/squid/handlers.rb \
+  include/squid/helps.rb
 
-client_DATA =			\
-	squid.ycp		\
-	squid_auto.ycp
+scrconf_DATA = \
+  scrconf/squid.scr
 
-ynclude_DATA =			\
-	helps.ycp		\
-	wizards.ycp		\
-	dialogs.ycp		\
-    popup_dialogs.ycp \
-	complex.ycp \
-    inits.ycp \
-    store_del.ycp \
-	SquidACL_local_functions.ycp \
-    helper_functions.ycp \
-    handlers.ycp
+schemafilesdir = $(schemadir)/autoyast/rnc
+schemafiles_DATA = \
+  autoyast-rnc/squid.rnc
 
-module_DATA =			\
-	Squid.ycp		\
-    SquidACL.ycp \
-    SquidErrorMessages.ycp
+desktop_DATA = \
+  desktop/squid.desktop
 
-# create a symlink for local build, #145327
-squid:
-	ln -sf . $@
-ycpchook = squid
-
-EXTRA_DIST = $(client_DATA) $(ynclude_DATA) $(module_DATA)
+EXTRA_DIST = $(module_DATA) $(client_DATA) $(ynclude_DATA) $(scrconf_DATA) $(schemafiles_DATA) $(desktop_DATA)
 
 include $(top_srcdir)/Makefile.am.common
