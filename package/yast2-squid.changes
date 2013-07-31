@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Jul 31 08:40:21 UTC 2013 - yast-devel@opensuse.org
+
+- converted from YCP to Ruby by YCP Killer
+  (https://github.com/yast/ycp-killer)
+- version 3.0.0
+
+-------------------------------------------------------------------
 Thu Apr 18 16:54:12 CEST 2013 - locilka@suse.com
 
 - Do not block squid configuration if SuSEfirewall can't be read
