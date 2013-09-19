@@ -10,7 +10,7 @@ config.log
 config.status
 config.sub
 configure
-configure.in
+configure.ac
 depcomp
 install-sh
 missing
@@ -23,3 +23,5 @@ autodocs-cc-base.ami
 pluglib-bindings.ami
 autodocs-ycp.ami
 autodocs-cc.ami
+*.m4
+*.ami
