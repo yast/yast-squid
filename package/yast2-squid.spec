@@ -27,7 +27,7 @@ Group:	        System/YaST
 License:        GPL-2.0
 Requires:	yast2 >= 2.21.22
 BuildRequires:  perl-XML-Writer update-desktop-files yast2
-BuildRequires:  yast2-devtools >= 3.0.6
+BuildRequires:  yast2-devtools >= 3.1.10
 BuildRequires:  yast2-testsuite yast2-core-devel boost-devel gcc-c++ libtool
 
 #BuildArchitectures:	noarch
