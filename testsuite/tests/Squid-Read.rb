@@ -71,7 +71,15 @@ module Yast
       @READ = { "etc" => @READ }
 
       @WRITE = {}
-      @EXECUTE = {}
+      @EXECUTE = {
+        "target" => {
+          "bash_output" => {
+            "exit" => 0,
+            "stdout" => "",
+            "stderr" => "",
+          }
+        }
+      }
 
       Yast.include self, "testsuite.rb"
       #TESTSUITE_INIT([READ,WRITE,EXECUTE], nil);
@@ -79,42 +87,42 @@ module Yast
       Yast.import "Squid"
 
       DUMP("Squid::readHttpPorts()")
-      TEST(lambda { Squid.readHttpPorts }, [@READ], nil)
+      TEST(lambda { Squid.readHttpPorts }, [@READ, @WRITE, @EXECUTE], nil)
       DUMP("Squid::http_ports")
       TEST(lambda { Squid.http_ports }, [], nil)
 
       DUMP("------------------------------")
 
       DUMP("Squid::readHttpAccesses()")
-      TEST(lambda { Squid.readHttpAccesses }, [@READ], nil)
+      TEST(lambda { Squid.readHttpAccesses }, [@READ, @WRITE, @EXECUTE], nil)
       DUMP("Squid::http_accesses")
       TEST(lambda { Squid.http_accesses }, [], nil)
 
       DUMP("------------------------------")
 
       DUMP("Squid::readRefreshPatterns()")
-      TEST(lambda { Squid.readRefreshPatterns }, [@READ], nil)
+      TEST(lambda { Squid.readRefreshPatterns }, [@READ, @WRITE, @EXECUTE], nil)
       DUMP("Squid::refresh_patterns")
       TEST(lambda { Squid.refresh_patterns }, [], nil)
 
       DUMP("------------------------------")
 
       DUMP("Squid::readACLs()")
-      TEST(lambda { Squid.readACLs }, [@READ], nil)
+      TEST(lambda { Squid.readACLs }, [@READ, @WRITE, @EXECUTE], nil)
       DUMP("Squid::acls")
       TEST(lambda { Squid.acls }, [], nil)
 
       DUMP("------------------------------")
 
       DUMP("Squid::readRestSetting()")
-      TEST(lambda { Squid.readRestSetting }, [@READ], nil)
+      TEST(lambda { Squid.readRestSetting }, [@READ, @WRITE, @EXECUTE], nil)
       DUMP("Squid::settings")
       TEST(lambda { Squid.settings }, [], nil)
 
       DUMP("------------------------------")
 
       DUMP("Squid::Read()")
-      TEST(lambda { Squid.Read }, [@READ], nil)
+      TEST(lambda { Squid.Read }, [@READ, @WRITE, @EXECUTE], nil)
       DUMP("Squid::settings")
       TEST(lambda { Squid.settings }, [], nil)
       DUMP("Squid::acls")
@@ -147,7 +155,7 @@ module Yast
       @READ = { "etc" => @READ }
 
       DUMP("Squid:Read()")
-      TEST(lambda { Squid.Read }, [@READ], nil)
+      TEST(lambda { Squid.Read }, [@READ, @WRITE, @EXECUTE], nil)
 
       DUMP(
         "Squid::settings[\"cache_mem\"]:[\"1\"] == Squid::parameters[\"cache_mem\"]:[\"2\"]"
