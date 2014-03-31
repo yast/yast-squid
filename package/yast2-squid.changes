@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Mar 31 15:34:34 CEST 2014 - locilka@suse.com
+
+- Old testsuites adapted to the new Service/Systemd
+- 3.1.2
+
+-------------------------------------------------------------------
 Wed Nov 13 15:56:18 UTC 2013 - jreidinger@suse.com
 
 - Add explicit COPYING file
