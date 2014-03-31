@@ -73,7 +73,15 @@ module Yast
       @READ = { "etc" => @READ }
 
       @WRITE = {}
-      @EXECUTE = {}
+      @EXECUTE = {
+        "target" => {
+          "bash_output" => {
+            "exit" => 0,
+            "stdout" => "",
+            "stderr" => "",
+          }
+        }
+      }
 
       Yast.import "Squid"
       TESTSUITE_INIT([@READ, @WRITE, @EXECUTE], nil)
