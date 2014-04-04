@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Apr  4 11:19:40 UTC 2014 - jreidinger@suse.com
+
+- Adapt to new paths to error pages messages (bnc#871873)
+- 3.1.3
+
+-------------------------------------------------------------------
 Mon Mar 31 15:34:34 CEST 2014 - locilka@suse.com
 
 - Old testsuites adapted to the new Service/Systemd

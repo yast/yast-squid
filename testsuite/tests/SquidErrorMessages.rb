@@ -9,11 +9,11 @@ module Yast
         {
           "target" => {
             "dir" => [
-              "Russian-1251",
+              "en",
               "a_file",
-              "English",
+              "ru",
               "b_file",
-              "Simplify_Chinese",
+              "uk",
               "c_file"
             ]
           }
@@ -47,14 +47,14 @@ module Yast
       ], nil)
 
       DUMP("")
-      DUMP("GetPath(\"English\")")
-      TEST(lambda { SquidErrorMessages.GetPath("English") }, [
+      DUMP("GetPath(\"en\")")
+      TEST(lambda { SquidErrorMessages.GetPath("en") }, [
         @READ,
         @WRITE,
         @EXECUTE
       ], nil)
-      DUMP("GetPath(\"Simplify Chinese\")")
-      TEST(lambda { SquidErrorMessages.GetPath("Simplify Chinese") }, [
+      DUMP("GetPath(\"uk\")")
+      TEST(lambda { SquidErrorMessages.GetPath("uk") }, [
         @READ,
         @WRITE,
         @EXECUTE
@@ -65,14 +65,14 @@ module Yast
         Ops.add(
           Ops.add(
             Ops.add("GetLanguageFromPath(", SquidErrorMessages.err_msg_dir),
-            "/English"
+            "/en"
           ),
           ")"
         )
       )
       TEST(lambda do
         SquidErrorMessages.GetLanguageFromPath(
-          Ops.add(SquidErrorMessages.err_msg_dir, "/English")
+          Ops.add(SquidErrorMessages.err_msg_dir, "/en")
         )
       end, [
         @READ,
@@ -83,14 +83,14 @@ module Yast
         Ops.add(
           Ops.add(
             Ops.add("GetLanguageFromPath(", SquidErrorMessages.err_msg_dir),
-            "/Simplify_Chinese"
+            "/uk"
           ),
           ")"
         )
       )
       TEST(lambda do
         SquidErrorMessages.GetLanguageFromPath(
-          Ops.add(SquidErrorMessages.err_msg_dir, "/Simplify_Chinese")
+          Ops.add(SquidErrorMessages.err_msg_dir, "/ru")
         )
       end, [
         @READ,

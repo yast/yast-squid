@@ -46,99 +46,54 @@ module Yast
       # Directory where is located directories with messages in various languages.
       @err_msg_dir = "/usr/share/squid/errors"
 
+      # squid use ISO 639-1 encoding for languages
+      # TODO refactor it to generaly available
       @trans_map = {
-        # language name - combo box entry
-        "Armenian"            => _("Armenian"),
-        # language name - combo box entry
-        "Catalan"             => _("Catalan"),
-        # language name - combo box entry
-        "Dutch"               => _("Dutch"),
-        # language name - combo box entry
-        "Finnish"             => _("Finnish"),
-        # language name - combo box entry
-        "Greek"               => _("Greek"),
-        # language name - combo box entry
-        "Italian"             => _("Italian"),
-        # language name - combo box entry
-        "Lithuanian"          => _(
-          "Lithuanian"
-        ),
-        # language name - combo box entry
-        "Romanian"            => _("Romanian"),
-        # language name - combo box entry
-        "Serbian"             => _("Serbian"),
-        # language name - combo box entry
-        "Spanish"             => _("Spanish"),
-        # language name - combo box entry
-        "Turkish"             => _("Turkish"),
-        # language name - combo box entry; don't translate the encoding suffix
-        "Ukrainian-1251"      => _(
-          "Ukrainian-1251"
-        ),
-        # language name - combo box entry
-        "Azerbaijani"         => _(
-          "Azerbaijani"
-        ),
-        # language name - combo box entry
-        "Czech"               => _("Czech"),
-        # language name - combo box entry
-        "English"             => _("English"),
-        # language name - combo box entry
-        "French"              => _("French"),
-        # language name - combo box entry
-        "Hebrew"              => _("Hebrew"),
-        # language name - combo box entry
-        "Japanese"            => _("Japanese"),
-        # language name - combo box entry
-        "Polish"              => _("Polish"),
-        # language name - combo box entry; don't translate the encoding suffix
-        "Russian-koi8-r"      => _(
-          "Russian-koi8-r"
-        ),
-        # language name - combo box entry
-        "Simplify Chinese"    => _(
-          "Simplified Chinese"
-        ),
-        # language name - combo box entry
-        "Swedish"             => _("Swedish"),
-        # language name - combo box entry; don't translate the encoding suffix
-        "Ukrainian-koi8-u"    => _(
-          "Ukrainian-koi8-u"
-        ),
-        # language name - combo box entry
-        "Bulgarian"           => _(
-          "Bulgarian"
-        ),
-        # language name - combo box entry
-        "Danish"              => _("Danish"),
-        # language name - combo box entry
-        "Estonian"            => _("Estonian"),
-        # language name - combo box entry
-        "German"              => _("German"),
-        # language name - combo box entry
-        "Hungarian"           => _(
-          "Hungarian"
-        ),
-        # language name - combo box entry
-        "Korean"              => _("Korean"),
-        # language name - combo box entry
-        "Portuguese"          => _(
-          "Portuguese"
-        ),
-        # language name - combo box entry; don't translate the encoding suffix
-        "Russian-1251"        => _(
-          "Russian-1251"
-        ),
-        # language name - combo box entry
-        "Slovak"              => _("Slovak"),
-        # language name - combo box entry
-        "Traditional Chinese" => _(
-          "Traditional Chinese"
-        ),
-        # language name - combo box entry; don't translate the encoding suffix
-        "Ukrainian-utf8"      => _(
-          "Ukrainian-utf8"
-        )
+        # TRANSLATORS: language name - combo box entry
+        "af"      => _("Afrikaans"),
+        "ar"      => _("Arabic"),
+        "hy"      => _("Armenian"),
+        "az"      => _("Azerbaijani"),
+        "bg"      => _("Bulgarian"),
+        "ca"      => _("Catalan"),
+        "cs"      => _("Czech"),
+        "da"      => _("Danish"),
+        "de"      => _("German"),
+        "el"      => _("Greek"),
+        "en"      => _("English"),
+        "es"      => _("Spanish"),
+        "et"      => _("Estonian"),
+        "fa"      => _("Persian"),
+        "fi"      => _("Finnish"),
+        "fr"      => _("French"),
+        "he"      => _("Hebrew"),
+        "hu"      => _("Hungarian"),
+        "id"      => _("Indonesian"),
+        "it"      => _("Italian"),
+        "ja"      => _("Japanese"),
+        "ko"      => _("Korean"),
+        "lv"      => _("Latvian"),
+        "lt"      => _("Lithuanian"),
+        "ms"      => _("Malay"),
+        "nl"      => _("Dutch"),
+        "oc"      => _("Occitan"),
+        "pl"      => _("Polish"),
+        "pt"      => _("Portuguese"),
+        "pt-br"   => _("Brazilian Portuguese"),
+        "ro"      => _("Romanian"),
+        "ru"      => _("Russian"),
+        "sk"      => _("Slovak"),
+        "sl"      => _("Slovenian"),
+        "sr-cyrl" => _("Serbian Cyrillic"),
+        "sr-latn" => _("Serbian Latin"),
+        "sv"      => _("Swedish"),
+        "th"      => _("Thai"),
+        "tr"      => _("Turkish"),
+        "uk"      => _("Ukrainian"),
+        "uz"      => _("Uzbek"),
+        "vi"      => _("Vietnamese"),
+        "zh-cn"   => _("Simplified Chinese"),
+        "zh-tw"   => _("Traditional Chinese"),
       }
     end
 
@@ -181,14 +136,9 @@ module Yast
     def GetLanguagesToComboBox
       read
 
-      ret = []
-      Builtins.foreach(GetLanguages()) do |language|
-        ret = Builtins.add(
-          ret,
-          Item(Id(language), Ops.get(@trans_map, language, language))
-        )
+      return GetLanguages().map do |language|
+          Item(Id(language), @trans_map[language] || language)
       end
-      deep_copy(ret)
     end
 
 
