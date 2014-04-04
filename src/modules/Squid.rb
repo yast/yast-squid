@@ -125,7 +125,7 @@ module Yast
         "emulate_httpd_log"         => ["off"],
         "connect_timeout"           => ["2", "minutes"],
         "client_lifetime"           => ["1", "days"],
-        "error_directory"           => ["/usr/share/squid/errors/English"],
+        "error_directory"           => ["/usr/share/squid/errors/en"],
         "cache_mgr"                 => ["webmaster"],
         "ftp_passive"               => ["on"]
       }
