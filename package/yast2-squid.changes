@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Jul  2 12:32:25 UTC 2015 - jreidinger@suse.com
+
+- remove obsolete emulate_http_log config option (bnc#928896)
+- 3.1.4
+
+-------------------------------------------------------------------
 Fri Apr  4 11:19:40 UTC 2014 - jreidinger@suse.com
 
 - Adapt to new paths to error pages messages (bnc#871873)
