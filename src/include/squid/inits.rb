@@ -446,12 +446,7 @@ module Yast
             Ops.get(set, "cache_store_log", []),
             0,
             ""
-          ),
-          "emulate_httpd_log" => Ops.get_string(
-            Ops.get(set, "emulate_httpd_log", []),
-            0,
-            ""
-          ) == "on" ? true : false
+          )
         }
       )
 

@@ -335,8 +335,7 @@ module Yast
                 PushButton(Id(:cache_store_log_browse), Label.BrowseButton)
               )
             )
-          ),
-          Left(CheckBox(Id("emulate_httpd_log"), _("&Emulate httpd Log?")))
+          )
         )
       )
     end

@@ -1,7 +1,7 @@
 #
 # spec file for package yast2-squid
 #
-# Copyright (c) 2013 SUSE LINUX Products GmbH, Nuernberg, Germany.
+# Copyright (c) 2015 SUSE LINUX GmbH, Nuernberg, Germany.
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -23,18 +23,24 @@ Release:        0
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        %{name}-%{version}.tar.bz2
 
-Group:	        System/YaST
-License:        GPL-2.0
-Requires:	yast2 >= 2.21.22
-BuildRequires:  perl-XML-Writer update-desktop-files yast2
+Requires:       yast2 >= 2.21.22
+BuildRequires:  boost-devel
+BuildRequires:  gcc-c++
+BuildRequires:  libtool
+BuildRequires:  perl-XML-Writer
+BuildRequires:  update-desktop-files
+BuildRequires:  yast2
+BuildRequires:  yast2-core-devel
 BuildRequires:  yast2-devtools >= 3.1.10
-BuildRequires:  yast2-testsuite yast2-core-devel boost-devel gcc-c++ libtool
+BuildRequires:  yast2-testsuite
 
 #BuildArchitectures:	noarch
 
 Requires:       yast2-ruby-bindings >= 1.0.0
 
-Summary:	Configuration of squid
+Summary:        Configuration of squid
+License:        GPL-2.0
+Group:          System/YaST
 
 %description
 Configuration of squid
@@ -49,7 +55,6 @@ Configuration of squid
 %yast_install
 
 rm -rf %{buildroot}/%{yast_plugindir}/libpy2ag_squid.la
-
 
 %files
 %defattr(-,root,root)
@@ -67,3 +72,5 @@ rm -rf %{buildroot}/%{yast_plugindir}/libpy2ag_squid.la
 %{yast_plugindir}/libpy2ag_squid.so*
 %{yast_scrconfdir}/*.scr
 %doc %{yast_docdir}
+
+%changelog
