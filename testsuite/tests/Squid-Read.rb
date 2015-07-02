@@ -60,7 +60,6 @@ module Yast
           "cache_log"                 => [["/var/log/squid/cache.log"]],
           "cache_store_log"           => [["/var/log/squid/store.log"]],
           "cache_swap_log"            => [["none"]],
-          "emulate_httpd_log"         => [["off"]],
           "connect_timeout"           => [["2", "minutes"]],
           "client_lifetime"           => [["1", "day"]],
           "error_directory"           => [["/usr/share/squid/errors/English"]],

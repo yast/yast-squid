@@ -34,7 +34,6 @@ Read	.etc.squid."cache_swap_high" [["95"]]
 Read	.etc.squid."cache_swap_low" [["90"]]
 Read	.etc.squid."client_lifetime" [["1", "day"]]
 Read	.etc.squid."connect_timeout" [["2", "minutes"]]
-Read	.etc.squid."emulate_httpd_log" [["off"]]
 Read	.etc.squid."error_directory" [["/usr/share/squid/errors/English"]]
 Read	.etc.squid."ftp_passive" [["on"]]
 Read	.etc.squid."maximum_object_size" [["4096", "KB"]]
@@ -42,7 +41,7 @@ Read	.etc.squid."memory_replacement_policy" [["heap", "GDSF"]]
 Read	.etc.squid."minimum_object_size" [["0", "KB"]]
 Return	true
 Dump	Squid::settings
-Return	$["access_log":["/var/log/squid/access.log"], "cache_dir":["ufs", "/var/cache/squid", "100", "16", "256"], "cache_log":["/var/log/squid/cache.log"], "cache_mem":["80", "MB"], "cache_mgr":["webmaster"], "cache_replacement_policy":["lru"], "cache_store_log":["/var/log/squid/store.log"], "cache_swap_high":["95"], "cache_swap_low":["90"], "client_lifetime":["1", "days"], "connect_timeout":["2", "minutes"], "emulate_httpd_log":["off"], "error_directory":["/usr/share/squid/errors/English"], "ftp_passive":["on"], "maximum_object_size":["4096", "KB"], "memory_replacement_policy":["heap GDSF"], "minimum_object_size":["0", "KB"]]
+Return	$["access_log":["/var/log/squid/access.log"], "cache_dir":["ufs", "/var/cache/squid", "100", "16", "256"], "cache_log":["/var/log/squid/cache.log"], "cache_mem":["80", "MB"], "cache_mgr":["webmaster"], "cache_replacement_policy":["lru"], "cache_store_log":["/var/log/squid/store.log"], "cache_swap_high":["95"], "cache_swap_low":["90"], "client_lifetime":["1", "days"], "connect_timeout":["2", "minutes"], "error_directory":["/usr/share/squid/errors/English"], "ftp_passive":["on"], "maximum_object_size":["4096", "KB"], "memory_replacement_policy":["heap GDSF"], "minimum_object_size":["0", "KB"]]
 Dump	------------------------------
 Dump	Squid::Read()
 Read	.etc.squid."http_port" [["localhost:3128"], ["80", "transparent"]]
@@ -60,7 +59,6 @@ Read	.etc.squid."cache_swap_high" [["95"]]
 Read	.etc.squid."cache_swap_low" [["90"]]
 Read	.etc.squid."client_lifetime" [["1", "day"]]
 Read	.etc.squid."connect_timeout" [["2", "minutes"]]
-Read	.etc.squid."emulate_httpd_log" [["off"]]
 Read	.etc.squid."error_directory" [["/usr/share/squid/errors/English"]]
 Read	.etc.squid."ftp_passive" [["on"]]
 Read	.etc.squid."maximum_object_size" [["4096", "KB"]]
@@ -68,7 +66,7 @@ Read	.etc.squid."memory_replacement_policy" [["heap", "GDSF"]]
 Read	.etc.squid."minimum_object_size" [["0", "KB"]]
 Return	true
 Dump	Squid::settings
-Return	$["access_log":["/var/log/squid/access.log"], "cache_dir":["ufs", "/var/cache/squid", "100", "16", "256"], "cache_log":["/var/log/squid/cache.log"], "cache_mem":["80", "MB"], "cache_mgr":["webmaster"], "cache_replacement_policy":["lru"], "cache_store_log":["/var/log/squid/store.log"], "cache_swap_high":["95"], "cache_swap_low":["90"], "client_lifetime":["1", "days"], "connect_timeout":["2", "minutes"], "emulate_httpd_log":["off"], "error_directory":["/usr/share/squid/errors/English"], "ftp_passive":["on"], "maximum_object_size":["4096", "KB"], "memory_replacement_policy":["heap GDSF"], "minimum_object_size":["0", "KB"]]
+Return	$["access_log":["/var/log/squid/access.log"], "cache_dir":["ufs", "/var/cache/squid", "100", "16", "256"], "cache_log":["/var/log/squid/cache.log"], "cache_mem":["80", "MB"], "cache_mgr":["webmaster"], "cache_replacement_policy":["lru"], "cache_store_log":["/var/log/squid/store.log"], "cache_swap_high":["95"], "cache_swap_low":["90"], "client_lifetime":["1", "days"], "connect_timeout":["2", "minutes"], "error_directory":["/usr/share/squid/errors/English"], "ftp_passive":["on"], "maximum_object_size":["4096", "KB"], "memory_replacement_policy":["heap GDSF"], "minimum_object_size":["0", "KB"]]
 Dump	Squid::acls
 Return	[$["name":"QUERY", "options":["cgi-bin \\?"], "type":"urlpath_regex"], $["name":"apache", "options":["Server", "^Apache"], "type":"rep_header"], $["name":"all", "options":["0.0.0.0/0.0.0.0"], "type":"src"], $["name":"manager", "options":["cache_object"], "type":"proto"], $["name":"localhost", "options":["127.0.0.1/255.255.255.255"], "type":"src"], $["name":"localhost_public", "options":["10.20.1.241/255.255.255.255"], "type":"src"], $["name":"to_localhost", "options":["127.0.0.0/8"], "type":"dst"], $["name":"SSL_ports", "options":[" 443"], "type":"port"], $["name":"Safe_ports", "options":["80"], "type":"port"], $["name":"Safe_ports", "options":["21"], "type":"port"], $["name":"Safe_ports", "options":["443"], "type":"port"], $["name":"Safe_ports", "options":["70"], "type":"port"], $["name":"Safe_ports", "options":["210"], "type":"port"], $["name":"Safe_ports", "options":["1025-65535"], "type":"port"], $["name":"Safe_ports", "options":["280"], "type":"port"], $["name":"Safe_ports", "options":["488"], "type":"port"], $["name":"Safe_ports", "options":["591"], "type":"port"], $["name":"Safe_ports", "options":["777"], "type":"port"], $["name":"CONNECT", "options":["CONNECT"], "type":"method"]]
 Dump	Squid::refresh_patterns
@@ -95,7 +93,6 @@ Read	.etc.squid."cache_swap_high" [["95"]]
 Read	.etc.squid."cache_swap_low" [["90"]]
 Read	.etc.squid."client_lifetime" [["1", "day"]]
 Read	.etc.squid."connect_timeout" [["2", "minutes"]]
-Read	.etc.squid."emulate_httpd_log" [["off"]]
 Read	.etc.squid."error_directory" [["/usr/share/squid/errors/English"]]
 Read	.etc.squid."ftp_passive" [["on"]]
 Read	.etc.squid."maximum_object_size" [["4096", "KB"]]
