@@ -567,9 +567,6 @@ module Yast
         cache_store_log = Convert.to_string(
           UI.QueryWidget(Id("cache_store_log"), :Value)
         )
-        emulate_httpd_log = Convert.to_boolean(
-          UI.QueryWidget(Id("emulate_httpd_log"), :Value)
-        ) ? "on" : "off"
 
         if Builtins.size(access_log) == 0
           ok = false
@@ -642,9 +639,6 @@ module Yast
       cache_store_log = Convert.to_string(
         UI.QueryWidget(Id("cache_store_log"), :Value)
       )
-      emulate_httpd_log = Convert.to_boolean(
-        UI.QueryWidget(Id("emulate_httpd_log"), :Value)
-      ) ? "on" : "off"
 
       tmp = Squid.GetSetting("access_log")
       Squid.SetSetting(
@@ -653,7 +647,6 @@ module Yast
       )
       Squid.SetSetting("cache_log", [cache_log])
       Squid.SetSetting("cache_store_log", [cache_store_log])
-      Squid.SetSetting("emulate_httpd_log", [emulate_httpd_log])
 
       nil
     end
