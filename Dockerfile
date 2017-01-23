@@ -1,8 +1,8 @@
-FROM yastdevel/cpp
+FROM yastdevel/ruby
 RUN zypper --gpg-auto-import-keys --non-interactive in --no-recommends \
-  yast2 \
-  yast2-ruby-bindings \
-  yast2-testsuite
-
+  boost-devel \
+  gcc-c++ \
+  libtool \
+  yast2-core-devel
 COPY . /usr/src/app
 
