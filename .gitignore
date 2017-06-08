@@ -30,9 +30,8 @@ agents/src/.libs/
 agents/src/*.lo
 agents/src/*.la
 config.h
-doc/autodocs/.yardoc/
-doc/autodocs/css/
-doc/autodocs/js/
+/doc
+/.yardoc
 /libtool
 /ltmain.sh
 /stamp-*
