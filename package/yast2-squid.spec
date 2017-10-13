@@ -1,7 +1,7 @@
 #
 # spec file for package yast2-squid
 #
-# Copyright (c) 2015 SUSE LINUX GmbH, Nuernberg, Germany.
+# Copyright (c) 2017 SUSE LINUX GmbH, Nuernberg, Germany.
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -17,14 +17,20 @@
 
 
 Name:           yast2-squid
-Version:        3.1.5
+Version:        4.0.0
 Release:        0
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        %{name}-%{version}.tar.bz2
 
 Requires:       yast2 >= 2.21.22
+
+%if 0%{?suse_version} > 1325
+BuildRequires:  libboost_regex-devel
+%else
 BuildRequires:  boost-devel
+%endif
+
 BuildRequires:  gcc-c++
 BuildRequires:  libtool
 BuildRequires:  perl-XML-Writer

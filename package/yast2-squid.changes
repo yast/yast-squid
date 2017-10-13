@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Oct 13 10:35:05 UTC 2017 - lslezak@suse.cz
+
+- Replace the generic "boost-devel" build dependency with more
+  specific "libboost_regex-devel" (bsc#1062805)
+- 4.0.0
+
+-------------------------------------------------------------------
 Tue Jun  7 11:18:02 UTC 2016 - igonzalezsosa@suse.com
 
 - Stop generating autodocs (fate#320356)

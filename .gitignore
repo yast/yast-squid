@@ -1,3 +1,6 @@
+.yardoc
+doc/
+compile
 Makefile
 Makefile.am
 Makefile.am.common
