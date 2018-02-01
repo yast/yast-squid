@@ -29,6 +29,7 @@
 # Representation of the configuration of squid.
 # Input and output routines.
 require "yast"
+require "y2firewall/firewalld"
 
 module Yast
   class SquidClass < Module
@@ -41,16 +42,12 @@ module Yast
       Yast.import "Message"
       Yast.import "Service"
       Yast.import "FileUtils"
-      Yast.import "SuSEFirewall"
 
       # Defines path used in SCR::Read/Write functions
       @squid_path = path(".etc.squid")
 
-      # Defines location of sysconfig file
-      @sysconfig_file = "/etc/sysconfig/SuSEfirewall2.d/services/squid"
-
       # Defines name of service which is used by firewall when it's openning ports.
-      @firewall_service_name = "service:squid"
+      @firewall_service_name = "squid"
 
 
       # Data was modified?
@@ -134,9 +131,6 @@ module Yast
       # Write only, used during autoinstallation.
       # Don't run services and SuSEconfig, it's all done at one place.
       @write_only = false
-
-
-
 
       # Abort function
       # return boolean return true if abort
@@ -699,7 +693,7 @@ module Yast
     # Returns only list of configured ports (no hosts and so on)
     def GetHttpPortsOnly
       ret = []
-      Builtins.foreach(@http_ports) do |value|
+      @http_ports.each do |value|
         if Ops.greater_than(Builtins.size(Ops.get_string(value, "port", "")), 0)
           ret = Builtins.add(ret, Ops.get_string(value, "port", ""))
         end
@@ -1124,7 +1118,7 @@ module Yast
       Progress.NextStage
 
       Progress.set(false)
-      if !SuSEFirewall.Read
+      if !firewalld.read
         # bnc#808722: yast2 squid fail if SuSEfirewall in not installed
         # other or no firewall can be installed
         Builtins.y2warning("Cannot read firewall settings.")
@@ -1342,65 +1336,26 @@ module Yast
     end
 
     def writeFirewallSettings
-      ok = true
-
       if !GetModified()
         Builtins.y2debug(
           "Squid::writeFirewallSettings - no setting to write, because nothing's changed"
         )
-        return ok
+        return true
       end
 
-      if !SCR.RegisterAgent(
-          path(".firewall_service_definition"),
-          term(:ag_ini, term(:SysConfigFile, @sysconfig_file))
-        )
-        ok = false
-        Builtins.y2error(
-          "Unable to register sysconfig agent for %1",
-          @sysconfig_file
-        )
-      end
-      if !SCR.Write(
-          path(".firewall_service_definition.TCP"),
-          Builtins.mergestring(GetHttpPortsOnly(), " ")
-        ) ||
-          !SCR.Write(path(".firewall_service_definition"), nil)
-        ok = false
-        Builtins.y2error(
-          "Unable to write settings into sysconfig file %1",
-          @sysconfig_file
-        )
-      end
-      if !SCR.UnregisterAgent(path(".firewall_service_definition"))
-        ok = false
-        Builtins.y2error(
-          "Unable to unregister sysconfig agent for %1",
-          @sysconfig_file
-        )
-      end
-      # write /etc/sysconfig/SuSEFirewall2.d/services/squid file:
-      # string service_squid_file =
-      #     "## Name: Squid Service\n" +
-      #     "## Description: Opens ports for Squid\n" +
-      #     "TCP=\"" + mergestring(GetHttpPortsOnly(), " ") +"\"\n";
-      # if (!SCR::Write(.target.string, "/etc/sysconfig/SuSEfirewall2.d/services/squid", service_squid_file)){
-      #     y2error("Squid::writeFirewallSettings - failed to write into /etc/sysconfig/SuSEfirewall2.d/services/squid file.");
-      #     ok = false;
-      # }
+      tcp_ports = GetHttpPortsOnly()
 
-      # write firewall settings
-      SuSEFirewall.SetModified
-      Progress.set(false)
-      if !SuSEFirewall.Write
-        Builtins.y2error(
-          "Squid::writeFirewallSettings - SuSEFirewall::Write failed"
+      begin
+        Y2Firewall::Firewalld::Service.modify_ports(
+          name: @firewall_service_name,
+          tcp_ports: GetHttpPortsOnly()
         )
-        ok = false
+      rescue Y2Firewall::Firewalld::Service::NotFound
+        Builtins.y2error("Firewalld '#{@firewall_service_name}' service is not available.")
+        return false
       end
-      Progress.set(true)
 
-      ok
+      firewalld.write
     end
 
     # Returns true if Squid service is running.
@@ -1728,6 +1683,12 @@ module Yast
     publish :function => :Export, :type => "map ()"
     publish :function => :Summary, :type => "list ()"
     publish :function => :AutoPackages, :type => "map ()"
+
+    private
+
+      def firewalld
+        Y2Firewall::Firewalld.instance
+      end
   end
 
   Squid = SquidClass.new

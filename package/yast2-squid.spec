@@ -17,13 +17,14 @@
 
 
 Name:           yast2-squid
-Version:        4.0.0
+Version:        4.0.1
 Release:        0
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        %{name}-%{version}.tar.bz2
 
-Requires:       yast2 >= 2.21.22
+# SuSEFirewall2 replaced by firewalld (fate#323460)
+Requires:       yast2 >= 4.0.39
 
 %if 0%{?suse_version} > 1325
 BuildRequires:  libboost_regex-devel
@@ -35,7 +36,8 @@ BuildRequires:  gcc-c++
 BuildRequires:  libtool
 BuildRequires:  perl-XML-Writer
 BuildRequires:  update-desktop-files
-BuildRequires:  yast2
+# SuSEFirewall2 replaced by firewalld (fate#323460)
+BuildRequires:  yast2 >= 4.0.39
 BuildRequires:  yast2-core-devel
 BuildRequires:  yast2-devtools >= 3.1.10
 BuildRequires:  yast2-testsuite
