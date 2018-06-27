@@ -14,6 +14,7 @@ X-SuSE-YaST-Geometry=
 X-SuSE-YaST-SortKey=
 X-SuSE-YaST-AutoInstResource=squid
 X-SuSE-YaST-AutoInstSchema=squid.rnc
+X-SuSE-YaST-Keywords=proxy,network
 
 Icon=yast-squid
 Exec=xdg-su -c "/sbin/yast2 squid"
