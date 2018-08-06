@@ -330,20 +330,23 @@ module Yast
     end
 
     # Write settings dialog
-    # @return `abort if aborted and `next otherwise
+    #
+    # @return [Symbol] :abort if aborted, :next otherwise
     def WriteDialog
-      Wizard.RestoreHelp(Ops.get_string(@HELPS, "write", ""))
+      help = @HELPS.fetch("write") { "" }
+
+      Wizard.CreateDialog
+      Wizard.RestoreHelp(help)
       Squid.AbortFunction = fun_ref(method(:PollAbort), "boolean ()")
-      ret = Squid.Write
-      ret ? :next : :abort
+      result = Squid.Write
+      Wizard.CloseDialog
+
+      return :next if result
+      :abort
     end
 
     def SaveAndRestart
-      Wizard.CreateDialog
       WriteDialog()
-      UI.CloseDialog
-
-      nil
     end
 
     def MainDialog
