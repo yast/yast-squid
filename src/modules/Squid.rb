@@ -28,8 +28,10 @@
 #
 # Representation of the configuration of squid.
 # Input and output routines.
+
 require "yast"
 require "y2firewall/firewalld"
+require "yast2/system_service"
 
 module Yast
   class SquidClass < Module
@@ -142,8 +144,6 @@ module Yast
       @firewall_service_name
     end
 
-
-
     #****************  HELP FUNCTIONS  **************
     # Same as splitstring(), but returns only non-empty strings.
     def split(str, delim)
@@ -224,7 +224,7 @@ module Yast
           Convert.to_integer(
             SCR.Execute(path(".target.bash"), Ops.add("chmod 750 ", dir))
           ) != 0
-        return false 
+        return false
         #return (Popup::ContinueCancel(sformat(_("Unable to set correct permissions to directory %1."), dir)));
       end
 
@@ -1600,6 +1600,13 @@ module Yast
     # @return [Hash] with 2 lists.
     def AutoPackages
       { "install" => ["squid"], "remove" => [] }
+    end
+
+    # Returns the service
+    #
+    # @return [Yast2::SystemService]
+    def service
+      @service ||= Yast2::SystemService.find("squid")
     end
 
     publish :variable => :squid_path, :type => "path", :private => true

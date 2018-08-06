@@ -25,6 +25,9 @@
 # Authors:	Daniel Fiser <dfiser@suse.cz>
 #
 # $Id: complex.ycp 29363 2006-03-24 08:20:43Z mzugec $
+
+require "cwm/service_widget"
+
 module Yast
   module SquidComplexInclude
     def initialize_squid_complex(include_target)
@@ -35,7 +38,6 @@ module Yast
       Yast.import "Wizard"
       Yast.import "Confirm"
       Yast.import "DialogTree"
-      Yast.import "CWMServiceStart"
       Yast.import "CWMFirewallInterfaces"
       Yast.import "PackageSystem"
       Yast.import "Squid"
@@ -51,52 +53,7 @@ module Yast
       @main_caption = _("Squid")
 
       @widget_descr = {
-        "auto_start"             => CWMServiceStart.CreateAutoStartWidget(
-          {
-            "get_service_auto_start" => fun_ref(
-              Squid.method(:IsServiceEnabled),
-              "boolean ()"
-            ),
-            "set_service_auto_start" => fun_ref(
-              Squid.method(:SetServiceEnabled),
-              "void (boolean)"
-            ),
-            "start_auto_button"      => _("When &Booting"),
-            "start_manual_button"    => _("&Manually"),
-            "help"                   => Builtins.sformat(
-              CWMServiceStart.AutoStartHelpTemplate,
-              _("When Booting"),
-              _("Manually")
-            )
-          }
-        ),
-        "start_stop"             => CWMServiceStart.CreateStartStopWidget(
-          {
-            "service_id"                => "squid",
-            "service_running_label"     => _("Squid is running"),
-            "service_not_running_label" => _("Squid is not running"),
-            "start_now_button"          => _("&Start Squid Now"),
-            "stop_now_button"           => _("S&top Squid Now"),
-            "save_now_action"           => fun_ref(
-              method(:SaveAndRestart),
-              "void ()"
-            ),
-            "save_now_button"           => _(
-              "Sa&ve Settings and Restart Squid Now"
-            ),
-            #"start_now_action"          : uses the default function
-            #"stop_now_action"           : uses the default function
-            "help"                      => Builtins.sformat(
-              CWMServiceStart.StartStopHelpTemplate(true),
-              # TRANSLATORS: part of help text - push button label, NO SHORTCUT!!!
-              _("Start Squid Now"),
-              # TRANSLATORS: part of help text - push button label, NO SHORTCUT!!!
-              _("Stop Squid Now"),
-              # TRANSLATORS: part of help text - push button label, NO SHORTCUT!!!
-              _("Save Settings and Restart Squid Now")
-            )
-          }
-        ),
+        "service_status" => service_widget.cwm_definition,
         "firewall"               => CWMFirewallInterfaces.CreateOpenFirewallWidget(
           {
             "services"               => [Squid.GetFirewallServiceName],
@@ -249,14 +206,12 @@ module Yast
 
       @screens = {
         "s1" => {
-          "widget_names"    => ["auto_start", "start_stop", "firewall"],
+          "widget_names"    => ["service_status", "firewall"],
           "contents"        => VCenter(
             HBox(
               HSpacing(3),
               VBox(
-                "auto_start",
-                VSpacing(),
-                Mode.normal ? "start_stop" : Empty(),
+                "service_status",
                 VSpacing(),
                 Frame(_("Firewall Settings"), "firewall")
               ),
@@ -346,6 +301,13 @@ module Yast
       @initial_screen = "s1"
     end
 
+    # Widget to define status and start mode of the service
+    #
+    # @return [::CWM::ServiceWidget]
+    def service_widget
+      @service_widget ||= ::CWM::ServiceWidget.new(Squid.service)
+    end
+
     def ReallyAbort
       !Squid.GetModified || Popup.ReallyAbort(true)
     end
@@ -375,7 +337,6 @@ module Yast
       ret = Squid.Write
       ret ? :next : :abort
     end
-
 
     def SaveAndRestart
       Wizard.CreateDialog
