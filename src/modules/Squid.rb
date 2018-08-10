@@ -28,8 +28,10 @@
 #
 # Representation of the configuration of squid.
 # Input and output routines.
+
 require "yast"
 require "y2firewall/firewalld"
+require "yast2/system_service"
 
 module Yast
   class SquidClass < Module
@@ -142,8 +144,6 @@ module Yast
       @firewall_service_name
     end
 
-
-
     #****************  HELP FUNCTIONS  **************
     # Same as splitstring(), but returns only non-empty strings.
     def split(str, delim)
@@ -224,7 +224,7 @@ module Yast
           Convert.to_integer(
             SCR.Execute(path(".target.bash"), Ops.add("chmod 750 ", dir))
           ) != 0
-        return false 
+        return false
         #return (Popup::ContinueCancel(sformat(_("Unable to set correct permissions to directory %1."), dir)));
       end
 
@@ -333,18 +333,23 @@ module Yast
     end
 
     # Abort function
-    # @return [Boolean] return true if abort
+    #
+    # @return [Boolean] true if abort
     def Abort
-      return @AbortFunction.call == true if @AbortFunction != nil
-      false
+      return false if @AbortFunction.nil?
+
+      @AbortFunction.call
     end
 
 
     #****** SERVICE ******
+
+    # @deprecated
     def IsServiceEnabled
       @service_enabled_on_startup
     end
 
+    # @deprecated
     def SetServiceEnabled(enabled)
       SetModified()
       @service_enabled_on_startup = enabled
@@ -1358,11 +1363,13 @@ module Yast
       firewalld.write
     end
 
+    # @deprecated
     # Returns true if Squid service is running.
     def IsServiceRunning
       Service.Status("squid") == 0
     end
 
+    # @deprecated
     # Start Squid service if not running otherwise reload.
     # Returns true if squid was successfuly started
     def StartService
@@ -1388,6 +1395,7 @@ module Yast
       ok
     end
 
+    # @deprecated
     # Stop Squid service.
     # Returns true if squid was successfuly stopped
     def StopService
@@ -1402,80 +1410,95 @@ module Yast
       ok
     end
 
+    # @deprecated
     def EnableService
       Service.Enable("squid")
     end
 
+    # @deprecated
     def DisableService
       Service.Disable("squid")
     end
 
-    # Write all squid settings
-    # @return true on success
+    # Write all Squid settings
+    #
+    # @return [Boolean] true when all operations were done successfuly; false otherwise
     def Write
-      ok = true
+      result = true
 
-      # We do not set help text here, because it was set outside
-      Progress.New(
-        _("Saving Squid Configuration"),
-        " ",
-        3,
-        [
-          # Progress stage 1/2
-          _("Write the settings"),
-          # Progress stage 1/2
-          _("Write firewall settings"),
-          # Progress stage 2/2
-          _("Start Service")
-        ],
-        [
-          # Progress step 1/2
-          _("Writing the settings..."),
-          # Progress step 1/2
-          _("Writing firewall settings..."),
-          # Progress step 2/2
-          _("Starting Service..."),
-          # Progress finished
-          _("Finished")
-        ],
-        ""
-      )
+      stages = [
+        _("Write the settings"),
+        _("Write firewall settings"),
+        _("Save Service")
+      ]
+
+      steps = [
+        _("Writing the settings..."),
+        _("Writing firewall settings..."),
+        _("Saving Service..."),
+        _("Finished")
+      ]
+
+      Progress.New(_("Saving Squid Configuration"), " ", stages.count, stages, steps, "")
+
+      return false if Abort()
 
       # write settings
-      return false if Abort()
       Progress.NextStage
-
       if !writeAllSettings
         Report.Error(_("Cannot write settings."))
-        ok = false
+
+        result = false
       end
 
-      #firewall
+      # write firewall settings
+      Progress.NextStage
       if !writeFirewallSettings
         Report.Error(_("Cannot write firewall settings."))
-        ok = false
+
+        result = false
       end
-      Progress.NextStage
 
-      #enabling / disabling service
-      EnableService() if @service_enabled_on_startup == true
-      DisableService() if @service_enabled_on_startup == false
-
-      # start Service
-      return false if Abort()
+      # save service status
       Progress.NextStage
-      ok = false if !StartService() if !@write_only
+      result = false unless save_status
+      result = false unless start_service
 
       return false if Abort()
+
       # Progress finished
       Progress.NextStage
 
       return false if Abort()
-      ok
+      result
     end
     #*******************  WRITE END  ****************
 
+    # Saves service status (start mode and starts/stops the service)
+    #
+    # @note For AutoYaST and for command line actions, it uses the old way
+    # for backward compatibility. When the service is configured by using the
+    # UI, it directly saves the service, see Yast2::SystemService#save.
+    def save_status
+      if Mode.auto || Mode.commandline
+        IsServiceEnabled() ? EnableService() : DisableService()
+      else
+        service.save
+      end
+    end
 
+    # Starts or restars the service
+    #
+    # @note for backward compatibility, only in AutoYaST and command line
+    # actions. When the service is configured using the UI, properly action is
+    # performed at the moment to save it.
+    def start_service
+      if !@write_only && (Mode.auto || Mode.commandline)
+        StartService()
+      else
+        true
+      end
+    end
 
     #******************  AUTOYAST  ******************
 
@@ -1600,6 +1623,13 @@ module Yast
     # @return [Hash] with 2 lists.
     def AutoPackages
       { "install" => ["squid"], "remove" => [] }
+    end
+
+    # Returns the service
+    #
+    # @return [Yast2::SystemService]
+    def service
+      @service ||= Yast2::SystemService.find("squid")
     end
 
     publish :variable => :squid_path, :type => "path", :private => true
