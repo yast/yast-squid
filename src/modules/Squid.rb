@@ -1448,7 +1448,7 @@ module Yast
       if !writeAllSettings
         Report.Error(_("Cannot write settings."))
 
-        result &= false
+        result = false
       end
 
       # write firewall settings
@@ -1456,13 +1456,13 @@ module Yast
       if !writeFirewallSettings
         Report.Error(_("Cannot write firewall settings."))
 
-        result &= false
+        result = false
       end
 
       # save service status
       Progress.NextStage
-      result &= save_status
-      result &= start_service
+      result = false unless save_status
+      result = false unless start_service
 
       return false if Abort()
 

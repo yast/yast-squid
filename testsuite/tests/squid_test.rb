@@ -123,7 +123,7 @@ describe "Yast::Squid" do
         end
 
         it "returns true" do
-          expect(squid.Write).to be_truthy
+          expect(squid.Write).to eq(true)
         end
       end
 
@@ -133,7 +133,7 @@ describe "Yast::Squid" do
         end
 
         it "returns false" do
-          expect(squid.Write).to be_falsey
+          expect(squid.Write).to eq(false)
         end
       end
     end
