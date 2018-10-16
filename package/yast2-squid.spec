@@ -80,5 +80,6 @@ rm -rf %{buildroot}/%{yast_plugindir}/libpy2ag_squid.la
 %{yast_plugindir}/libpy2ag_squid.so*
 %{yast_scrconfdir}/*.scr
 %doc %{yast_docdir}
+%license COPYING
 
 %changelog
