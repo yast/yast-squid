@@ -53,7 +53,6 @@ module Yast
       @main_caption = _("Squid")
 
       @widget_descr = {
-        "service_status" => service_widget.cwm_definition,
         "firewall"               => CWMFirewallInterfaces.CreateOpenFirewallWidget(
           {
             "services"               => [Squid.GetFirewallServiceName],
@@ -206,12 +205,12 @@ module Yast
 
       @screens = {
         "s1" => {
-          "widget_names"    => ["service_status", "firewall"],
+          "widget_names"    => ["service_widget", "firewall"],
           "contents"        => VCenter(
             HBox(
               HSpacing(3),
               VBox(
-                "service_status",
+                "service_widget",
                 VSpacing(),
                 Frame(_("Firewall Settings"), "firewall")
               ),
@@ -301,13 +300,6 @@ module Yast
       @initial_screen = "s1"
     end
 
-    # Widget to define status and start mode of the service
-    #
-    # @return [::CWM::ServiceWidget]
-    def service_widget
-      @service_widget ||= ::CWM::ServiceWidget.new(Squid.service)
-    end
-
     def ReallyAbort
       !Squid.GetModified || Popup.ReallyAbort(true)
     end
@@ -317,16 +309,19 @@ module Yast
     end
 
     # Read settings dialog
-    # @return `abort if aborted and `next otherwise
+    #
+    # @return [Symbol] :abort when settings could not be read; :next otherwise
     def ReadDialog
       Wizard.RestoreHelp(Ops.get_string(@HELPS, "read", ""))
       Squid.AbortFunction = fun_ref(method(:PollAbort), "boolean ()")
-      return :abort if !Confirm.MustBeRoot
-      if !PackageSystem.CheckAndInstallPackagesInteractive(["squid"])
-        return :abort
-      end
-      ret = Squid.Read
-      ret ? :next : :abort
+
+      return :abort unless Confirm.MustBeRoot
+      return :abort unless PackageSystem.CheckAndInstallPackages(["squid"])
+      return :abort unless Squid.Read
+
+      load_service_widget
+
+      :next
     end
 
     # Write settings dialog
@@ -364,6 +359,27 @@ module Yast
           "abort_button"   => Label.CancelButton
         }
       )
+    end
+
+    private
+
+    # Add the service wiget if is not already included
+    #
+    # Kind of lazy initialization, since "squid" must be installed in the system.
+    # Otherwise it crashes
+    #
+    # @see #ReadDialog
+    def load_service_widget
+      return if @widget_descr.key?("service_widget")
+
+      @widget_descr["service_widget"] = service_widget.cwm_definition
+    end
+
+    # Widget to define status and start mode of the service
+    #
+    # @return [::CWM::ServiceWidget]
+    def service_widget
+      @service_widget ||= ::CWM::ServiceWidget.new(Squid.service)
     end
   end
 end
