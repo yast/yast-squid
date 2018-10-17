@@ -16,9 +16,10 @@ describe "Yast::SquidComplexInclude" do
       initialize_squid_complex(self)
     end
 
-    private
+  private
 
     def load_widgets; end
+
     def load_screens; end
   end
 
@@ -33,7 +34,7 @@ describe "Yast::SquidComplexInclude" do
       allow(Yast::Wizard).to receive(:RestoreHelp)
       allow(Yast::Squid).to receive(:AbortFunction)
       allow(Yast::Confirm).to receive(:MustBeRoot).and_return(root_privileges)
-      allow(Yast::PackageSystem).to receive(:CheckAndInstallPackages).with(['squid']).and_return(squid_installed)
+      allow(Yast::PackageSystem).to receive(:CheckAndInstallPackages).with(["squid"]).and_return(squid_installed)
       allow(Yast::Squid).to receive(:Read).and_return(squid_read)
     end
 

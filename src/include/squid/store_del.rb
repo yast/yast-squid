@@ -45,7 +45,7 @@ module Yast
       Yast.include include_target, "squid/helper_functions.rb"
     end
 
-    #****************  HTTP_PORT  *******************
+    # ****************  HTTP_PORT  *******************
     def StoreDataFromAddEditHttpPortDialog(id_item)
       ok = true
       host = Convert.to_string(UI.QueryWidget(Id("host"), :Value))
@@ -76,9 +76,8 @@ module Yast
         ok = false
       end
 
-
       if ok
-        if id_item == nil
+        if id_item.nil?
           Squid.AddHttpPort(host, port, transparent)
         else
           Squid.ModifyHttpPort(id_item, host, port, transparent)
@@ -97,11 +96,9 @@ module Yast
       end
       id_item
     end
-    #****************  HTTP_PORT END  ***************
+    # ****************  HTTP_PORT END  ***************
 
-
-
-    #*************  REFRESH_PATTERNS  ***************
+    # *************  REFRESH_PATTERNS  ***************
     def StoreDataFromAddEditRefreshPatternDialog(id_item)
       ok = true
       regexp = Convert.to_string(UI.QueryWidget(Id("regexp"), :Value))
@@ -113,7 +110,7 @@ module Yast
       )
 
       if Ops.greater_than(Builtins.size(regexp), 0)
-        if id_item == nil
+        if id_item.nil?
           Squid.AddRefreshPattern(regexp, min, percent, max, case_sensitive)
         else
           Squid.ModifyRefreshPattern(
@@ -151,25 +148,24 @@ module Yast
       end
       ret
     end
+
     # returns new position or nil if not moved
     def MoveDownRefreshPattern(id_item)
       ret = nil
 
       if Ops.less_than(
-          id_item,
-          Ops.subtract(Builtins.size(Squid.GetRefreshPatterns), 1)
-        )
+        id_item,
+        Ops.subtract(Builtins.size(Squid.GetRefreshPatterns), 1)
+      )
         Squid.MoveRefreshPattern(id_item, Ops.add(id_item, 1))
         ret = Ops.add(id_item, 1)
       end
       ret
     end
-    #*************  REFRESH_PATTERNS END  ***********
+    # *************  REFRESH_PATTERNS END  ***********
 
-
-
-    #*************  CACHE DIALOG  *******************
-    def ValidateCache2Dialog(widget_id, event)
+    # *************  CACHE DIALOG  *******************
+    def ValidateCache2Dialog(_widget_id, event)
       event = deep_copy(event)
       ok = true
 
@@ -208,7 +204,8 @@ module Yast
 
       ok
     end
-    def StoreDataFromCache2Dialog(widget_id, event)
+
+    def StoreDataFromCache2Dialog(_widget_id, event)
       event = deep_copy(event)
       Squid.SetSetting(
         "cache_mem",
@@ -251,8 +248,7 @@ module Yast
       nil
     end
 
-
-    def ValidateCacheDirectoryDialog(widget_id, event)
+    def ValidateCacheDirectoryDialog(_widget_id, event)
       event = deep_copy(event)
       ok = true
 
@@ -284,9 +280,9 @@ module Yast
           )
 
           if Ops.greater_than(
-              max_obj_size,
-              Ops.add(cache_mem, cache_dir_mbytes)
-            )
+            max_obj_size,
+            Ops.add(cache_mem, cache_dir_mbytes)
+          )
             ok = false
             Report.Error(
               _(
@@ -299,7 +295,8 @@ module Yast
 
       ok
     end
-    def StoreDataFromCacheDirectoryDialog(widget_id, event)
+
+    def StoreDataFromCacheDirectoryDialog(_widget_id, event)
       event = deep_copy(event)
       squid_cache_dir = Squid.GetSetting("cache_dir")
 
@@ -316,11 +313,9 @@ module Yast
 
       nil
     end
-    #*************  CACHE DIALOG END  ***************
+    # *************  CACHE DIALOG END  ***************
 
-
-
-    #*************  HTTP_ACCESS  ********************
+    # *************  HTTP_ACCESS  ********************
     def StoreDataFromAddEditHttpAccessDialog(id_item)
       ok = true
       allow = true
@@ -331,8 +326,8 @@ module Yast
       Builtins.foreach(
         Convert.convert(
           UI.QueryWidget(Id("acls"), :Items),
-          :from => "any",
-          :to   => "list <term>"
+          from: "any",
+          to:   "list <term>"
         )
       ) do |value|
         tmp = Ops.get_string(value, 1, "") == "not" ? "!" : ""
@@ -341,7 +336,7 @@ module Yast
       end
 
       if Ops.greater_than(Builtins.size(acls), 0)
-        if id_item == nil
+        if id_item.nil?
           Squid.AddHttpAccess(allow, acls)
         else
           Squid.ModifyHttpAccess(id_item, allow, acls)
@@ -353,6 +348,7 @@ module Yast
 
       ok
     end
+
     def DelFromHttpAccessTable(id_item)
       Squid.DelHttpAccess(id_item)
       if Ops.greater_or_equal(id_item, Builtins.size(Squid.GetHttpAccesses))
@@ -360,6 +356,7 @@ module Yast
       end
       id_item
     end
+
     def MoveUpHttpAccess(id_item)
       ret = nil
 
@@ -369,23 +366,22 @@ module Yast
       end
       ret
     end
+
     def MoveDownHttpAccess(id_item)
       ret = nil
 
       if Ops.less_than(
-          id_item,
-          Ops.subtract(Builtins.size(Squid.GetHttpAccesses), 1)
-        )
+        id_item,
+        Ops.subtract(Builtins.size(Squid.GetHttpAccesses), 1)
+      )
         Squid.MoveHttpAccess(id_item, Ops.add(id_item, 1))
         ret = Ops.add(id_item, 1)
       end
       ret
     end
-    #*************  HTTP_ACCESS END  ****************
+    # *************  HTTP_ACCESS END  ****************
 
-
-
-    #*************  ACL  ****************************
+    # *************  ACL  ****************************
     def StoreDataFromAddEditACLDialog(id_item)
       ok = true
 
@@ -398,7 +394,7 @@ module Yast
       affected_options = []
       num_acls = nil
       old_name = nil
-      if id_item != nil
+      if !id_item.nil?
         affected_options = Squid.ACLIsUsedBy(id_item)
         num_acls = Squid.NumACLs(id_item)
         old_name = Ops.get_string(Squid.GetACL(id_item), "name", "")
@@ -407,10 +403,10 @@ module Yast
       if verification && Ops.greater_than(Builtins.size(name), 0)
         # test, if exists ACL with same name but different type
         existed_type = Squid.GetACLTypeByName(name)
-        if existed_type != nil && existed_type != type
+        if !existed_type.nil? && existed_type != type
           error = false
 
-          if id_item != nil
+          if !id_item.nil?
             numACLs = Squid.NumACLsByName(name)
             if name != old_name && Ops.greater_than(numACLs, 0) ||
                 name == old_name && Ops.greater_than(numACLs, 1)
@@ -443,10 +439,10 @@ module Yast
           end
         end
 
-        #verification where name is changed and this ACL has 1 occurrence
-        if ok && id_item != nil && old_name != name &&
+        # verification where name is changed and this ACL has 1 occurrence
+        if ok && !id_item.nil? && old_name != name &&
             Squid.NumACLs(id_item) == 1
-          #test if changed ACL is used in http_access option.
+          # test if changed ACL is used in http_access option.
           if Ops.greater_than(Builtins.size(affected_options), 0) &&
               Builtins.contains(affected_options, "http_access")
             Report.Error(
@@ -458,36 +454,36 @@ module Yast
                 )
             )
             ok = false
-          #test if changed ACL is used in other option (not managed by thid module)
+          # test if changed ACL is used in other option (not managed by thid module)
           elsif Ops.greater_than(Builtins.size(affected_options), 0)
             if !Report.AnyQuestion(
-                Label.WarningMsg,
+              Label.WarningMsg,
+              Ops.add(
                 Ops.add(
-                  Ops.add(
-                    _(
-                      "If you change the name of this ACL Group, these options might be affected: \n"
-                    ) + "    ",
-                    Builtins.mergestring(affected_options, ",\n    ")
-                  ),
-                  ".\n"
+                  _(
+                    "If you change the name of this ACL Group, these options might be affected: \n"
+                  ) + "    ",
+                  Builtins.mergestring(affected_options, ",\n    ")
                 ),
-                _("Change name anyway"),
-                _("Do not change name"),
-                :focus_no
-              )
+                ".\n"
+              ),
+              _("Change name anyway"),
+              _("Do not change name"),
+              :focus_no
+            )
               ok = false
             end
           end
         end
       elsif verification
-        #test, if name is filled
+        # test, if name is filled
         ok = false
         Report.Error(_("Name must not be empty."))
       else
         ok = false
       end
 
-      if ok && id_item == nil
+      if ok && id_item.nil?
         Squid.AddACL(name, type, options)
       elsif ok
         Squid.ModifyACL(id_item, name, type, options)
@@ -509,7 +505,7 @@ module Yast
           ok = false
 
           if Builtins.contains(affected_options, "http_access")
-            #Report::Error( _("This ACL Group can't be deleted.\nIt's used in Access Control table."));
+            # Report::Error( _("This ACL Group can't be deleted.\nIt's used in Access Control table."));
             Report.Error(
               _(
                 "You must not delete this ACL Group, because \nit is used in the Access Control table.\n"
@@ -528,14 +524,14 @@ module Yast
               ),
               ".\n"
             ) # +
-            #_("Are you sure you want to delete this ACL Group?");
+            # _("Are you sure you want to delete this ACL Group?");
             if Report.AnyQuestion(
-                Label.WarningMsg,
-                message,
-                _("Delete anyway"), #Label::YesButton(),
-                _("Do not delete"), #Label::NoButton(),
-                :focus_no
-              )
+              Label.WarningMsg,
+              message,
+              _("Delete anyway"), # Label::YesButton(),
+              _("Do not delete"), # Label::NoButton(),
+              :focus_no
+            )
               ok = true
             end
           end
@@ -551,13 +547,10 @@ module Yast
 
       id_item
     end
-    #*************  ACL END  ************************
+    # *************  ACL END  ************************
 
-
-
-
-    #*******  LOGGING AND TIMEOUTS DIALOG  **********
-    def ValidateLoggingFrame(widget_id, event)
+    # *******  LOGGING AND TIMEOUTS DIALOG  **********
+    def ValidateLoggingFrame(_widget_id, event)
       event = deep_copy(event)
       if Ops.get(event, "ID") != :abort
         ok = true
@@ -632,7 +625,8 @@ module Yast
       end
       true
     end
-    def StoreDataFromLoggingFrame(widget_id, event)
+
+    def StoreDataFromLoggingFrame(_widget_id, event)
       event = deep_copy(event)
       access_log = Convert.to_string(UI.QueryWidget(Id("access_log"), :Value))
       cache_log = Convert.to_string(UI.QueryWidget(Id("cache_log"), :Value))
@@ -651,7 +645,7 @@ module Yast
       nil
     end
 
-    def StoreDataFromTimeoutsFrame(widget_id, event)
+    def StoreDataFromTimeoutsFrame(_widget_id, event)
       event = deep_copy(event)
       Squid.SetSetting(
         "connect_timeout",
@@ -670,9 +664,9 @@ module Yast
 
       nil
     end
-    #*******  LOGGING AND TIMEOUTS DIALOG END  ******
+    # *******  LOGGING AND TIMEOUTS DIALOG END  ******
 
-    def ValidateMiscellaneousFrame(widget_id, event)
+    def ValidateMiscellaneousFrame(_widget_id, event)
       event = deep_copy(event)
       if Ops.get(event, "ID") != :abort
         ok = true
@@ -689,7 +683,8 @@ module Yast
       end
       true
     end
-    def StoreDataFromMiscellaneousFrame(widget_id, event)
+
+    def StoreDataFromMiscellaneousFrame(_widget_id, event)
       event = deep_copy(event)
       error_language = Convert.to_string(
         UI.QueryWidget(Id("error_language"), :Value)

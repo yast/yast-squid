@@ -102,18 +102,16 @@ module Yast
 
     def MainDialog
       DialogTree.ShowAndRun(
-        {
-          "ids_order"      => @ids_order,
-          "initial_screen" => @initial_screen,
-          "widget_descr"   => @widget_descr,
-          "screens"        => @screens,
-          "functions"      => {
-            :abort => fun_ref(method(:ReallyAbort), "boolean ()")
-          },
-          "back_button"    => "",
-          "next_button"    => Label.OKButton,
-          "abort_button"   => Label.CancelButton
-        }
+        "ids_order"      => @ids_order,
+        "initial_screen" => @initial_screen,
+        "widget_descr"   => @widget_descr,
+        "screens"        => @screens,
+        "functions"      => {
+          abort: fun_ref(method(:ReallyAbort), "boolean ()")
+        },
+        "back_button"    => "",
+        "next_button"    => Label.OKButton,
+        "abort_button"   => Label.CancelButton
       )
     end
 
@@ -141,11 +139,9 @@ module Yast
     def load_widgets
       @widget_descr = {
         "firewall"               => CWMFirewallInterfaces.CreateOpenFirewallWidget(
-          {
-            "services"               => [Squid.GetFirewallServiceName],
-            "display_details"        => true,
-            "open_firewall_checkbox" => _("Open Ports in Firewall")
-          }
+          "services"               => [Squid.GetFirewallServiceName],
+          "display_details"        => true,
+          "open_firewall_checkbox" => _("Open Ports in Firewall")
         ),
         "http_ports_table"       => {
           "widget"        => :custom,

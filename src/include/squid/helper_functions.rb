@@ -27,7 +27,7 @@
 # $Id: dialogs.ycp 27914 2006-02-13 14:32:08Z locilka $
 module Yast
   module SquidHelperFunctionsInclude
-    def initialize_squid_helper_functions(include_target)
+    def initialize_squid_helper_functions(_include_target)
       textdomain "squid"
 
       Yast.import "FileUtils"
@@ -46,7 +46,6 @@ module Yast
       nil
     end
 
-
     # Returns a widget with setting of units
     def timeUnitWidget(id)
       ComboBox(
@@ -60,7 +59,6 @@ module Yast
         ]
       )
     end
-
 
     def isCorrectPathnameOfLogFile(str)
       ok = Builtins.regexpmatch(str, "^/([^/]+/)*[^/]+$")
@@ -95,8 +93,8 @@ module Yast
     end
 
     def isHostName(str)
-      #max 22 chars length
-      #see http://www.no-ip.com/support/faq/EN/dynamic_ddns/what_is_a_valid_hostname.html
+      # max 22 chars length
+      # see http://www.no-ip.com/support/faq/EN/dynamic_ddns/what_is_a_valid_hostname.html
       Builtins.regexpmatch(str, "^[a-zA-Z0-9][a-zA-Z0-9-]{0,21}$")
     end
 

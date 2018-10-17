@@ -34,31 +34,30 @@ module Yast
       Yast.import "SquidErrorMessages"
       Yast.import "FileUtils"
 
-
       DUMP("GetLanguages()")
-      TEST(lambda { SquidErrorMessages.GetLanguages }, [@READ, @WRITE, @EXECUTE], nil)
+      TEST(-> { SquidErrorMessages.GetLanguages }, [@READ, @WRITE, @EXECUTE], nil)
 
       DUMP("")
       DUMP("GetLanguagesToComboBox()")
-      TEST(lambda { SquidErrorMessages.GetLanguagesToComboBox }, [
-        @READ,
-        @WRITE,
-        @EXECUTE
-      ], nil)
+      TEST(-> { SquidErrorMessages.GetLanguagesToComboBox }, [
+             @READ,
+             @WRITE,
+             @EXECUTE
+           ], nil)
 
       DUMP("")
       DUMP("GetPath(\"en\")")
-      TEST(lambda { SquidErrorMessages.GetPath("en") }, [
-        @READ,
-        @WRITE,
-        @EXECUTE
-      ], nil)
+      TEST(-> { SquidErrorMessages.GetPath("en") }, [
+             @READ,
+             @WRITE,
+             @EXECUTE
+           ], nil)
       DUMP("GetPath(\"uk\")")
-      TEST(lambda { SquidErrorMessages.GetPath("uk") }, [
-        @READ,
-        @WRITE,
-        @EXECUTE
-      ], nil)
+      TEST(-> { SquidErrorMessages.GetPath("uk") }, [
+             @READ,
+             @WRITE,
+             @EXECUTE
+           ], nil)
 
       DUMP("")
       DUMP(

@@ -60,7 +60,7 @@ module Yast
             Id("refresh_patterns"),
             Opt(:keepSorting, :notify),
             Header(
-              _("Regular Expression"), #, _("Options")
+              _("Regular Expression"), # , _("Options")
               # table header, stands for minimum
               _("Min"),
               # table header
@@ -191,7 +191,7 @@ module Yast
           )
         ),
         HSpacing(3)
-      ) 
+      )
       #     `HBox(
       #         `HSpacing(3),
       #         `Frame(_("Cache Setting"),
@@ -265,8 +265,6 @@ module Yast
         HSpacing(3)
       )
     end
-
-
 
     def ACLGroupsTableWidget
       VBox(
@@ -361,7 +359,6 @@ module Yast
         )
       )
     end
-
 
     def MiscellaneousFrameWidget
       HVCenter(

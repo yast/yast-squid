@@ -39,12 +39,12 @@ module Yast
       Yast.include include_target, "squid/helper_functions.rb"
     end
 
-    #****************  HTTP PORT  *******************
+    # ****************  HTTP PORT  *******************
     # returns true if something added/edited otherwise false
     def AddEditHttpPortDialog(id_item)
       ui = nil
       ret = false
-      label = id_item == nil ?
+      label = id_item.nil? ?
         _("Add New HTTP Port") :
         _("Edit Current HTTP Port")
       contents = VBox(
@@ -67,7 +67,7 @@ module Yast
 
       InitAddEditHttpPortDialog(id_item)
 
-      while true
+      loop do
         ui = UI.UserInput
 
         if ui == :abort || ui == :cancel
@@ -84,14 +84,13 @@ module Yast
       UI.CloseDialog
       ret
     end
-    #****************  HTTP PORT END  ***************
+    # ****************  HTTP PORT END  ***************
 
-
-    #****************  CACHE  ***********************
+    # ****************  CACHE  ***********************
     def AddEditRefreshPatternDialog(id_item)
       ret = false
       ui = nil
-      label = id_item == nil ?
+      label = id_item.nil? ?
         _("Add New Refresh Pattern") :
         _("Edit Current refresh Pattern")
       tmp = nil
@@ -122,7 +121,7 @@ module Yast
 
       InitAddEditRefreshPatternDialog(id_item)
 
-      while true
+      loop do
         ui = UI.UserInput
 
         if ui == :cancel || ui == :abort
@@ -135,17 +134,17 @@ module Yast
           end
         elsif ui == "min"
           if Ops.greater_than(
-              Convert.to_integer(tmp),
-              Convert.to_integer(UI.QueryWidget(Id("max"), :Value))
-            )
+            Convert.to_integer(tmp),
+            Convert.to_integer(UI.QueryWidget(Id("max"), :Value))
+          )
             UI.ChangeWidget(Id("max"), :Value, tmp)
           end
         elsif ui == "max"
           tmp = UI.QueryWidget(Id("max"), :Value)
           if Ops.greater_than(
-              Convert.to_integer(UI.QueryWidget(Id("min"), :Value)),
-              Convert.to_integer(tmp)
-            )
+            Convert.to_integer(UI.QueryWidget(Id("min"), :Value)),
+            Convert.to_integer(tmp)
+          )
             UI.ChangeWidget(Id("min"), :Value, tmp)
           end
         end
@@ -154,10 +153,9 @@ module Yast
       UI.CloseDialog
       ret
     end
-    #****************  CACHE END  *******************
+    # ****************  CACHE END  *******************
 
-
-    #****************  ACCESS CONTROL  **************
+    # ****************  ACCESS CONTROL  **************
     def addItemToAddEditHttpAccessDialog(_not, item)
       items = []
 
@@ -165,8 +163,8 @@ module Yast
       Builtins.foreach(
         Convert.convert(
           UI.QueryWidget(Id("acls"), :Items),
-          :from => "any",
-          :to   => "list <term>"
+          from: "any",
+          to:   "list <term>"
         )
       ) do |value|
         items = Builtins.add(
@@ -184,6 +182,7 @@ module Yast
 
       nil
     end
+
     def delItemFromAddEditHttpAccessDialog(id_item)
       items = []
 
@@ -191,8 +190,8 @@ module Yast
       Builtins.foreach(
         Convert.convert(
           UI.QueryWidget(Id("acls"), :Items),
-          :from => "any",
-          :to   => "list <term>"
+          from: "any",
+          to:   "list <term>"
         )
       ) do |value|
         if Ops.get(value, 0) != Id(id_item)
@@ -214,7 +213,6 @@ module Yast
       id_item
     end
 
-
     def AddEditHttpAccessDialog(id_item)
       ret = false
       ui = nil
@@ -223,7 +221,7 @@ module Yast
       tmp = nil
       tmp_term = nil
       id_acl = 0
-      label = id_item == nil ? _("Add New HTTP Access") : _("Edit HTTP Access")
+      label = id_item.nil? ? _("Add New HTTP Access") : _("Edit HTTP Access")
       contents = VBox(
         Label(label),
         VSpacing(0.5),
@@ -232,7 +230,7 @@ module Yast
           _("Allow/Deny"),
           [Item(Id("allow"), _("Allow")), Item(Id("deny"), _("Deny"))]
         ),
-        #`VSpacing(),
+        # `VSpacing(),
         MinSize(
           25,
           7,
@@ -269,7 +267,7 @@ module Yast
 
       InitAddEditHttpAccessDialog(id_item)
 
-      while true
+      loop do
         ui = UI.UserInput
 
         if ui == :cancel || ui == :abort
@@ -307,19 +305,17 @@ module Yast
         end
       end
 
-
       UI.CloseDialog
 
       ret
     end
-
 
     def AddEditACLDialog(id_item)
       ret = false
       ui = nil
       orig_type = ""
       type = ""
-      label = id_item == nil ? _("Add New ACL Group") : _("Edit ACL Group")
+      label = id_item.nil? ? _("Add New ACL Group") : _("Edit ACL Group")
       contents = HBox(
         HWeight(30, RichText(Id("help_text"), "")),
         HWeight(
@@ -354,7 +350,7 @@ module Yast
       SquidACL.Replace(:replace_point, orig_type)
       SquidACL.InitWidget(orig_type, id_item, "help_text")
 
-      while true
+      loop do
         ui = UI.UserInput
 
         if ui == :cancel || ui == :abort
@@ -375,7 +371,6 @@ module Yast
           end
         end
       end
-
 
       UI.CloseDialog
 

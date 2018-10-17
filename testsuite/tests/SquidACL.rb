@@ -43,14 +43,14 @@ module Yast
       @EXECUTE = {}
 
       Yast.include self, "testsuite.rb"
-      #TESTSUITE_INIT([READ,WRITE,EXECUTE], nil);
+      # TESTSUITE_INIT([READ,WRITE,EXECUTE], nil);
 
       Yast.import "SquidACL"
 
       DUMP("SupportedACLs()")
-      TEST(lambda { SquidACL.SupportedACLs }, [], nil)
+      TEST(-> { SquidACL.SupportedACLs }, [], nil)
       DUMP("GetTypesToComboBox()")
-      TEST(lambda { SquidACL.GetTypesToComboBox }, [], nil)
+      TEST(-> { SquidACL.GetTypesToComboBox }, [], nil)
 
       nil
     end

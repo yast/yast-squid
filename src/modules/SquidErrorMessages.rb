@@ -36,7 +36,6 @@ module Yast
 
       Yast.import "FileUtils"
 
-
       # format:
       #      $[ "language" : "path_to_directory",
       #         ....
@@ -93,20 +92,20 @@ module Yast
         "uz"      => _("Uzbek"),
         "vi"      => _("Vietnamese"),
         "zh-cn"   => _("Simplified Chinese"),
-        "zh-tw"   => _("Traditional Chinese"),
+        "zh-tw"   => _("Traditional Chinese")
       }
     end
 
     def read
-      #if err uninitialized else do nothing
+      # if err uninitialized else do nothing
       if Builtins.size(@err) == 0
         @err = {}
         dir = ""
         Builtins.foreach(
           Convert.convert(
             SCR.Read(path(".target.dir"), @err_msg_dir),
-            :from => "any",
-            :to   => "list <string>"
+            from: "any",
+            to:   "list <string>"
           )
         ) do |value|
           if FileUtils.IsDirectory(Ops.add(Ops.add(@err_msg_dir, "/"), value))
@@ -128,7 +127,7 @@ module Yast
       read
 
       ret = []
-      Builtins.foreach(@err) { |key, value| ret = Builtins.add(ret, key) }
+      Builtins.foreach(@err) { |key, _value| ret = Builtins.add(ret, key) }
       deep_copy(ret)
     end
 
@@ -136,11 +135,10 @@ module Yast
     def GetLanguagesToComboBox
       read
 
-      return GetLanguages().map do |language|
-          Item(Id(language), @trans_map[language] || language)
+      GetLanguages().map do |language|
+        Item(Id(language), @trans_map[language] || language)
       end
     end
-
 
     # Returns path to directory containing error messages in given language.
     def GetPath(language)
@@ -165,14 +163,14 @@ module Yast
       ret
     end
 
-    publish :variable => :err, :type => "map <string, string>", :private => true
-    publish :variable => :err_msg_dir, :type => "string", :private => true
-    publish :function => :read, :type => "void ()", :private => true
-    publish :function => :GetLanguages, :type => "list <string> ()"
-    publish :variable => :trans_map, :type => "map <string, string>", :private => true
-    publish :function => :GetLanguagesToComboBox, :type => "list <term> ()"
-    publish :function => :GetPath, :type => "string (string)"
-    publish :function => :GetLanguageFromPath, :type => "string (string)"
+    publish variable: :err, type: "map <string, string>", private: true
+    publish variable: :err_msg_dir, type: "string", private: true
+    publish function: :read, type: "void ()", private: true
+    publish function: :GetLanguages, type: "list <string> ()"
+    publish variable: :trans_map, type: "map <string, string>", private: true
+    publish function: :GetLanguagesToComboBox, type: "list <term> ()"
+    publish function: :GetPath, type: "string (string)"
+    publish function: :GetLanguageFromPath, type: "string (string)"
   end
 
   SquidErrorMessages = SquidErrorMessagesClass.new
