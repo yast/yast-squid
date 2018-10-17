@@ -4,7 +4,7 @@ module Yast
   class SquidACLClient < Client
     def main
       # testedfiles: SquidACL.ycp
-      @READ = {
+      @read = {
         "squid" => {
           "acl"         => [
             "QUERY urlpath_regex cgi-bin \\?",
@@ -39,18 +39,18 @@ module Yast
         }
       }
 
-      @WRITE = {}
-      @EXECUTE = {}
+      @write = {}
+      @execute = {}
 
       Yast.include self, "testsuite.rb"
-      #TESTSUITE_INIT([READ,WRITE,EXECUTE], nil);
+      # TESTSUITE_INIT([READ,WRITE,EXECUTE], nil);
 
       Yast.import "SquidACL"
 
       DUMP("SupportedACLs()")
-      TEST(lambda { SquidACL.SupportedACLs }, [], nil)
+      TEST(-> { SquidACL.SupportedACLs }, [], nil)
       DUMP("GetTypesToComboBox()")
-      TEST(lambda { SquidACL.GetTypesToComboBox }, [], nil)
+      TEST(-> { SquidACL.GetTypesToComboBox }, [], nil)
 
       nil
     end

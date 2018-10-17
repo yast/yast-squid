@@ -1,0 +1,117 @@
+# use the shared YaST defaults
+inherit_from:
+  /usr/share/YaST2/data/devtools/data/rubocop_yast_style.yml
+
+# Offense count: 32
+Metrics/AbcSize:
+  Max: 405
+
+# Offense count: 3
+Metrics/BlockNesting:
+  Max: 4
+
+# Offense count: 3
+# Configuration parameters: CountComments.
+Metrics/ClassLength:
+  Max: 1283
+
+# Offense count: 20
+Metrics/CyclomaticComplexity:
+  Max: 24
+
+# Offense count: 43
+# Configuration parameters: AllowHeredoc, AllowURI, URISchemes.
+# URISchemes: http, https
+Metrics/LineLength:
+  Max: 169
+
+# Offense count: 40
+# Configuration parameters: CountComments.
+Metrics/MethodLength:
+  Max: 314
+
+# Offense count: 8
+# Configuration parameters: CountComments.
+Metrics/ModuleLength:
+  Max: 577
+
+# Offense count: 1
+# Configuration parameters: CountKeywordArgs.
+Metrics/ParameterLists:
+  Max: 6
+
+# Offense count: 19
+Metrics/PerceivedComplexity:
+  Max: 28
+
+# Offense count: 23
+Style/Documentation:
+  Exclude:
+    - 'src/include/squid/popup_dialogs.rb'
+    - 'src/include/squid/handlers.rb'
+    - 'src/include/squid/store_del.rb'
+    - 'src/include/squid/inits.rb'
+    - 'src/include/squid/wizards.rb'
+    - 'src/include/squid/helps.rb'
+    - 'src/include/squid/helper_functions.rb'
+    - 'src/include/squid/SquidACL_local_functions.rb'
+    - 'src/include/squid/complex.rb'
+    - 'src/include/squid/dialogs.rb'
+    - 'src/modules/SquidACL.rb'
+    - 'src/modules/SquidACL.rb'
+    - 'src/modules/Squid.rb'
+    - 'src/modules/Squid.rb'
+    - 'src/modules/SquidErrorMessages.rb'
+    - 'src/modules/SquidErrorMessages.rb'
+    - 'src/clients/squid.rb'
+    - 'src/clients/squid_auto.rb'
+    - 'testsuite/tests/SquidACL.rb'
+    - 'testsuite/tests/Squid.rb'
+    - 'testsuite/tests/SquidErrorMessages.rb'
+    - 'testsuite/tests/Squid-Read.rb'
+    - 'testsuite/tests/complex_include_test.rb'
+
+# Offense count: 8
+# Configuration parameters: ExpectMatchingDefinition, Regex, IgnoreExecutableScripts.
+Style/FileName:
+  Exclude:
+    - 'src/include/squid/SquidACL_local_functions.rb'
+    - 'src/modules/Squid.rb'
+    - 'src/modules/SquidACL.rb'
+    - 'src/modules/SquidErrorMessages.rb'
+    - 'testsuite/tests/Squid-Read.rb'
+    - 'testsuite/tests/Squid.rb'
+    - 'testsuite/tests/SquidACL.rb'
+    - 'testsuite/tests/SquidErrorMessages.rb'
+
+# Offense count: 197
+# Configuration parameters: EnforcedStyle, SupportedStyles.
+# SupportedStyles: snake_case, camelCase
+Style/MethodName:
+  Exclude:
+    - 'src/clients/squid.rb'
+    - 'src/include/squid/SquidACL_local_functions.rb'
+    - 'src/include/squid/complex.rb'
+    - 'src/include/squid/dialogs.rb'
+    - 'src/include/squid/handlers.rb'
+    - 'src/include/squid/helper_functions.rb'
+    - 'src/include/squid/inits.rb'
+    - 'src/include/squid/popup_dialogs.rb'
+    - 'src/include/squid/store_del.rb'
+    - 'src/include/squid/wizards.rb'
+    - 'src/modules/Squid.rb'
+    - 'src/modules/SquidACL.rb'
+    - 'src/modules/SquidErrorMessages.rb'
+
+# Offense count: 19
+# Configuration parameters: EnforcedStyle, SupportedStyles.
+# SupportedStyles: snake_case, camelCase
+Style/VariableName:
+  Exclude:
+    - 'src/include/squid/helps.rb'
+    - 'src/include/squid/store_del.rb'
+    - 'src/modules/Squid.rb'
+    - 'testsuite/tests/Squid-Read.rb'
+    - 'testsuite/tests/Squid.rb'
+    - 'testsuite/tests/SquidACL.rb'
+    - 'testsuite/tests/SquidErrorMessages.rb'

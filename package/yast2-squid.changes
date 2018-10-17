@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Oct 17 08:18:00 UTC 2018 - dgonzalez@suse.com
+
+- Avoid crash when "squid" is not installed yet (bsc#1110076)
+- 4.1.1
+
+-------------------------------------------------------------------
 Tue Oct 16 15:52:18 CEST 2018 - schubi@suse.de
 
 - Added license file to spec.

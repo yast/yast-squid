@@ -42,10 +42,10 @@ module Yast
     # Main workflow of the squid configuration
     # @return sequence result
     def MainSequence
-      aliases = { "main" => lambda { MainDialog() } }
+      aliases = { "main" => -> { MainDialog() } }
       sequence = {
         "ws_start" => "main",
-        "main"     => { :abort => :abort, :next => :next }
+        "main"     => { abort: :abort, next: :next }
       }
       ret = Sequencer.Run(aliases, sequence)
 
@@ -56,16 +56,16 @@ module Yast
     # @return sequence result
     def SquidSequence
       aliases = {
-        "read"  => [lambda { ReadDialog() }, true],
-        "main"  => lambda { MainSequence() },
-        "write" => [lambda { WriteDialog() }, true]
+        "read"  => [-> { ReadDialog() }, true],
+        "main"  => -> { MainSequence() },
+        "write" => [-> { WriteDialog() }, true]
       }
 
       sequence = {
         "ws_start" => "read",
-        "read"     => { :abort => :abort, :next => "main" },
-        "main"     => { :abort => :abort, :next => "write" },
-        "write"    => { :abort => :abort, :next => :next }
+        "read"     => { abort: :abort, next: "main" },
+        "main"     => { abort: :abort, next: "write" },
+        "write"    => { abort: :abort, next: :next }
       }
 
       Wizard.CreateDialog

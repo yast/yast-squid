@@ -51,13 +51,11 @@ module Yast
       # Defines name of service which is used by firewall when it's openning ports.
       @firewall_service_name = "squid"
 
-
       # Data was modified?
       @modified = false
 
       # Is service enabled?
       @service_enabled_on_startup = false
-
 
       # Map of all configuration settings except consequential. Format:
       # $[ "parameter name" : [ list of options (rest of line) ]
@@ -98,7 +96,6 @@ module Yast
       # ]
       @refresh_patterns = []
 
-
       # Map of all available parameters with defalut values.
       # $[ "parameter_name" : [ list of default options ],
       #    ...
@@ -128,15 +125,13 @@ module Yast
         "ftp_passive"               => ["on"]
       }
 
-
-
       # Write only, used during autoinstallation.
       # Don't run services and SuSEconfig, it's all done at one place.
       @write_only = false
 
       # Abort function
       # return boolean return true if abort
-      #global boolean() AbortFunction = GetModified;
+      # global boolean() AbortFunction = GetModified;
       @AbortFunction = nil
     end
 
@@ -144,17 +139,18 @@ module Yast
       @firewall_service_name
     end
 
-    #****************  HELP FUNCTIONS  **************
+    # ****************  HELP FUNCTIONS  **************
     # Same as splitstring(), but returns only non-empty strings.
     def split(str, delim)
       Builtins.filter(Builtins.splitstring(str, delim)) do |value|
         Ops.greater_than(Builtins.size(value), 0)
       end
     end
+
     # Verify and repair list of ACLs if something's wrong.
     def verifyACLs
-      #verification of ACLs
-      #There must not exist more ACLs with same name and different type
+      # verification of ACLs
+      # There must not exist more ACLs with same name and different type
       i = 0
       tested = []
       to_remove = []
@@ -168,12 +164,12 @@ module Yast
               if Ops.get_string(val, "name", "") ==
                   Ops.get_string(value, "name", "") &&
                   Ops.get_string(val, "type", "") !=
-                    Ops.get_string(value, "type", "")
+                      Ops.get_string(value, "type", "")
                 to_remove = Builtins.add(to_remove, ii)
               end
               ii = Ops.add(ii, 1)
             end
-            #delete all ACLs which has not type same as value["type"]:"" -
+            # delete all ACLs which has not type same as value["type"]:"" -
             # - it means type of first occurence of tested ACL
             Builtins.foreach(to_remove) do |val|
               @acls = Builtins.remove(@acls, val)
@@ -186,7 +182,6 @@ module Yast
 
       nil
     end
-
 
     def repairTimeoutPeriodUnits(old)
       ret = "seconds"
@@ -205,7 +200,6 @@ module Yast
       ret
     end
 
-
     # Function which sets permissions 'chmod 750' and 'chown squid:root'
     # to directory dir if exists.
     # If dir does not exist, function returns true;
@@ -219,22 +213,18 @@ module Yast
       end
 
       if Convert.to_integer(
-          SCR.Execute(path(".target.bash"), Ops.add("chown squid:root ", dir))
-        ) != 0 ||
+        SCR.Execute(path(".target.bash"), Ops.add("chown squid:root ", dir))
+      ) != 0 ||
           Convert.to_integer(
             SCR.Execute(path(".target.bash"), Ops.add("chmod 750 ", dir))
           ) != 0
         return false
-        #return (Popup::ContinueCancel(sformat(_("Unable to set correct permissions to directory %1."), dir)));
+        # return (Popup::ContinueCancel(sformat(_("Unable to set correct permissions to directory %1."), dir)));
       end
 
       true
     end
-    #****************  HELP FUNCTIONS END  **********
-
-
-
-
+    # ****************  HELP FUNCTIONS END  **********
 
     def SetDefaultValues
       @http_ports = [{ "host" => "", "port" => "3128", "transparent" => false }]
@@ -319,8 +309,6 @@ module Yast
       nil
     end
 
-
-
     def GetModified
       @modified
     end
@@ -341,8 +329,7 @@ module Yast
       @AbortFunction.call
     end
 
-
-    #****** SERVICE ******
+    # ****** SERVICE ******
 
     # @deprecated
     def IsServiceEnabled
@@ -356,9 +343,9 @@ module Yast
 
       nil
     end
-    #****** SERVICE END  *
+    # ****** SERVICE END  *
 
-    #****** ACL ******
+    # ****** ACL ******
     def GetACLs
       deep_copy(@acls)
     end
@@ -387,7 +374,7 @@ module Yast
       SetModified()
       @acls = Builtins.add(
         @acls,
-        { "name" => name, "type" => type, "options" => options }
+        "name" => name, "type" => type, "options" => options
       )
 
       nil
@@ -417,11 +404,10 @@ module Yast
       nil
     end
 
-
     # Returns number of occurences of ACL (definition lines) in config file.
     def NumACLs(id_item)
-      acl = Ops.get_string(Ops.get(@acls, id_item, {}), "name", "") #get name of acl
-      return nil if Builtins.size(acl) == 0 #invalid id_item
+      acl = Ops.get_string(Ops.get(@acls, id_item, {}), "name", "") # get name of acl
+      return nil if Builtins.size(acl) == 0 # invalid id_item
       ret = 0
 
       Builtins.foreach(@acls) do |value|
@@ -451,9 +437,8 @@ module Yast
     # any options are not affected.
     def ACLIsUsedBy(id_item)
       acl = Ops.get_string(GetACL(id_item), "name", "")
-      return nil if Builtins.size(acl) == 0 #invalid id_item
+      return nil if Builtins.size(acl) == 0 # invalid id_item
 
-      params = []
       ret = []
 
       # options with format:
@@ -463,7 +448,7 @@ module Yast
         "cache",
         "broken_vary_encoding",
         "follow_x_forwarded_for",
-        #"http_access", -> cached in this module !!!
+        # "http_access", -> cached in this module !!!
         "http_reply_access",
         "icp_access",
         "htcp_access",
@@ -492,25 +477,23 @@ module Yast
       Builtins.foreach(
         Convert.convert(
           Builtins.merge(format1, format2),
-          :from => "list",
-          :to   => "list <string>"
+          from: "list",
+          to:   "list <string>"
         )
       ) do |value|
         if Builtins.contains(available_options, value)
           Builtins.foreach(
             Convert.convert(
               SCR.Read(Builtins.add(@squid_path, value)),
-              :from => "any",
-              :to   => "list <list <string>>"
+              from: "any",
+              to:   "list <list <string>>"
             )
           ) do |params2|
             params2 = Builtins.remove(params2, 0) # remove first param
             if Builtins.contains(format2, value)
-              if Ops.greater_than(Builtins.size(params2), 1)
-                params2 = Builtins.remove(params2, 0)
-              else
-                raise Break
-              end
+              raise Break unless Ops.greater_than(Builtins.size(params2), 1)
+
+              params2 = Builtins.remove(params2, 0)
             end
             if Builtins.contains(params2, acl) ||
                 Builtins.contains(params2, Ops.add("!", acl))
@@ -521,7 +504,7 @@ module Yast
         end
       end
 
-      #http_access:
+      # http_access:
       Builtins.foreach(@http_accesses) do |value|
         if Builtins.contains(Ops.get_list(value, "acl", []), acl) ||
             Builtins.contains(Ops.get_list(value, "acl", []), Ops.add("!", acl))
@@ -534,9 +517,9 @@ module Yast
 
       deep_copy(ret)
     end
-    #****** ACL END ******
+    # ****** ACL END ******
 
-    #****** HTTP_ACCESS *****
+    # ****** HTTP_ACCESS *****
     def GetHttpAccesses
       deep_copy(@http_accesses)
     end
@@ -550,7 +533,7 @@ module Yast
       SetModified()
       @http_accesses = Builtins.add(
         @http_accesses,
-        { "allow" => allow, "acl" => acl }
+        "allow" => allow, "acl" => acl
       )
 
       nil
@@ -595,9 +578,9 @@ module Yast
 
       nil
     end
-    #****** HTTP_ACCESS END *****
+    # ****** HTTP_ACCESS END *****
 
-    #****** SETTINGS ****
+    # ****** SETTINGS ****
     def GetSettings
       deep_copy(@settings)
     end
@@ -618,9 +601,9 @@ module Yast
       nil
     end
 
-    #****** SETTINGS END ****
+    # ****** SETTINGS END ****
 
-    #*** REFRESH PATTERN ***
+    # *** REFRESH PATTERN ***
     def GetRefreshPatterns
       deep_copy(@refresh_patterns)
     end
@@ -633,13 +616,11 @@ module Yast
       SetModified()
       @refresh_patterns = Builtins.add(
         @refresh_patterns,
-        {
-          "regexp"         => regexp,
-          "min"            => min,
-          "percent"        => percent,
-          "max"            => max,
-          "case_sensitive" => case_sensitive
-        }
+        "regexp"         => regexp,
+        "min"            => min,
+        "percent"        => percent,
+        "max"            => max,
+        "case_sensitive" => case_sensitive
       )
 
       nil
@@ -692,9 +673,9 @@ module Yast
 
       nil
     end
-    #*** REFRESH PATTERN END ***
+    # *** REFRESH PATTERN END ***
 
-    #*** HTTP PORT ****
+    # *** HTTP PORT ****
     # Returns only list of configured ports (no hosts and so on)
     def GetHttpPortsOnly
       ret = []
@@ -718,7 +699,7 @@ module Yast
       SetModified()
       @http_ports = Builtins.add(
         @http_ports,
-        { "host" => host, "port" => port, "transparent" => transparent }
+        "host" => host, "port" => port, "transparent" => transparent
       )
 
       nil
@@ -746,12 +727,9 @@ module Yast
 
       nil
     end
-    #*** HTTP PORT END ****
+    # *** HTTP PORT END ****
 
-
-
-    #*******************  READ  *********************
-
+    # *******************  READ  *********************
 
     # Read setting of parameter http_port.
     #      http_port [hostname:]port [transparent]
@@ -766,13 +744,13 @@ module Yast
       Builtins.foreach(
         Convert.convert(
           SCR.Read(Builtins.add(@squid_path, "http_port")),
-          :from => "any",
-          :to   => "list <list <string>>"
+          from: "any",
+          to:   "list <list <string>>"
         )
       ) do |value|
         tmp_http_port = {}
         tmp = []
-        #can parse only 'http_port hostname:port [transparent]'
+        # can parse only 'http_port hostname:port [transparent]'
         if Ops.less_than(Builtins.size(value), 1) ||
             Ops.greater_than(Builtins.size(value), 2)
           ok = false
@@ -788,7 +766,7 @@ module Yast
           Ops.set(tmp_http_port, "host", Ops.get_string(tmp, 0, ""))
           Ops.set(tmp_http_port, "port", Ops.get_string(tmp, 1, ""))
         end
-        #transparent option
+        # transparent option
         if Builtins.size(value) == 2 && Ops.get(value, 1, "") == "transparent"
           Ops.set(tmp_http_port, "transparent", true)
         end
@@ -810,8 +788,8 @@ module Yast
       Builtins.foreach(
         Convert.convert(
           SCR.Read(Builtins.add(@squid_path, "http_access")),
-          :from => "any",
-          :to   => "list <list <string>>"
+          from: "any",
+          to:   "list <list <string>>"
         )
       ) do |value|
         tmp_http_access = {}
@@ -843,12 +821,12 @@ module Yast
       Builtins.foreach(
         Convert.convert(
           SCR.Read(Builtins.add(@squid_path, "refresh_pattern")),
-          :from => "any",
-          :to   => "list <list <string>>"
+          from: "any",
+          to:   "list <list <string>>"
         )
       ) do |value|
         tmp_refresh_pattern = {}
-        #case-insesitive
+        # case-insesitive
         if Ops.get(value, 0, "") == "-i"
           Ops.set(tmp_refresh_pattern, "case_sensitive", false)
           value = Builtins.remove(value, 0)
@@ -881,7 +859,7 @@ module Yast
       ok = true
       tmp_acl = {}
 
-      #list of types which contains regular expression
+      # list of types which contains regular expression
       regexps = [
         "srcdom_regex",
         "dstdom_regex",
@@ -894,8 +872,8 @@ module Yast
       Builtins.foreach(
         Convert.convert(
           SCR.Read(Builtins.add(@squid_path, "acl")),
-          :from => "any",
-          :to   => "list <list <string>>"
+          from: "any",
+          to:   "list <list <string>>"
         )
       ) do |value|
         tmp_acl = {}
@@ -922,8 +900,8 @@ module Yast
                 Builtins.mergestring(
                   Convert.convert(
                     Builtins.remove(Ops.get_list(tmp_acl, "options", []), 0),
-                    :from => "list",
-                    :to   => "list <string>"
+                    from: "list",
+                    to:   "list <string>"
                   ),
                   " "
                 )
@@ -936,7 +914,7 @@ module Yast
               [Builtins.mergestring(Ops.get_list(tmp_acl, "options", []), " ")]
             )
           end
-        #format: acl aclname header_name [-i] list of regexps
+        # format: acl aclname header_name [-i] list of regexps
         elsif Ops.get_string(tmp_acl, "type", "") == "req_header" ||
             Ops.get_string(tmp_acl, "type", "") == "rep_header"
           if Ops.get(Ops.get_list(tmp_acl, "options", []), 1, "") == "-i"
@@ -952,8 +930,8 @@ module Yast
                       Builtins.remove(Ops.get_list(tmp_acl, "options", []), 0),
                       0
                     ),
-                    :from => "list",
-                    :to   => "list <string>"
+                    from: "list",
+                    to:   "list <string>"
                   ),
                   " "
                 )
@@ -968,8 +946,8 @@ module Yast
                 Builtins.mergestring(
                   Convert.convert(
                     Builtins.remove(Ops.get_list(tmp_acl, "options", []), 0),
-                    :from => "list",
-                    :to   => "list <string>"
+                    from: "list",
+                    to:   "list <string>"
                   ),
                   " "
                 )
@@ -995,10 +973,10 @@ module Yast
       Builtins.foreach(@parameters) do |key, value|
         tmp = Convert.convert(
           SCR.Read(Builtins.add(@squid_path, key)),
-          :from => "any",
-          :to   => "list <list <string>>"
+          from: "any",
+          to:   "list <list <string>>"
         )
-        #tmp = split(tmp[0]:"", " \t");
+        # tmp = split(tmp[0]:"", " \t");
         tmp = Ops.get_list(tmp, 0, [])
         if Ops.greater_than(Builtins.size(tmp), 0)
           Ops.set(@settings, key, tmp)
@@ -1007,7 +985,7 @@ module Yast
         end
       end
 
-      #special modification
+      # special modification
       Ops.set(
         @settings,
         "cache_replacement_policy",
@@ -1142,12 +1120,9 @@ module Yast
 
       ok
     end
-    #*******************  READ END  *****************
+    # *******************  READ END  *****************
 
-
-
-    #*******************  WRITE  ********************
-
+    # *******************  WRITE  ********************
 
     def writeHttpPorts
       ok = true
@@ -1191,8 +1166,8 @@ module Yast
         Ops.set(tmp, 1, Ops.get_string(value, "type", ""))
         tmp = Convert.convert(
           Builtins.merge(tmp, Ops.get_list(value, "options", [])),
-          :from => "list",
-          :to   => "list <string>"
+          from: "list",
+          to:   "list <string>"
         )
         scr = Builtins.add(scr, tmp)
       end
@@ -1202,7 +1177,6 @@ module Yast
 
       ok
     end
-
 
     def writeHttpAccesses
       ok = true
@@ -1218,8 +1192,8 @@ module Yast
         end
         tmp = Convert.convert(
           Builtins.merge(tmp, Ops.get_list(value, "acl", [])),
-          :from => "list",
-          :to   => "list <string>"
+          from: "list",
+          to:   "list <string>"
         )
         scr = Builtins.add(scr, tmp)
       end
@@ -1229,7 +1203,6 @@ module Yast
 
       ok
     end
-
 
     def writeRefreshPatterns
       ok = true
@@ -1255,7 +1228,6 @@ module Yast
 
       ok
     end
-
 
     def writeRestSetting
       ok = true
@@ -1348,11 +1320,9 @@ module Yast
         return true
       end
 
-      tcp_ports = GetHttpPortsOnly()
-
       begin
         Y2Firewall::Firewalld::Service.modify_ports(
-          name: @firewall_service_name,
+          name:      @firewall_service_name,
           tcp_ports: GetHttpPortsOnly()
         )
       rescue Y2Firewall::Firewalld::Service::NotFound
@@ -1374,22 +1344,20 @@ module Yast
     # Returns true if squid was successfuly started
     def StartService
       ok = true
-      #verify config file
-      #if ((integer)SCR::Execute(.target.bash, "squid -k parse") != 0){
+      # verify config file
+      # if ((integer)SCR::Execute(.target.bash, "squid -k parse") != 0){
       #    y2error("Squid::Write - startService - 'squid -k parse' failed");
       #    return false;
-      #}
+      # }
 
       if !IsServiceRunning()
         if !Service.Start("squid")
           ok = false
           Report.Error(Message.CannotStartService("squid"))
         end
-      else
-        if !Service.Restart("squid")
-          ok = false
-          Report.Error(Message.CannotRestartService("squid"))
-        end
+      elsif !Service.Restart("squid")
+        ok = false
+        Report.Error(Message.CannotRestartService("squid"))
       end
 
       ok
@@ -1472,7 +1440,7 @@ module Yast
       return false if Abort()
       result
     end
-    #*******************  WRITE END  ****************
+    # *******************  WRITE END  ****************
 
     # Saves service status (start mode and starts/stops the service)
     #
@@ -1500,7 +1468,7 @@ module Yast
       end
     end
 
-    #******************  AUTOYAST  ******************
+    # ******************  AUTOYAST  ******************
 
     # Get all squid settings from the first parameter
     # (For use by autoinstallation.)
@@ -1508,7 +1476,7 @@ module Yast
     # @return [Boolean] True on success
     def Import(sett)
       sett = deep_copy(sett)
-      if sett == {} || sett == nil
+      if sett == {} || sett.nil?
         SetDefaultValues()
         SetModified()
         return true
@@ -1575,9 +1543,9 @@ module Yast
           Builtins.foreach(@http_ports) do |value|
             tmp = "<i>"
             if Ops.greater_than(
-                Builtins.size(Ops.get_string(value, "host", "")),
-                0
-              )
+              Builtins.size(Ops.get_string(value, "host", "")),
+              0
+            )
               tmp = Ops.add(
                 Ops.add(tmp, Ops.get_string(value, "host", "")),
                 ":"
@@ -1585,9 +1553,7 @@ module Yast
             end
             tmp = Ops.add(
               Ops.add(tmp, Ops.get_string(value, "port", "")),
-              Ops.get_boolean(value, "transparent", false) ?
-                _(" (transparent)") :
-                ""
+              Ops.get_boolean(value, "transparent", false) ? _(" (transparent)") : ""
             )
             tmp = Ops.add(tmp, "</i>")
             summary = Summary.AddListItem(summary, tmp)
@@ -1595,7 +1561,7 @@ module Yast
           summary = Summary.CloseList(summary)
         end
 
-        #Cache directory
+        # Cache directory
         summary = Summary.AddLine(
           summary,
           Ops.add(
@@ -1632,93 +1598,93 @@ module Yast
       @service ||= Yast2::SystemService.find("squid")
     end
 
-    publish :variable => :squid_path, :type => "path", :private => true
-    publish :variable => :sysconfig_file, :type => "string", :private => true
-    publish :variable => :firewall_service_name, :type => "string", :private => true
-    publish :function => :GetFirewallServiceName, :type => "string ()"
-    publish :variable => :modified, :type => "boolean", :private => true
-    publish :variable => :service_enabled_on_startup, :type => "boolean", :private => true
-    publish :variable => :settings, :type => "map <string, any>", :private => true
-    publish :variable => :http_ports, :type => "list <map <string, any>>", :private => true
-    publish :variable => :acls, :type => "list <map <string, any>>", :private => true
-    publish :variable => :http_accesses, :type => "list <map <string, any>>", :private => true
-    publish :variable => :refresh_patterns, :type => "list <map <string, any>>", :private => true
-    publish :variable => :parameters, :type => "map <string, list>", :private => true
-    publish :variable => :write_only, :type => "boolean"
-    publish :function => :split, :type => "list <string> (string, string)", :private => true
-    publish :function => :NumACLs, :type => "integer (integer)"
-    publish :function => :verifyACLs, :type => "void ()", :private => true
-    publish :function => :repairTimeoutPeriodUnits, :type => "string (string)", :private => true
-    publish :function => :setWritePremissionsToCacheDir, :type => "boolean (string)", :private => true
-    publish :function => :SetDefaultValues, :type => "void ()"
-    publish :function => :GetModified, :type => "boolean ()"
-    publish :function => :SetModified, :type => "void ()"
-    publish :variable => :AbortFunction, :type => "boolean ()"
-    publish :function => :Abort, :type => "boolean ()"
-    publish :function => :IsServiceEnabled, :type => "boolean ()"
-    publish :function => :SetServiceEnabled, :type => "void (boolean)"
-    publish :function => :GetACLs, :type => "list <map <string, any>> ()"
-    publish :function => :GetACL, :type => "map <string, any> (integer)"
-    publish :function => :GetACLType, :type => "string (integer)"
-    publish :function => :GetACLTypeByName, :type => "string (string)"
-    publish :function => :AddACL, :type => "void (string, string, list <string>)"
-    publish :function => :ModifyACL, :type => "void (integer, string, string, list <string>)"
-    publish :function => :DelACL, :type => "void (integer)"
-    publish :function => :NumACLsByName, :type => "integer (string)"
-    publish :function => :ACLIsUsedBy, :type => "list <string> (integer)"
-    publish :function => :GetHttpAccesses, :type => "list <map <string, any>> ()"
-    publish :function => :GetHttpAccess, :type => "map <string, any> (integer)"
-    publish :function => :AddHttpAccess, :type => "void (boolean, list <string>)"
-    publish :function => :ModifyHttpAccess, :type => "void (integer, boolean, list <string>)"
-    publish :function => :DelHttpAccess, :type => "void (integer)"
-    publish :function => :MoveHttpAccess, :type => "void (integer, integer)"
-    publish :function => :GetSettings, :type => "map <string, any> ()"
-    publish :function => :GetSetting, :type => "list <string> (string)"
-    publish :function => :SetSetting, :type => "void (string, list)"
-    publish :function => :GetRefreshPatterns, :type => "list <map <string, any>> ()"
-    publish :function => :GetRefreshPattern, :type => "map <string, any> (integer)"
-    publish :function => :AddRefreshPattern, :type => "void (string, string, string, string, boolean)"
-    publish :function => :ModifyRefreshPattern, :type => "void (integer, string, string, string, string, boolean)"
-    publish :function => :DelRefreshPattern, :type => "void (integer)"
-    publish :function => :MoveRefreshPattern, :type => "void (integer, integer)"
-    publish :function => :GetHttpPortsOnly, :type => "list <string> ()"
-    publish :function => :GetHttpPorts, :type => "list <map <string, any>> ()"
-    publish :function => :GetHttpPort, :type => "map <string, any> (integer)"
-    publish :function => :AddHttpPort, :type => "void (string, string, boolean)"
-    publish :function => :ModifyHttpPort, :type => "void (integer, string, string, boolean)"
-    publish :function => :DelHttpPort, :type => "void (integer)"
-    publish :function => :readHttpPorts, :type => "boolean ()", :private => true
-    publish :function => :readHttpAccesses, :type => "boolean ()", :private => true
-    publish :function => :readRefreshPatterns, :type => "boolean ()", :private => true
-    publish :function => :readACLs, :type => "boolean ()", :private => true
-    publish :function => :readRestSetting, :type => "boolean ()", :private => true
-    publish :function => :readServiceStatus, :type => "boolean ()", :private => true
-    publish :function => :readAllSettings, :type => "boolean ()", :private => true
-    publish :function => :Read, :type => "boolean ()"
-    publish :function => :writeHttpPorts, :type => "boolean ()", :private => true
-    publish :function => :writeACLs, :type => "boolean ()", :private => true
-    publish :function => :writeHttpAccesses, :type => "boolean ()", :private => true
-    publish :function => :writeRefreshPatterns, :type => "boolean ()", :private => true
-    publish :function => :writeRestSetting, :type => "boolean ()", :private => true
-    publish :function => :writePermissions, :type => "boolean ()", :private => true
-    publish :function => :writeAllSettings, :type => "boolean ()", :private => true
-    publish :function => :writeFirewallSettings, :type => "boolean ()", :private => true
-    publish :function => :IsServiceRunning, :type => "boolean ()"
-    publish :function => :StartService, :type => "boolean ()"
-    publish :function => :StopService, :type => "boolean ()"
-    publish :function => :EnableService, :type => "boolean ()"
-    publish :function => :DisableService, :type => "boolean ()"
-    publish :function => :Write, :type => "boolean ()"
-    publish :function => :Import, :type => "boolean (map)"
-    publish :function => :Export, :type => "map ()"
-    publish :function => :Summary, :type => "list ()"
-    publish :function => :AutoPackages, :type => "map ()"
+    publish variable: :squid_path, type: "path", private: true
+    publish variable: :sysconfig_file, type: "string", private: true
+    publish variable: :firewall_service_name, type: "string", private: true
+    publish function: :GetFirewallServiceName, type: "string ()"
+    publish variable: :modified, type: "boolean", private: true
+    publish variable: :service_enabled_on_startup, type: "boolean", private: true
+    publish variable: :settings, type: "map <string, any>", private: true
+    publish variable: :http_ports, type: "list <map <string, any>>", private: true
+    publish variable: :acls, type: "list <map <string, any>>", private: true
+    publish variable: :http_accesses, type: "list <map <string, any>>", private: true
+    publish variable: :refresh_patterns, type: "list <map <string, any>>", private: true
+    publish variable: :parameters, type: "map <string, list>", private: true
+    publish variable: :write_only, type: "boolean"
+    publish function: :split, type: "list <string> (string, string)", private: true
+    publish function: :NumACLs, type: "integer (integer)"
+    publish function: :verifyACLs, type: "void ()", private: true
+    publish function: :repairTimeoutPeriodUnits, type: "string (string)", private: true
+    publish function: :setWritePremissionsToCacheDir, type: "boolean (string)", private: true
+    publish function: :SetDefaultValues, type: "void ()"
+    publish function: :GetModified, type: "boolean ()"
+    publish function: :SetModified, type: "void ()"
+    publish variable: :AbortFunction, type: "boolean ()"
+    publish function: :Abort, type: "boolean ()"
+    publish function: :IsServiceEnabled, type: "boolean ()"
+    publish function: :SetServiceEnabled, type: "void (boolean)"
+    publish function: :GetACLs, type: "list <map <string, any>> ()"
+    publish function: :GetACL, type: "map <string, any> (integer)"
+    publish function: :GetACLType, type: "string (integer)"
+    publish function: :GetACLTypeByName, type: "string (string)"
+    publish function: :AddACL, type: "void (string, string, list <string>)"
+    publish function: :ModifyACL, type: "void (integer, string, string, list <string>)"
+    publish function: :DelACL, type: "void (integer)"
+    publish function: :NumACLsByName, type: "integer (string)"
+    publish function: :ACLIsUsedBy, type: "list <string> (integer)"
+    publish function: :GetHttpAccesses, type: "list <map <string, any>> ()"
+    publish function: :GetHttpAccess, type: "map <string, any> (integer)"
+    publish function: :AddHttpAccess, type: "void (boolean, list <string>)"
+    publish function: :ModifyHttpAccess, type: "void (integer, boolean, list <string>)"
+    publish function: :DelHttpAccess, type: "void (integer)"
+    publish function: :MoveHttpAccess, type: "void (integer, integer)"
+    publish function: :GetSettings, type: "map <string, any> ()"
+    publish function: :GetSetting, type: "list <string> (string)"
+    publish function: :SetSetting, type: "void (string, list)"
+    publish function: :GetRefreshPatterns, type: "list <map <string, any>> ()"
+    publish function: :GetRefreshPattern, type: "map <string, any> (integer)"
+    publish function: :AddRefreshPattern, type: "void (string, string, string, string, boolean)"
+    publish function: :ModifyRefreshPattern, type: "void (integer, string, string, string, string, boolean)"
+    publish function: :DelRefreshPattern, type: "void (integer)"
+    publish function: :MoveRefreshPattern, type: "void (integer, integer)"
+    publish function: :GetHttpPortsOnly, type: "list <string> ()"
+    publish function: :GetHttpPorts, type: "list <map <string, any>> ()"
+    publish function: :GetHttpPort, type: "map <string, any> (integer)"
+    publish function: :AddHttpPort, type: "void (string, string, boolean)"
+    publish function: :ModifyHttpPort, type: "void (integer, string, string, boolean)"
+    publish function: :DelHttpPort, type: "void (integer)"
+    publish function: :readHttpPorts, type: "boolean ()", private: true
+    publish function: :readHttpAccesses, type: "boolean ()", private: true
+    publish function: :readRefreshPatterns, type: "boolean ()", private: true
+    publish function: :readACLs, type: "boolean ()", private: true
+    publish function: :readRestSetting, type: "boolean ()", private: true
+    publish function: :readServiceStatus, type: "boolean ()", private: true
+    publish function: :readAllSettings, type: "boolean ()", private: true
+    publish function: :Read, type: "boolean ()"
+    publish function: :writeHttpPorts, type: "boolean ()", private: true
+    publish function: :writeACLs, type: "boolean ()", private: true
+    publish function: :writeHttpAccesses, type: "boolean ()", private: true
+    publish function: :writeRefreshPatterns, type: "boolean ()", private: true
+    publish function: :writeRestSetting, type: "boolean ()", private: true
+    publish function: :writePermissions, type: "boolean ()", private: true
+    publish function: :writeAllSettings, type: "boolean ()", private: true
+    publish function: :writeFirewallSettings, type: "boolean ()", private: true
+    publish function: :IsServiceRunning, type: "boolean ()"
+    publish function: :StartService, type: "boolean ()"
+    publish function: :StopService, type: "boolean ()"
+    publish function: :EnableService, type: "boolean ()"
+    publish function: :DisableService, type: "boolean ()"
+    publish function: :Write, type: "boolean ()"
+    publish function: :Import, type: "boolean (map)"
+    publish function: :Export, type: "map ()"
+    publish function: :Summary, type: "list ()"
+    publish function: :AutoPackages, type: "map ()"
 
-    private
+  private
 
-      def firewalld
-        Y2Firewall::Firewalld.instance
-      end
+    def firewalld
+      Y2Firewall::Firewalld.instance
+    end
   end
 
   Squid = SquidClass.new

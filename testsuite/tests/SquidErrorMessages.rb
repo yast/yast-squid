@@ -5,7 +5,7 @@ module Yast
     def main
       # testedfiles: SquidErrorMessages.ycp
 
-      @READ = [
+      @read = [
         {
           "target" => {
             "dir" => [
@@ -26,39 +26,38 @@ module Yast
         { "target" => { "stat" => { "isdir" => false } } }
       ]
 
-      @WRITE = {}
-      @EXECUTE = {}
+      @write = {}
+      @execute = {}
 
       Yast.include self, "testsuite.rb"
 
       Yast.import "SquidErrorMessages"
       Yast.import "FileUtils"
 
-
       DUMP("GetLanguages()")
-      TEST(lambda { SquidErrorMessages.GetLanguages }, [@READ, @WRITE, @EXECUTE], nil)
+      TEST(-> { SquidErrorMessages.GetLanguages }, [@read, @write, @execute], nil)
 
       DUMP("")
       DUMP("GetLanguagesToComboBox()")
-      TEST(lambda { SquidErrorMessages.GetLanguagesToComboBox }, [
-        @READ,
-        @WRITE,
-        @EXECUTE
-      ], nil)
+      TEST(-> { SquidErrorMessages.GetLanguagesToComboBox }, [
+             @read,
+             @write,
+             @execute
+           ], nil)
 
       DUMP("")
       DUMP("GetPath(\"en\")")
-      TEST(lambda { SquidErrorMessages.GetPath("en") }, [
-        @READ,
-        @WRITE,
-        @EXECUTE
-      ], nil)
+      TEST(-> { SquidErrorMessages.GetPath("en") }, [
+             @read,
+             @write,
+             @execute
+           ], nil)
       DUMP("GetPath(\"uk\")")
-      TEST(lambda { SquidErrorMessages.GetPath("uk") }, [
-        @READ,
-        @WRITE,
-        @EXECUTE
-      ], nil)
+      TEST(-> { SquidErrorMessages.GetPath("uk") }, [
+             @read,
+             @write,
+             @execute
+           ], nil)
 
       DUMP("")
       DUMP(
@@ -75,9 +74,9 @@ module Yast
           Ops.add(SquidErrorMessages.err_msg_dir, "/en")
         )
       end, [
-        @READ,
-        @WRITE,
-        @EXECUTE
+        @read,
+        @write,
+        @execute
       ], nil)
       DUMP(
         Ops.add(
@@ -93,9 +92,9 @@ module Yast
           Ops.add(SquidErrorMessages.err_msg_dir, "/ru")
         )
       end, [
-        @READ,
-        @WRITE,
-        @EXECUTE
+        @read,
+        @write,
+        @execute
       ], nil)
 
       nil

@@ -6,7 +6,7 @@ module Yast
       # testedfiles: Squid.ycp
 
       Yast.include self, "testsuite.rb"
-      @READ = {
+      @read = {
         "squid" => {
           "http_port"                 => [
             ["localhost:3128"],
@@ -69,24 +69,23 @@ module Yast
           "no_cache"                  => [["deny", "QUERY"]]
         }
       }
-      @READ = { "etc" => @READ }
+      @read = { "etc" => @read }
 
-      @WRITE = {}
-      @EXECUTE = {
+      @write = {}
+      @execute = {
         "target" => {
           "bash_output" => {
-            "exit" => 0,
+            "exit"   => 0,
             "stdout" => "",
-            "stderr" => "",
+            "stderr" => ""
           }
         }
       }
 
       Yast.import "Squid"
-      TESTSUITE_INIT([@READ, @WRITE, @EXECUTE], nil)
+      TESTSUITE_INIT([@read, @write, @execute], nil)
 
       Squid.Read
-
 
       DUMP("==================================================")
       DUMP("=====================  ACL  ======================")
@@ -94,68 +93,66 @@ module Yast
 
       DUMP("")
       DUMP("GetACLs()")
-      TEST(lambda { Squid.GetACLs }, [], nil)
+      TEST(-> { Squid.GetACLs }, [], nil)
 
       DUMP("")
       DUMP("GetACL(0)")
-      TEST(lambda { Squid.GetACL(0) }, [], nil)
+      TEST(-> { Squid.GetACL(0) }, [], nil)
       DUMP("GetACL(2)")
-      TEST(lambda { Squid.GetACL(2) }, [], nil)
+      TEST(-> { Squid.GetACL(2) }, [], nil)
       DUMP("GetACL(100) - out of range")
-      TEST(lambda { Squid.GetACL(100) }, [], nil)
+      TEST(-> { Squid.GetACL(100) }, [], nil)
 
       DUMP("++++++++++++++++++++++++++++++++++++++++++++++++++")
 
       DUMP("")
       DUMP("AddACL(\"name\", \"type\", [\"list\", \"of\", \"options\"])")
-      TEST(lambda { Squid.AddACL("name", "type", ["list", "of", "options"]) }, [], nil)
-      TEST(lambda { Squid.GetACL(Ops.subtract(Builtins.size(Squid.GetACLs), 1)) }, [], nil)
+      TEST(-> { Squid.AddACL("name", "type", ["list", "of", "options"]) }, [], nil)
+      TEST(-> { Squid.GetACL(Ops.subtract(Builtins.size(Squid.GetACLs), 1)) }, [], nil)
 
       DUMP("")
       DUMP("ModifyACL(0, \"QUERY2\", \"urlpath_regex\", [\"cgi-bin \\? aaa\"])")
-      TEST(lambda { Squid.GetACL(0) }, [], nil)
+      TEST(-> { Squid.GetACL(0) }, [], nil)
       TEST(lambda do
         Squid.ModifyACL(0, "QUERY2", "urlpath_regex", ["cgi-bin \\? aaa"])
       end, [], nil)
-      TEST(lambda { Squid.GetACL(0) }, [], nil)
+      TEST(-> { Squid.GetACL(0) }, [], nil)
       TEST(lambda do
         Squid.ModifyACL(0, "QUERY", "urlpath_regex", ["cgi-bin \\?"])
       end, [], nil)
 
       DUMP("")
       DUMP("ModifyACL(100, \"A\", \"a\", [\"a\"]) - out of range")
-      TEST(lambda { Squid.GetACL(100) }, [], nil)
-      TEST(lambda { Squid.ModifyACL(100, "A", "a", ["a"]) }, [], nil)
-      TEST(lambda { Squid.GetACL(100) }, [], nil)
+      TEST(-> { Squid.GetACL(100) }, [], nil)
+      TEST(-> { Squid.ModifyACL(100, "A", "a", ["a"]) }, [], nil)
+      TEST(-> { Squid.GetACL(100) }, [], nil)
 
       DUMP("")
       DUMP("DelACL(1)")
-      TEST(lambda { Squid.GetACL(1) }, [], nil)
-      TEST(lambda { Squid.GetACL(2) }, [], nil)
-      TEST(lambda { Squid.DelACL(1) }, [], nil)
-      TEST(lambda { Squid.GetACL(1) }, [], nil)
+      TEST(-> { Squid.GetACL(1) }, [], nil)
+      TEST(-> { Squid.GetACL(2) }, [], nil)
+      TEST(-> { Squid.DelACL(1) }, [], nil)
+      TEST(-> { Squid.GetACL(1) }, [], nil)
 
       DUMP("")
       DUMP("DelACL(100) - out of range")
-      TEST(lambda { Squid.DelACL(100) }, [], nil)
-      TEST(lambda { Squid.GetACL(100) }, [], nil)
-      TEST(lambda { Squid.GetACL(0) }, [], nil)
+      TEST(-> { Squid.DelACL(100) }, [], nil)
+      TEST(-> { Squid.GetACL(100) }, [], nil)
+      TEST(-> { Squid.GetACL(0) }, [], nil)
 
       DUMP("++++++++++++++++++++++++++++++++++++++++++++++++++")
 
       DUMP("")
       DUMP("NumACLs(0)")
-      TEST(lambda { Squid.NumACLs(0) }, [], nil)
+      TEST(-> { Squid.NumACLs(0) }, [], nil)
       DUMP("NumACLs(10)")
-      TEST(lambda { Squid.NumACLs(10) }, [], nil)
+      TEST(-> { Squid.NumACLs(10) }, [], nil)
 
       DUMP("")
       DUMP("ACLIsUsedBy(0) - QUERY")
-      TEST(lambda { Squid.ACLIsUsedBy(0) }, [@READ, @WRITE, @EXECUTE], nil)
+      TEST(-> { Squid.ACLIsUsedBy(0) }, [@read, @write, @execute], nil)
       DUMP("ACLIsUsedBy(1)")
-      TEST(lambda { Squid.ACLIsUsedBy(1) }, [@READ, @WRITE, @EXECUTE], nil)
-
-
+      TEST(-> { Squid.ACLIsUsedBy(1) }, [@read, @write, @execute], nil)
 
       DUMP("==================================================")
       DUMP("================  HTTP_ACCESS  ===================")
@@ -163,21 +160,21 @@ module Yast
 
       DUMP("")
       DUMP("GetHttpAccesses()")
-      TEST(lambda { Squid.GetHttpAccesses }, [], nil)
+      TEST(-> { Squid.GetHttpAccesses }, [], nil)
 
       DUMP("")
       DUMP("GetHttpAccess(0)")
-      TEST(lambda { Squid.GetHttpAccess(0) }, [], nil)
+      TEST(-> { Squid.GetHttpAccess(0) }, [], nil)
       DUMP("GetHttpAccess(2)")
-      TEST(lambda { Squid.GetHttpAccess(2) }, [], nil)
+      TEST(-> { Squid.GetHttpAccess(2) }, [], nil)
       DUMP("GetHttpAccess(100) - out of range")
-      TEST(lambda { Squid.GetHttpAccess(100) }, [], nil)
+      TEST(-> { Squid.GetHttpAccess(100) }, [], nil)
 
       DUMP("++++++++++++++++++++++++++++++++++++++++++++++++++")
 
       DUMP("")
       DUMP("AddHttpAccess(true, [\"list\", \"of\", \"acls\"])")
-      TEST(lambda { Squid.AddHttpAccess(true, ["list", "of", "acls"]) }, [], nil)
+      TEST(-> { Squid.AddHttpAccess(true, ["list", "of", "acls"]) }, [], nil)
       TEST(lambda do
         Squid.GetHttpAccess(
           Ops.subtract(Builtins.size(Squid.GetHttpAccesses), 1)
@@ -186,39 +183,37 @@ module Yast
 
       DUMP("")
       DUMP("ModifyHttpAccess(0, false, [\"manager\", \"locahost\"])")
-      TEST(lambda { Squid.GetHttpAccess(0) }, [], nil)
-      TEST(lambda { Squid.ModifyHttpAccess(0, false, ["manager", "localhost"]) }, [], nil)
-      TEST(lambda { Squid.GetHttpAccess(0) }, [], nil)
-      TEST(lambda { Squid.ModifyHttpAccess(0, true, ["manager", "localhost"]) }, [], nil)
+      TEST(-> { Squid.GetHttpAccess(0) }, [], nil)
+      TEST(-> { Squid.ModifyHttpAccess(0, false, ["manager", "localhost"]) }, [], nil)
+      TEST(-> { Squid.GetHttpAccess(0) }, [], nil)
+      TEST(-> { Squid.ModifyHttpAccess(0, true, ["manager", "localhost"]) }, [], nil)
 
       DUMP("")
       DUMP("ModifyHttpAccess(100, true, [\"a\"]) - out of range")
-      TEST(lambda { Squid.GetHttpAccess(100) }, [], nil)
-      TEST(lambda { Squid.ModifyHttpAccess(100, true, ["a"]) }, [], nil)
-      TEST(lambda { Squid.GetHttpAccess(100) }, [], nil)
+      TEST(-> { Squid.GetHttpAccess(100) }, [], nil)
+      TEST(-> { Squid.ModifyHttpAccess(100, true, ["a"]) }, [], nil)
+      TEST(-> { Squid.GetHttpAccess(100) }, [], nil)
 
       DUMP("")
       DUMP("DelHttpAccess(1)")
-      TEST(lambda { Squid.GetHttpAccess(1) }, [], nil)
-      TEST(lambda { Squid.GetHttpAccess(2) }, [], nil)
-      TEST(lambda { Squid.DelHttpAccess(1) }, [], nil)
-      TEST(lambda { Squid.GetHttpAccess(1) }, [], nil)
+      TEST(-> { Squid.GetHttpAccess(1) }, [], nil)
+      TEST(-> { Squid.GetHttpAccess(2) }, [], nil)
+      TEST(-> { Squid.DelHttpAccess(1) }, [], nil)
+      TEST(-> { Squid.GetHttpAccess(1) }, [], nil)
 
       DUMP("")
       DUMP("MoveHttpAccess(0,1)")
-      TEST(lambda { Squid.GetHttpAccess(0) }, [], nil)
-      TEST(lambda { Squid.GetHttpAccess(1) }, [], nil)
-      TEST(lambda { Squid.MoveHttpAccess(0, 1) }, [], nil)
-      TEST(lambda { Squid.GetHttpAccess(0) }, [], nil)
-      TEST(lambda { Squid.GetHttpAccess(1) }, [], nil)
+      TEST(-> { Squid.GetHttpAccess(0) }, [], nil)
+      TEST(-> { Squid.GetHttpAccess(1) }, [], nil)
+      TEST(-> { Squid.MoveHttpAccess(0, 1) }, [], nil)
+      TEST(-> { Squid.GetHttpAccess(0) }, [], nil)
+      TEST(-> { Squid.GetHttpAccess(1) }, [], nil)
 
       DUMP("")
       DUMP("DelHttpAccess(100) - out of range")
-      TEST(lambda { Squid.DelHttpAccess(100) }, [], nil)
-      TEST(lambda { Squid.GetHttpAccess(100) }, [], nil)
-      TEST(lambda { Squid.GetHttpAccess(0) }, [], nil)
-
-
+      TEST(-> { Squid.DelHttpAccess(100) }, [], nil)
+      TEST(-> { Squid.GetHttpAccess(100) }, [], nil)
+      TEST(-> { Squid.GetHttpAccess(0) }, [], nil)
 
       DUMP("==================================================")
       DUMP("=================   SETTINGS  ====================")
@@ -226,11 +221,11 @@ module Yast
 
       DUMP("")
       DUMP("GetSettings()")
-      TEST(lambda { Squid.GetSettings }, [], nil)
+      TEST(-> { Squid.GetSettings }, [], nil)
 
       DUMP("")
       DUMP("GetSetting(\"cache_dir\")")
-      TEST(lambda { Squid.GetSetting("cache_dir") }, [], nil)
+      TEST(-> { Squid.GetSetting("cache_dir") }, [], nil)
 
       DUMP("")
       DUMP(
@@ -239,23 +234,22 @@ module Yast
       TEST(lambda do
         Squid.SetSetting("cache_dir", ["uufs", "/var/", "10", "10", "10"])
       end, [], nil)
-      TEST(lambda { Squid.GetSetting("cache_dir") }, [], nil)
-
+      TEST(-> { Squid.GetSetting("cache_dir") }, [], nil)
 
       DUMP("==================================================")
       DUMP("==============  REFRESH_PATTERNS  ================")
       DUMP("==================================================")
       DUMP("")
       DUMP("GetRefreshPatterns()")
-      TEST(lambda { Squid.GetRefreshPatterns }, [], nil)
+      TEST(-> { Squid.GetRefreshPatterns }, [], nil)
 
       DUMP("")
       DUMP("GetRefreshPattern(0)")
-      TEST(lambda { Squid.GetRefreshPattern(0) }, [], nil)
+      TEST(-> { Squid.GetRefreshPattern(0) }, [], nil)
       DUMP("GetRefreshPattern(2)")
-      TEST(lambda { Squid.GetRefreshPattern(2) }, [], nil)
+      TEST(-> { Squid.GetRefreshPattern(2) }, [], nil)
       DUMP("GetRefreshPattern(100) - out of range")
-      TEST(lambda { Squid.GetRefreshPattern(100) }, [], nil)
+      TEST(-> { Squid.GetRefreshPattern(100) }, [], nil)
 
       DUMP("++++++++++++++++++++++++++++++++++++++++++++++++++")
 
@@ -274,44 +268,42 @@ module Yast
       DUMP(
         "ModifyRefreshPattern(0, \"regexp\",  \"100\", \"100\", \"100\", false)"
       )
-      TEST(lambda { Squid.GetRefreshPattern(0) }, [], nil)
+      TEST(-> { Squid.GetRefreshPattern(0) }, [], nil)
       TEST(lambda do
         Squid.ModifyRefreshPattern(0, "regexp", "100", "100", "100", false)
       end, [], nil)
-      TEST(lambda { Squid.GetRefreshPattern(0) }, [], nil)
+      TEST(-> { Squid.GetRefreshPattern(0) }, [], nil)
 
       DUMP("")
       DUMP(
         "ModifyRefreshPattern(100, \"regexp\",  \"100\", \"100\", \"100\", false)"
       )
-      TEST(lambda { Squid.GetRefreshPattern(100) }, [], nil)
+      TEST(-> { Squid.GetRefreshPattern(100) }, [], nil)
       TEST(lambda do
         Squid.ModifyRefreshPattern(100, "regexp", "100", "100", "100", false)
       end, [], nil)
-      TEST(lambda { Squid.GetRefreshPattern(100) }, [], nil)
+      TEST(-> { Squid.GetRefreshPattern(100) }, [], nil)
 
       DUMP("")
       DUMP("DelRefreshPattern(1)")
-      TEST(lambda { Squid.GetRefreshPattern(1) }, [], nil)
-      TEST(lambda { Squid.GetRefreshPattern(2) }, [], nil)
-      TEST(lambda { Squid.DelRefreshPattern(1) }, [], nil)
-      TEST(lambda { Squid.GetRefreshPattern(1) }, [], nil)
+      TEST(-> { Squid.GetRefreshPattern(1) }, [], nil)
+      TEST(-> { Squid.GetRefreshPattern(2) }, [], nil)
+      TEST(-> { Squid.DelRefreshPattern(1) }, [], nil)
+      TEST(-> { Squid.GetRefreshPattern(1) }, [], nil)
 
       DUMP("")
       DUMP("MoveRefreshPattern(0,1)")
-      TEST(lambda { Squid.GetRefreshPattern(0) }, [], nil)
-      TEST(lambda { Squid.GetRefreshPattern(1) }, [], nil)
-      TEST(lambda { Squid.MoveRefreshPattern(0, 1) }, [], nil)
-      TEST(lambda { Squid.GetRefreshPattern(0) }, [], nil)
-      TEST(lambda { Squid.GetRefreshPattern(1) }, [], nil)
-
+      TEST(-> { Squid.GetRefreshPattern(0) }, [], nil)
+      TEST(-> { Squid.GetRefreshPattern(1) }, [], nil)
+      TEST(-> { Squid.MoveRefreshPattern(0, 1) }, [], nil)
+      TEST(-> { Squid.GetRefreshPattern(0) }, [], nil)
+      TEST(-> { Squid.GetRefreshPattern(1) }, [], nil)
 
       DUMP("")
       DUMP("DelRefreshPattern(100) - out of range")
-      TEST(lambda { Squid.DelRefreshPattern(100) }, [], nil)
-      TEST(lambda { Squid.GetRefreshPattern(100) }, [], nil)
-      TEST(lambda { Squid.GetRefreshPattern(0) }, [], nil)
-
+      TEST(-> { Squid.DelRefreshPattern(100) }, [], nil)
+      TEST(-> { Squid.GetRefreshPattern(100) }, [], nil)
+      TEST(-> { Squid.GetRefreshPattern(0) }, [], nil)
 
       DUMP("==================================================")
       DUMP("=================  HTTP_PORT  ====================")
@@ -319,50 +311,49 @@ module Yast
 
       DUMP("")
       DUMP("GetHttpPorts()")
-      TEST(lambda { Squid.GetHttpPorts }, [], nil)
+      TEST(-> { Squid.GetHttpPorts }, [], nil)
 
       DUMP("")
       DUMP("GetHttpPort(0)")
-      TEST(lambda { Squid.GetHttpPort(0) }, [], nil)
+      TEST(-> { Squid.GetHttpPort(0) }, [], nil)
       DUMP("GetHttpPort(2)")
-      TEST(lambda { Squid.GetHttpPort(2) }, [], nil)
+      TEST(-> { Squid.GetHttpPort(2) }, [], nil)
       DUMP("GetHttpPort(100) - out of range")
-      TEST(lambda { Squid.GetHttpPort(100) }, [], nil)
+      TEST(-> { Squid.GetHttpPort(100) }, [], nil)
 
       DUMP("++++++++++++++++++++++++++++++++++++++++++++++++++")
 
       DUMP("")
       DUMP("AddHttpPort(\"host\", \"port\", true)")
-      TEST(lambda { Squid.AddHttpPort("host", "port", true) }, [], nil)
+      TEST(-> { Squid.AddHttpPort("host", "port", true) }, [], nil)
       TEST(lambda do
         Squid.GetHttpPort(Ops.subtract(Builtins.size(Squid.GetHttpPorts), 1))
       end, [], nil)
 
       DUMP("")
       DUMP("ModifyHttpPort(0, \"host\", \"port\", true)")
-      TEST(lambda { Squid.GetHttpPort(0) }, [], nil)
-      TEST(lambda { Squid.ModifyHttpPort(0, "host", "port", true) }, [], nil)
-      TEST(lambda { Squid.GetHttpPort(0) }, [], nil)
+      TEST(-> { Squid.GetHttpPort(0) }, [], nil)
+      TEST(-> { Squid.ModifyHttpPort(0, "host", "port", true) }, [], nil)
+      TEST(-> { Squid.GetHttpPort(0) }, [], nil)
 
       DUMP("")
       DUMP("ModifyHttpPort(100, \"host\", \"port\", true)")
-      TEST(lambda { Squid.GetHttpPort(100) }, [], nil)
-      TEST(lambda { Squid.ModifyHttpPort(100, "host", "port", true) }, [], nil)
-      TEST(lambda { Squid.GetHttpPort(100) }, [], nil)
-
+      TEST(-> { Squid.GetHttpPort(100) }, [], nil)
+      TEST(-> { Squid.ModifyHttpPort(100, "host", "port", true) }, [], nil)
+      TEST(-> { Squid.GetHttpPort(100) }, [], nil)
 
       DUMP("")
       DUMP("DelHttpPort(1)")
-      TEST(lambda { Squid.GetHttpPort(1) }, [], nil)
-      TEST(lambda { Squid.GetHttpPort(2) }, [], nil)
-      TEST(lambda { Squid.DelHttpPort(1) }, [], nil)
-      TEST(lambda { Squid.GetHttpPort(1) }, [], nil)
+      TEST(-> { Squid.GetHttpPort(1) }, [], nil)
+      TEST(-> { Squid.GetHttpPort(2) }, [], nil)
+      TEST(-> { Squid.DelHttpPort(1) }, [], nil)
+      TEST(-> { Squid.GetHttpPort(1) }, [], nil)
 
       DUMP("")
       DUMP("DelHttpPort(100) - out of range")
-      TEST(lambda { Squid.DelHttpPort(100) }, [], nil)
-      TEST(lambda { Squid.GetHttpPort(100) }, [], nil)
-      TEST(lambda { Squid.GetHttpPort(0) }, [], nil)
+      TEST(-> { Squid.DelHttpPort(100) }, [], nil)
+      TEST(-> { Squid.GetHttpPort(100) }, [], nil)
+      TEST(-> { Squid.GetHttpPort(0) }, [], nil)
 
       nil
     end

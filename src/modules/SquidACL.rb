@@ -35,7 +35,7 @@ module Yast
 
       Yast.include self, "squid/SquidACL_local_functions.rb"
 
-      #**
+      # **
       # Unsupported ACLS:
       # * * * * * * * * * * *
       # ident, ident_regex,
@@ -67,14 +67,14 @@ module Yast
           "widget"       => Frame(
             _("src"),
             VBox(
-              #`TextEntry(`id("acl_addr1"), _("IP Address 1"), ""),
-              #`Label(" - "),
+              # `TextEntry(`id("acl_addr1"), _("IP Address 1"), ""),
+              # `Label(" - "),
               TextEntry(
                 Id("acl_addr"),
                 _("IP Address or Range of IP Addresses"),
                 ""
               ),
-              #`Label("/"),
+              # `Label("/"),
               TextEntry(Id("acl_mask"), _("Network Mask"), "")
             )
           ),
@@ -384,11 +384,9 @@ module Yast
     def getKeys(m)
       m = deep_copy(m)
       ret = []
-      Builtins.foreach(m) { |key, value| ret = Builtins.add(ret, key) }
+      Builtins.foreach(m) { |key, _value| ret = Builtins.add(ret, key) }
       deep_copy(ret)
     end
-
-
 
     # Returns list of supported ACLs.
     # It's necessary to have saved unsupported ACLs but do not handle with them.
@@ -416,13 +414,12 @@ module Yast
       deep_copy(items)
     end
 
-
     # Initialize widget of acl identified by id_acl_type.
     # If id_item is not nil, function initialize widgets by default values
     # from module Squid.
     def InitWidget(id_acl_type, id_item, help_widget_id)
       help_widget_id = deep_copy(help_widget_id)
-      if help_widget_id != nil
+      if !help_widget_id.nil?
         UI.ChangeWidget(
           Id(help_widget_id),
           :Value,
@@ -431,8 +428,8 @@ module Yast
       end
       func = Convert.convert(
         Ops.get(Ops.get(@acl_map, id_acl_type, {}), "widget_init"),
-        :from => "any",
-        :to   => "void (integer)"
+        from: "any",
+        to:   "void (integer)"
       )
       func.call(id_item)
 
@@ -450,37 +447,35 @@ module Yast
       nil
     end
 
-
     # This function call verification function joined with acl type
     # identified by id_acl_type.
     # Returns return value of verification function.
     def Verify(id_acl_type)
       func = Convert.convert(
         Ops.get(Ops.get(@acl_map, id_acl_type, {}), "verification"),
-        :from => "any",
-        :to   => "boolean ()"
+        from: "any",
+        to:   "boolean ()"
       )
       func.call
     end
-
 
     # Returns values from widget as list of options in correct form to store
     # them into Squid module.
     def GetOptions(id_acl_type)
       func = Convert.convert(
         Ops.get(Ops.get(@acl_map, id_acl_type, {}), "options"),
-        :from => "any",
-        :to   => "list <string> ()"
+        from: "any",
+        to:   "list <string> ()"
       )
       func.call
     end
 
-    publish :function => :SupportedACLs, :type => "list <string> ()"
-    publish :function => :GetTypesToComboBox, :type => "list <term> ()"
-    publish :function => :InitWidget, :type => "void (string, integer, any)"
-    publish :function => :Replace, :type => "void (any, string)"
-    publish :function => :Verify, :type => "boolean (string)"
-    publish :function => :GetOptions, :type => "list <string> (string)"
+    publish function: :SupportedACLs, type: "list <string> ()"
+    publish function: :GetTypesToComboBox, type: "list <term> ()"
+    publish function: :InitWidget, type: "void (string, integer, any)"
+    publish function: :Replace, type: "void (any, string)"
+    publish function: :Verify, type: "boolean (string)"
+    publish function: :GetOptions, type: "list <string> (string)"
   end
 
   SquidACL = SquidACLClass.new

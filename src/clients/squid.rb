@@ -32,7 +32,7 @@ module Yast
     def main
       Yast.import "UI"
 
-      #**
+      # **
       # <h3>Configuration of squid</h3>
 
       textdomain "squid"
@@ -48,8 +48,6 @@ module Yast
       Yast.import "CommandLine"
       Yast.include self, "squid/wizards.rb"
       @finish = fun_ref(method(:init), "boolean ()")
-
-
 
       @cmdline_description = {
         "id"         => "squid",
@@ -80,7 +78,6 @@ module Yast
         "mappings"   => { "start" => [], "stop" => [] }
       }
 
-
       # is this proposal or not?
       @propose = false
       @args = WFM.Args
@@ -94,10 +91,10 @@ module Yast
       # main ui function
       @ret = nil
 
-      if @propose
-        @ret = SquidAutoSequence()
+      @ret = if @propose
+        SquidAutoSequence()
       else
-        @ret = CommandLine.Run(@cmdline_description)
+        CommandLine.Run(@cmdline_description)
       end
       Builtins.y2debug("ret=%1", @ret)
 
@@ -105,13 +102,12 @@ module Yast
       Builtins.y2milestone("Squid module finished")
       Builtins.y2milestone("----------------------------------------")
 
-      deep_copy(@ret) 
+      deep_copy(@ret)
 
       # EOF
     end
 
-    def startHandler(options)
-      options = deep_copy(options)
+    def startHandler(_options)
       CommandLine.PrintNoCR("Starting service ...  ")
       if Squid.StartService
         CommandLine.Print("Success")
@@ -121,8 +117,8 @@ module Yast
         return false
       end
     end
-    def stopHandler(options)
-      options = deep_copy(options)
+
+    def stopHandler(_options)
       CommandLine.PrintNoCR("Stopping service ...  ")
       if Squid.StopService
         CommandLine.Print("Success")

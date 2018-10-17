@@ -25,7 +25,7 @@
 # $Id: helps.ycp 27914 2006-02-13 14:32:08Z locilka $
 module Yast
   module SquidHelpsInclude
-    def initialize_squid_helps(include_target)
+    def initialize_squid_helps(_include_target)
       textdomain "squid"
 
       # All helps are here
@@ -44,9 +44,9 @@ module Yast
         ) +
           # Write dialog help 2/2
           _(
-            "<p><b><big>Aborting Saving:</big></b><br>\n" +
-              "Abort the save procedure by pressing <b>Abort</b>.\n" +
-              "An additional dialog informs whether it is safe to do so.\n" +
+            "<p><b><big>Aborting Saving:</big></b><br>\n" \
+              "Abort the save procedure by pressing <b>Abort</b>.\n" \
+              "An additional dialog informs whether it is safe to do so.\n" \
               "</p>\n"
           ),
         # Summary dialog help
@@ -55,8 +55,8 @@ module Yast
         ),
         # Ovreview dialog help
         "overview"        => _(
-          "<p><b><big>Squid Configuration Overview</big></b><br>\n" +
-            "Obtain an overview of installed squids and\n" +
+          "<p><b><big>Squid Configuration Overview</big></b><br>\n" \
+            "Obtain an overview of installed squids and\n" \
             "edit their configurations if necessary.<br></p>\n"
         ),
         # Http Ports Dialog
@@ -77,8 +77,8 @@ module Yast
             "<p><b>Min</b> determines how long (in minutes) an object should be\nconsidered fresh if no explicit expiry time is given.\n"
           ) +
           _(
-            "<p><b>Percent</b> is the percentage of the object's age (time since last\n" +
-              "modification). An object without explicit expiry time will be\n" +
+            "<p><b>Percent</b> is the percentage of the object's age (time since last\n" \
+              "modification). An object without explicit expiry time will be\n" \
               "considered fresh.</p>\n"
           ) +
           _(
@@ -95,37 +95,37 @@ module Yast
             "<p><b>Min Object Size</b> specifies the minimum size for objects. Smaller \nobjects will not be saved to the disk.</p>\n"
           ) +
           _(
-            "<p>Replacement begins when the swap (disk) usage is above the\n" +
-              "<b>Swap Low-Water Mark</b> and attempts to maintain utilization near the\n" +
-              "<b>Swap Low-Water Mark</b>. As swap utilization gets close to\n" +
-              "<b>Swap High-Water Mark</b>, object eviction becomes more aggressive.\n" +
-              "If utilization is close to the <b>Swap Low-Water Mark</b>, less replacement\n" +
+            "<p>Replacement begins when the swap (disk) usage is above the\n" \
+              "<b>Swap Low-Water Mark</b> and attempts to maintain utilization near the\n" \
+              "<b>Swap Low-Water Mark</b>. As swap utilization gets close to\n" \
+              "<b>Swap High-Water Mark</b>, object eviction becomes more aggressive.\n" \
+              "If utilization is close to the <b>Swap Low-Water Mark</b>, less replacement\n" \
               "is done each time.\n"
           ) +
           _(
-            "<p><b>Cache Replacement Policy</b> determines which objects are to be replaced\n" +
-              "when disk space is needed.\n" +
-              "<b>Memory Replacement Policy</b> specifies the policy for object replacement in\n" +
-              "memory when space for new objects is not available.\n" +
-              "Policies could be:\n" +
-              "<table>\n" +
-              "    <tr>\n" +
-              "      <td>lru</td>\n" +
-              "      <td>least recently used</td>\n" +
-              "    </tr>\n" +
-              "    <tr>\n" +
-              "      <td>heap GDSF</td>\n" +
-              "      <td>Greedy-Dual Size Frequency</td>\n" +
-              "    </tr>\n" +
-              "    <tr>\n" +
-              "      <td>heap LFUDA</td>\n" +
-              "      <td>Least Frequently Used with Dynamic Aging</td>\n" +
-              "    <tr>\n" +
-              "    <tr>\n" +
-              "      <td>heap LRU</td>\n" +
-              "      <td>lru policy implemented using a heap</td>\n" +
-              "    </tr>\n" +
-              "</table>\n" +
+            "<p><b>Cache Replacement Policy</b> determines which objects are to be replaced\n" \
+              "when disk space is needed.\n" \
+              "<b>Memory Replacement Policy</b> specifies the policy for object replacement in\n" \
+              "memory when space for new objects is not available.\n" \
+              "Policies could be:\n" \
+              "<table>\n" \
+              "    <tr>\n" \
+              "      <td>lru</td>\n" \
+              "      <td>least recently used</td>\n" \
+              "    </tr>\n" \
+              "    <tr>\n" \
+              "      <td>heap GDSF</td>\n" \
+              "      <td>Greedy-Dual Size Frequency</td>\n" \
+              "    </tr>\n" \
+              "    <tr>\n" \
+              "      <td>heap LFUDA</td>\n" \
+              "      <td>Least Frequently Used with Dynamic Aging</td>\n" \
+              "    <tr>\n" \
+              "    <tr>\n" \
+              "      <td>heap LRU</td>\n" \
+              "      <td>lru policy implemented using a heap</td>\n" \
+              "    </tr>\n" \
+              "</table>\n" \
               "</p>"
           ),
         # Cache Directory
@@ -149,8 +149,8 @@ module Yast
             "<p><b>ACL Group</b> has various types and the description of ACL Group depends\non the particular type.</p>\n"
           ),
         "http_access"     => _(
-          "<p>In the <b>Access Control</b> table, access can be denied or allowed to ACL Groups.\n" +
-            "If there are more ACL Groups in one line, it means that access will be allowed\n" +
+          "<p>In the <b>Access Control</b> table, access can be denied or allowed to ACL Groups.\n" \
+            "If there are more ACL Groups in one line, it means that access will be allowed\n" \
             "or denied to members who belong to all ACL Groups at the same time.</p>\n"
         ) +
           _(
@@ -164,8 +164,8 @@ module Yast
             "<p><b>Cache Log</b> defines the file in which general information about your\ncache's behavior is logged.</p>\n"
           ) +
           _(
-            "<p><b>Cache Store Log</b> defines the location of the transaction log of all\n" +
-              "objects that are stored in the object store, as well as the time when an object\n" +
+            "<p><b>Cache Store Log</b> defines the location of the transaction log of all\n" \
+              "objects that are stored in the object store, as well as the time when an object\n" \
               "gets deleted. This option can be left empty.</p>\n"
           ) +
           _(
@@ -181,7 +181,7 @@ module Yast
         "miscellaneous"   => _(
           "<p><b>Administrator's email</b> is the address which will be added to any\nerror pages that are displayed to clients. Defaults to webmaster.</p>\n"
         )
-      } 
+      }
 
       # EOF
     end

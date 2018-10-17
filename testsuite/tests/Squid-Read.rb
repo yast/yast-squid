@@ -5,7 +5,7 @@ module Yast
     def main
       # testedfiles: Squid.ycp
 
-      @READ = {
+      @read = {
         "squid" => {
           "http_port"                 => [
             ["localhost:3128"],
@@ -67,94 +67,93 @@ module Yast
           "ftp_passive"               => [["on"]]
         }
       }
-      @READ = { "etc" => @READ }
+      @read = { "etc" => @read }
 
-      @WRITE = {}
-      @EXECUTE = {
+      @write = {}
+      @execute = {
         "target" => {
           "bash_output" => {
-            "exit" => 0,
+            "exit"   => 0,
             "stdout" => "",
-            "stderr" => "",
+            "stderr" => ""
           }
         }
       }
 
       Yast.include self, "testsuite.rb"
-      #TESTSUITE_INIT([READ,WRITE,EXECUTE], nil);
+      # TESTSUITE_INIT([READ,WRITE,EXECUTE], nil);
 
       Yast.import "Squid"
 
       DUMP("Squid::readHttpPorts()")
-      TEST(lambda { Squid.readHttpPorts }, [@READ, @WRITE, @EXECUTE], nil)
+      TEST(-> { Squid.readHttpPorts }, [@read, @write, @execute], nil)
       DUMP("Squid::http_ports")
-      TEST(lambda { Squid.http_ports }, [], nil)
+      TEST(-> { Squid.http_ports }, [], nil)
 
       DUMP("------------------------------")
 
       DUMP("Squid::readHttpAccesses()")
-      TEST(lambda { Squid.readHttpAccesses }, [@READ, @WRITE, @EXECUTE], nil)
+      TEST(-> { Squid.readHttpAccesses }, [@read, @write, @execute], nil)
       DUMP("Squid::http_accesses")
-      TEST(lambda { Squid.http_accesses }, [], nil)
+      TEST(-> { Squid.http_accesses }, [], nil)
 
       DUMP("------------------------------")
 
       DUMP("Squid::readRefreshPatterns()")
-      TEST(lambda { Squid.readRefreshPatterns }, [@READ, @WRITE, @EXECUTE], nil)
+      TEST(-> { Squid.readRefreshPatterns }, [@read, @write, @execute], nil)
       DUMP("Squid::refresh_patterns")
-      TEST(lambda { Squid.refresh_patterns }, [], nil)
+      TEST(-> { Squid.refresh_patterns }, [], nil)
 
       DUMP("------------------------------")
 
       DUMP("Squid::readACLs()")
-      TEST(lambda { Squid.readACLs }, [@READ, @WRITE, @EXECUTE], nil)
+      TEST(-> { Squid.readACLs }, [@read, @write, @execute], nil)
       DUMP("Squid::acls")
-      TEST(lambda { Squid.acls }, [], nil)
+      TEST(-> { Squid.acls }, [], nil)
 
       DUMP("------------------------------")
 
       DUMP("Squid::readRestSetting()")
-      TEST(lambda { Squid.readRestSetting }, [@READ, @WRITE, @EXECUTE], nil)
+      TEST(-> { Squid.readRestSetting }, [@read, @write, @execute], nil)
       DUMP("Squid::settings")
-      TEST(lambda { Squid.settings }, [], nil)
+      TEST(-> { Squid.settings }, [], nil)
 
       DUMP("------------------------------")
 
       DUMP("Squid::Read()")
-      TEST(lambda { Squid.Read }, [@READ, @WRITE, @EXECUTE], nil)
+      TEST(-> { Squid.Read }, [@read, @write, @execute], nil)
       DUMP("Squid::settings")
-      TEST(lambda { Squid.settings }, [], nil)
+      TEST(-> { Squid.settings }, [], nil)
       DUMP("Squid::acls")
-      TEST(lambda { Squid.acls }, [], nil)
+      TEST(-> { Squid.acls }, [], nil)
       DUMP("Squid::refresh_patterns")
-      TEST(lambda { Squid.refresh_patterns }, [], nil)
+      TEST(-> { Squid.refresh_patterns }, [], nil)
       DUMP("Squid::http_accesses")
-      TEST(lambda { Squid.http_accesses }, [], nil)
+      TEST(-> { Squid.http_accesses }, [], nil)
       DUMP("Squid::http_ports")
-      TEST(lambda { Squid.http_ports }, [], nil)
-
+      TEST(-> { Squid.http_ports }, [], nil)
 
       # Testing of using default values:
       DUMP("------------------------------")
       DUMP("----testing defualt values----")
-      @READ = Ops.get_map(@READ, "etc", {})
+      @read = Ops.get_map(@read, "etc", {})
       Ops.set(
-        @READ,
+        @read,
         "squid",
-        Builtins.remove(Ops.get_map(@READ, "squid", {}), "cache_mem")
+        Builtins.remove(Ops.get_map(@read, "squid", {}), "cache_mem")
       )
       Ops.set(
-        @READ,
+        @read,
         "squid",
         Builtins.remove(
-          Ops.get_map(@READ, "squid", {}),
+          Ops.get_map(@read, "squid", {}),
           "memory_replacement_policy"
         )
       )
-      @READ = { "etc" => @READ }
+      @read = { "etc" => @read }
 
       DUMP("Squid:Read()")
-      TEST(lambda { Squid.Read }, [@READ, @WRITE, @EXECUTE], nil)
+      TEST(-> { Squid.Read }, [@read, @write, @execute], nil)
 
       DUMP(
         "Squid::settings[\"cache_mem\"]:[\"1\"] == Squid::parameters[\"cache_mem\"]:[\"2\"]"
@@ -162,8 +161,8 @@ module Yast
       TEST(lambda do
         Convert.convert(
           Ops.get(Squid.settings, "cache_mem") { ["1"] },
-          :from => "any",
-          :to   => "list <string>"
+          from: "any",
+          to:   "list <string>"
         ) ==
           Ops.get(Squid.parameters, "cache_mem") { ["2"] }
       end, [], nil)
@@ -174,8 +173,8 @@ module Yast
       TEST(lambda do
         Convert.convert(
           Ops.get(Squid.settings, "memory_replacement_policy") { ["1"] },
-          :from => "any",
-          :to   => "list <string>"
+          from: "any",
+          to:   "list <string>"
         ) ==
           Ops.get(Squid.parameters, "memory_replacement_policy") { ["2"] }
       end, [], nil)

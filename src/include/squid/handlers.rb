@@ -69,8 +69,7 @@ module Yast
       nil
     end
 
-
-    def HandleRefreshPatternsTable(widget_id, event_map)
+    def HandleRefreshPatternsTable(_widget_id, event_map)
       event_map = deep_copy(event_map)
       ui = Ops.get(event_map, "ID")
       id_item = nil
@@ -99,7 +98,7 @@ module Yast
             UI.QueryWidget(Id("refresh_patterns"), :CurrentItem)
           )
         )
-        if id_item != nil
+        if !id_item.nil?
           InitRefreshPatternsTable("")
           UI.ChangeWidget(Id("refresh_patterns"), :CurrentItem, id_item)
         end
@@ -109,7 +108,7 @@ module Yast
             UI.QueryWidget(Id("refresh_patterns"), :CurrentItem)
           )
         )
-        if id_item != nil
+        if !id_item.nil?
           InitRefreshPatternsTable("")
           UI.ChangeWidget(Id("refresh_patterns"), :CurrentItem, id_item)
         end
@@ -117,14 +116,11 @@ module Yast
       nil
     end
 
-
-    def HandleCache2Dialog(widget_id, event_map)
+    def HandleCache2Dialog(_widget_id, event_map)
       event_map = deep_copy(event_map)
       ui = Ops.get(event_map, "ID")
-      tmp = nil
-      tmp2 = nil
 
-      #cache_min_object_size <= cache_max_object_size
+      # cache_min_object_size <= cache_max_object_size
       if ui == "cache_min_object_size" || ui == "cache_min_object_size_units"
         tmp = Ops.multiply(
           Convert.to_integer(
@@ -190,30 +186,30 @@ module Yast
             :Value,
             UI.QueryWidget(Id("cache_max_object_size_units"), :Value)
           )
-        end 
+        end
 
-        #cache_swap_low <= cache_swap_high
+        # cache_swap_low <= cache_swap_high
       elsif ui == "cache_swap_low"
         tmp = UI.QueryWidget(Id("cache_swap_low"), :Value)
         if Ops.greater_than(
-            Convert.to_integer(tmp),
-            Convert.to_integer(UI.QueryWidget(Id("cache_swap_high"), :Value))
-          )
+          Convert.to_integer(tmp),
+          Convert.to_integer(UI.QueryWidget(Id("cache_swap_high"), :Value))
+        )
           UI.ChangeWidget(Id("cache_swap_high"), :Value, tmp)
         end
       elsif ui == "cache_swap_high"
         tmp = UI.QueryWidget(Id("cache_swap_high"), :Value)
         if Ops.greater_than(
-            Convert.to_integer(UI.QueryWidget(Id("cache_swap_low"), :Value)),
-            Convert.to_integer(tmp)
-          )
+          Convert.to_integer(UI.QueryWidget(Id("cache_swap_low"), :Value)),
+          Convert.to_integer(tmp)
+        )
           UI.ChangeWidget(Id("cache_swap_low"), :Value, tmp)
         end
       end
       nil
     end
 
-    def HandleCacheDirectoryDialog(widget_id, event_map)
+    def HandleCacheDirectoryDialog(_widget_id, event_map)
       event_map = deep_copy(event_map)
       ui = Ops.get(event_map, "ID")
       cache_dir = ""
@@ -223,13 +219,13 @@ module Yast
           Convert.to_string(UI.QueryWidget(Id("cache_dir"), :Value)),
           _("Cache Directory")
         )
-        UI.ChangeWidget(Id("cache_dir"), :Value, cache_dir) if cache_dir != nil
+        UI.ChangeWidget(Id("cache_dir"), :Value, cache_dir) if !cache_dir.nil?
       end
 
       nil
     end
 
-    def HandleAccessControlDialog(widget_id, event_map)
+    def HandleAccessControlDialog(_widget_id, event_map)
       event_map = deep_copy(event_map)
       ui = Ops.get(event_map, "ID")
       id_item = nil
@@ -268,7 +264,7 @@ module Yast
         id_item = MoveUpHttpAccess(
           Convert.to_integer(UI.QueryWidget(Id("http_access"), :CurrentItem))
         )
-        if id_item != nil
+        if !id_item.nil?
           InitHttpAccessTable("")
           UI.ChangeWidget(Id("http_access"), :CurrentItem, id_item)
         end
@@ -276,7 +272,7 @@ module Yast
         id_item = MoveDownHttpAccess(
           Convert.to_integer(UI.QueryWidget(Id("http_access"), :CurrentItem))
         )
-        if id_item != nil
+        if !id_item.nil?
           InitHttpAccessTable("")
           UI.ChangeWidget(Id("http_access"), :CurrentItem, id_item)
         end
@@ -284,21 +280,20 @@ module Yast
       nil
     end
 
-
-    def HandleLoggingFrame(widget_id, event_map)
+    def HandleLoggingFrame(_widget_id, event_map)
       event_map = deep_copy(event_map)
       ui = Ops.get(event_map, "ID")
       tmp = nil
 
       if ui == :access_log_browse
         tmp = UI.AskForExistingFile("/var/log", "*", _("Access Log"))
-        UI.ChangeWidget(Id("access_log"), :Value, tmp) if tmp != nil
+        UI.ChangeWidget(Id("access_log"), :Value, tmp) if !tmp.nil?
       elsif ui == :cache_log_browse
         tmp = UI.AskForExistingFile("/var/log", "*", _("Cache Log"))
-        UI.ChangeWidget(Id("cache_log"), :Value, tmp) if tmp != nil
+        UI.ChangeWidget(Id("cache_log"), :Value, tmp) if !tmp.nil?
       elsif ui == :cache_store_log_browse
         tmp = UI.AskForExistingFile("/var/log", "*", _("Cache Store Log"))
-        UI.ChangeWidget(Id("cache_store_log"), :Value, tmp) if tmp != nil
+        UI.ChangeWidget(Id("cache_store_log"), :Value, tmp) if !tmp.nil?
       end
       nil
     end

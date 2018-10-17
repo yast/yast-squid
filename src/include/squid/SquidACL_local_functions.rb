@@ -53,10 +53,10 @@ module Yast
     def isMask(str)
       Builtins.regexpmatch(str, "^[0-9]+$") || isIPAddr(str)
     end
+
     def isHHMMFormat(str)
       return false if !Builtins.regexpmatch(str, "^[0-9]{1,2}:[0-9]{1,2}$")
       hm = Builtins.splitstring(str, ":")
-      tmp = 0
 
       tmp = Builtins.tointeger(Ops.get(hm, 0, ""))
       return false if Ops.less_than(tmp, 0) || Ops.greater_than(tmp, 23)
@@ -65,6 +65,7 @@ module Yast
 
       true
     end
+
     def isCorrectFromTo(from, to)
       fr = Builtins.tointeger(
         Builtins.regexpsub(
@@ -84,20 +85,20 @@ module Yast
       Ops.less_than(fr, t)
     end
 
-
-
     def widgetInitIPAddr(id)
       id = deep_copy(id)
       UI.ChangeWidget(Id(id), :ValidChars, "1234567890.")
 
       nil
     end
+
     def widgetInitMask(id)
       id = deep_copy(id)
       UI.ChangeWidget(Id(id), :ValidChars, "1234567890.")
 
       nil
     end
+
     def widgetInitDomainName(id)
       id = deep_copy(id)
       UI.ChangeWidget(
@@ -108,6 +109,7 @@ module Yast
 
       nil
     end
+
     def widgetInitHHMM(id)
       id = deep_copy(id)
       UI.ChangeWidget(Id(id), :ValidChars, "1234567890:")
@@ -116,13 +118,12 @@ module Yast
       nil
     end
 
-
-    #*****************  SRC  ************************
+    # *****************  SRC  ************************
     def srcWidgetInit(id_item)
       UI.ChangeWidget(Id("acl_addr"), :ValidChars, "1234567890.-")
       widgetInitMask("acl_mask")
 
-      if id_item != nil
+      if !id_item.nil?
         acl = Squid.GetACL(id_item)
         data = Builtins.splitstring(
           Ops.get(Ops.get_list(acl, "options", []), 0, ""),
@@ -144,7 +145,7 @@ module Yast
 
       if Builtins.size(addr) == 0 ||
           !isIPAddr(addr) && !isIPAddr(Ops.get(tmp, 0, "")) &&
-            !isIPAddr(Ops.get(tmp, 1, "")) ||
+              !isIPAddr(Ops.get(tmp, 1, "")) ||
           Ops.greater_than(Builtins.size(mask), 0) && !isMask(mask)
         ok = false
         Report.Error(_("Invalid values."))
@@ -164,15 +165,14 @@ module Yast
       end
       deep_copy(data)
     end
-    #*****************  SRC END  ********************
+    # *****************  SRC END  ********************
 
-
-    #*****************  DST  ************************
+    # *****************  DST  ************************
     def dstWidgetInit(id_item)
       widgetInitIPAddr("acl_addr")
       widgetInitMask("acl_mask")
 
-      if id_item != nil
+      if !id_item.nil?
         acl = Squid.GetACL(id_item)
         data = Builtins.splitstring(
           Ops.get(Ops.get_list(acl, "options", []), 0, ""),
@@ -211,19 +211,17 @@ module Yast
       end
       deep_copy(data)
     end
-    #*****************  DST END  ********************
-
+    # *****************  DST END  ********************
 
     # *****************  MYIP  ************************
     #  * Uses same functions as DST
     # /******************  MYIP END  *******************
 
-
-    #***************  SRCDOMAIN  ********************
+    # ***************  SRCDOMAIN  ********************
     def srcdomainWidgetInit(id_item)
       widgetInitDomainName("acl_domain")
 
-      if id_item != nil
+      if !id_item.nil?
         acl = Squid.GetACL(id_item)
         UI.ChangeWidget(
           Id("acl_domain"),
@@ -234,28 +232,29 @@ module Yast
 
       nil
     end
+
     def srcdomainVerif
       ok = true
 
       if Builtins.size(
-          Convert.to_string(UI.QueryWidget(Id("acl_domain"), :Value))
-        ) == 0
+        Convert.to_string(UI.QueryWidget(Id("acl_domain"), :Value))
+      ) == 0
         ok = false
         Report.Error(_("Domain Name must not be empty."))
       end
       ok
     end
+
     def srcdomainOptions
       [Convert.to_string(UI.QueryWidget(Id("acl_domain"), :Value))]
     end
-    #***************  SRCDOMAIN END  ****************
+    # ***************  SRCDOMAIN END  ****************
 
     # ***************  DSTDOMAIN  *********************
     #  * Uses same functions as SRCDOMAIN.
     # /****************  DSTDOMAIN END  ****************
 
-
-    #***************  REGEXP  ***********************
+    # ***************  REGEXP  ***********************
     # Returns universal widget for setting a regular expression.
     def regexpWidget(frame_title)
       Frame(
@@ -275,7 +274,7 @@ module Yast
 
     # Universal widget_init for regular expression.
     def regexpWidgetInit(id_item)
-      if id_item != nil
+      if !id_item.nil?
         acl = Squid.GetACL(id_item)
 
         if Ops.get(Ops.get_list(acl, "options", []), 0, "") == "-i"
@@ -295,6 +294,7 @@ module Yast
 
       nil
     end
+
     # Universal verification function for regular expression.
     def regexpVerif
       ok = true
@@ -306,12 +306,13 @@ module Yast
       end
       ok
     end
+
     # Universal options function for regular expression.
     def regexpOptions
       ret = []
       if Convert.to_boolean(
-          UI.QueryWidget(Id("acl_regexp_case_insensitive"), :Value)
-        )
+        UI.QueryWidget(Id("acl_regexp_case_insensitive"), :Value)
+      )
         Ops.set(ret, 0, "-i")
       end
       ret = Builtins.add(
@@ -332,16 +333,14 @@ module Yast
         "help"         => help
       }
     end
-    #***************  REGEXP END  *******************
+    # ***************  REGEXP END  *******************
 
-
-
-    #***************  TIME  *************************
+    # ***************  TIME  *************************
     def timeWidgetInit(id_item)
       widgetInitHHMM("acl_from")
       widgetInitHHMM("acl_to")
 
-      if id_item != nil
+      if !id_item.nil?
         acl = Squid.GetACL(id_item)
         days = splitToChars(Ops.get(Ops.get_list(acl, "options", []), 0, ""))
         times = Builtins.splitstring(
@@ -356,6 +355,7 @@ module Yast
 
       nil
     end
+
     def timeVerif
       ok = true
       from = Convert.to_string(UI.QueryWidget(Id("acl_from"), :Value))
@@ -372,16 +372,17 @@ module Yast
         Report.Error(_("Time is not set in correct format."))
       elsif !isCorrectFromTo(from, to)
         ok = false
-        Report.Error(_("From must be less than To.")) #TODO: better error message
+        Report.Error(_("From must be less than To.")) # TODO: better error message
       end
       ok
     end
+
     def timeOptions
       days = Builtins.mergestring(
         Convert.convert(
           UI.QueryWidget(Id("acl_days"), :SelectedItems),
-          :from => "any",
-          :to   => "list <string>"
+          from: "any",
+          to:   "list <string>"
         ),
         ""
       )
@@ -394,14 +395,13 @@ module Yast
       )
       [days, times]
     end
-    #***************  TIME END  *********************
+    # ***************  TIME END  *********************
 
-
-    #***************  PORT  *************************
+    # ***************  PORT  *************************
     def portWidgetInit(id_item)
       UI.ChangeWidget(Id("acl_port"), :ValidChars, "1234567890-")
 
-      if id_item != nil
+      if !id_item.nil?
         acl = Squid.GetACL(id_item)
 
         UI.ChangeWidget(
@@ -413,6 +413,7 @@ module Yast
 
       nil
     end
+
     def portVerif
       ok = true
       port = Convert.to_string(UI.QueryWidget(Id("acl_port"), :Value))
@@ -432,17 +433,17 @@ module Yast
       Report.Error(_("Invalid value.")) if !ok
       ok
     end
+
     def portOptions
       [Convert.to_string(UI.QueryWidget(Id("acl_port"), :Value))]
     end
-    #***************  PORT END  *********************
+    # ***************  PORT END  *********************
 
-
-    #*************  MYPORT  *************************
+    # *************  MYPORT  *************************
     def myportWidgetInit(id_item)
       UI.ChangeWidget(Id("acl_port"), :ValidChars, "1234567890")
 
-      if id_item != nil
+      if !id_item.nil?
         acl = Squid.GetACL(id_item)
 
         UI.ChangeWidget(
@@ -454,6 +455,7 @@ module Yast
 
       nil
     end
+
     def myportVerif
       ok = true
       port = Convert.to_string(UI.QueryWidget(Id("acl_port"), :Value))
@@ -464,10 +466,9 @@ module Yast
       end
       ok
     end
-    #*************  MYPORT END  *********************
+    # *************  MYPORT END  *********************
 
-
-    #**************  PROTO  *************************
+    # **************  PROTO  *************************
     def protoWidgetInit(id_item)
       UI.ChangeWidget(
         Id("acl_proto"),
@@ -475,7 +476,7 @@ module Yast
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
       )
 
-      if id_item != nil
+      if !id_item.nil?
         acl = Squid.GetACL(id_item)
 
         UI.ChangeWidget(
@@ -487,6 +488,7 @@ module Yast
 
       nil
     end
+
     def protoVerif
       ok = true
       protocol = Convert.to_string(UI.QueryWidget(Id("acl_proto"), :Value))
@@ -496,15 +498,15 @@ module Yast
       end
       ok
     end
+
     def protoOptions
       [Convert.to_string(UI.QueryWidget(Id("acl_proto"), :Value))]
     end
-    #**************  PROTO END  *********************
+    # **************  PROTO END  *********************
 
-
-    #**************  METHOD  ************************
+    # **************  METHOD  ************************
     def methodWidgetInit(id_item)
-      if id_item != nil
+      if !id_item.nil?
         acl = Squid.GetACL(id_item)
 
         UI.ChangeWidget(
@@ -516,18 +518,19 @@ module Yast
 
       nil
     end
+
     def methodVerif
       true
     end
+
     def methodOptions
       [Convert.to_string(UI.QueryWidget(Id("acl_method"), :Value))]
     end
-    #**************  METHOD END  ********************
+    # **************  METHOD END  ********************
 
-
-    #**************  MAXCONN  ***********************
+    # **************  MAXCONN  ***********************
     def maxconnWidgetInit(id_item)
-      if id_item != nil
+      if !id_item.nil?
         acl = Squid.GetACL(id_item)
 
         UI.ChangeWidget(
@@ -539,18 +542,19 @@ module Yast
 
       nil
     end
+
     def maxconnVerif
       true
     end
+
     def maxconnOptions
       [Builtins.tostring(UI.QueryWidget(Id("acl_connections"), :Value))]
     end
-    #**************  MAXCONN END  *******************
+    # **************  MAXCONN END  *******************
 
-
-    #**************  HEADER  ************************
+    # **************  HEADER  ************************
     def headerWidgetInit(id_item)
-      if id_item != nil
+      if !id_item.nil?
         acl = Squid.GetACL(id_item)
         UI.ChangeWidget(
           Id("acl_header_name"),
@@ -575,6 +579,7 @@ module Yast
 
       nil
     end
+
     def headerVerif
       ok = true
       header_name = Convert.to_string(
@@ -588,6 +593,7 @@ module Yast
       end
       ok
     end
+
     def headerOptions
       header_name = Convert.to_string(
         UI.QueryWidget(Id("acl_header_name"), :Value)
@@ -603,14 +609,13 @@ module Yast
 
       deep_copy(ret)
     end
-    #**************  HEADER END  ********************
+    # **************  HEADER END  ********************
 
-
-    #**************  ARP  ***************************
+    # **************  ARP  ***************************
     def arpWidgetInit(id_item)
       UI.ChangeWidget(Id("acl_mac"), :ValidChars, "1234567890ABCDEFabcdef:")
 
-      if id_item != nil
+      if !id_item.nil?
         acl = Squid.GetACL(id_item)
         UI.ChangeWidget(
           Id("acl_mac"),
@@ -621,6 +626,7 @@ module Yast
 
       nil
     end
+
     def arpVerif
       ok = true
       mac = Convert.to_string(UI.QueryWidget(Id("acl_mac"), :Value))
@@ -635,6 +641,7 @@ module Yast
       end
       ok
     end
+
     def arpOptions
       [Convert.to_string(UI.QueryWidget(Id("acl_mac"), :Value))]
     end
