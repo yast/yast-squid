@@ -69,7 +69,7 @@ module Yast
     #
     # @return [Symbol] :abort when settings could not be read; :next otherwise
     def ReadDialog
-      Wizard.RestoreHelp(Ops.get_string(@HELPS, "read", ""))
+      Wizard.RestoreHelp(@HELPS["read"])
       Squid.AbortFunction = fun_ref(method(:PollAbort), "boolean ()")
 
       return :abort unless Confirm.MustBeRoot
@@ -85,7 +85,7 @@ module Yast
     #
     # @return [Symbol] :abort if aborted, :next otherwise
     def WriteDialog
-      help = @HELPS.fetch("write") { "" }
+      help = @HELPS["write"]
 
       Wizard.CreateDialog
       Wizard.RestoreHelp(help)
@@ -93,8 +93,7 @@ module Yast
       result = Squid.Write
       Wizard.CloseDialog
 
-      return :next if result
-      :abort
+      result ? :next : :abort
     end
 
     def SaveAndRestart
@@ -118,7 +117,7 @@ module Yast
       )
     end
 
-    private
+  private
 
     # Add the service wiget if is not already included
     #
