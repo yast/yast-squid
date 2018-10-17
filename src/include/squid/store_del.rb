@@ -205,8 +205,7 @@ module Yast
       ok
     end
 
-    def StoreDataFromCache2Dialog(_widget_id, event)
-      event = deep_copy(event)
+    def StoreDataFromCache2Dialog(_widget_id, _event)
       Squid.SetSetting(
         "cache_mem",
         [
@@ -296,8 +295,7 @@ module Yast
       ok
     end
 
-    def StoreDataFromCacheDirectoryDialog(_widget_id, event)
-      event = deep_copy(event)
+    def StoreDataFromCacheDirectoryDialog(_widget_id, _event)
       squid_cache_dir = Squid.GetSetting("cache_dir")
 
       Squid.SetSetting(
@@ -318,11 +316,10 @@ module Yast
     # *************  HTTP_ACCESS  ********************
     def StoreDataFromAddEditHttpAccessDialog(id_item)
       ok = true
-      allow = true
       acls = []
       tmp = ""
-
       allow = UI.QueryWidget(Id("allow_deny"), :Value) == "allow" ? true : false
+
       Builtins.foreach(
         Convert.convert(
           UI.QueryWidget(Id("acls"), :Items),
@@ -392,11 +389,10 @@ module Yast
       verification = SquidACL.Verify(type)
 
       affected_options = []
-      num_acls = nil
       old_name = nil
+
       if !id_item.nil?
         affected_options = Squid.ACLIsUsedBy(id_item)
-        num_acls = Squid.NumACLs(id_item)
         old_name = Ops.get_string(Squid.GetACL(id_item), "name", "")
       end
 
@@ -626,8 +622,7 @@ module Yast
       true
     end
 
-    def StoreDataFromLoggingFrame(_widget_id, event)
-      event = deep_copy(event)
+    def StoreDataFromLoggingFrame(_widget_id, _event)
       access_log = Convert.to_string(UI.QueryWidget(Id("access_log"), :Value))
       cache_log = Convert.to_string(UI.QueryWidget(Id("cache_log"), :Value))
       cache_store_log = Convert.to_string(
@@ -645,8 +640,7 @@ module Yast
       nil
     end
 
-    def StoreDataFromTimeoutsFrame(_widget_id, event)
-      event = deep_copy(event)
+    def StoreDataFromTimeoutsFrame(_widget_id, _event)
       Squid.SetSetting(
         "connect_timeout",
         [
@@ -684,15 +678,12 @@ module Yast
       true
     end
 
-    def StoreDataFromMiscellaneousFrame(_widget_id, event)
-      event = deep_copy(event)
+    def StoreDataFromMiscellaneousFrame(_widget_id, _event)
       error_language = Convert.to_string(
         UI.QueryWidget(Id("error_language"), :Value)
       )
       cache_mgr = Convert.to_string(UI.QueryWidget(Id("cache_mgr"), :Value))
-      ftp_passive = Convert.to_boolean(
-        UI.QueryWidget(Id("ftp_passive"), :Value)
-      ) ? "on" : "off"
+      ftp_passive = Convert.to_boolean(UI.QueryWidget(Id("ftp_passive"), :Value)) ? "on" : "off"
 
       Squid.SetSetting(
         "error_directory",

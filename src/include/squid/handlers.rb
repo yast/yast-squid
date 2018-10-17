@@ -119,8 +119,6 @@ module Yast
     def HandleCache2Dialog(_widget_id, event_map)
       event_map = deep_copy(event_map)
       ui = Ops.get(event_map, "ID")
-      tmp = nil
-      tmp2 = nil
 
       # cache_min_object_size <= cache_max_object_size
       if ui == "cache_min_object_size" || ui == "cache_min_object_size_units"

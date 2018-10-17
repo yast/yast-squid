@@ -107,8 +107,7 @@ module Yast
       # EOF
     end
 
-    def startHandler(options)
-      options = deep_copy(options)
+    def startHandler(_options)
       CommandLine.PrintNoCR("Starting service ...  ")
       if Squid.StartService
         CommandLine.Print("Success")
@@ -119,8 +118,7 @@ module Yast
       end
     end
 
-    def stopHandler(options)
-      options = deep_copy(options)
+    def stopHandler(_options)
       CommandLine.PrintNoCR("Stopping service ...  ")
       if Squid.StopService
         CommandLine.Print("Success")

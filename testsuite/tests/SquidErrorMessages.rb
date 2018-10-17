@@ -5,7 +5,7 @@ module Yast
     def main
       # testedfiles: SquidErrorMessages.ycp
 
-      @READ = [
+      @read = [
         {
           "target" => {
             "dir" => [
@@ -26,8 +26,8 @@ module Yast
         { "target" => { "stat" => { "isdir" => false } } }
       ]
 
-      @WRITE = {}
-      @EXECUTE = {}
+      @write = {}
+      @execute = {}
 
       Yast.include self, "testsuite.rb"
 
@@ -35,28 +35,28 @@ module Yast
       Yast.import "FileUtils"
 
       DUMP("GetLanguages()")
-      TEST(-> { SquidErrorMessages.GetLanguages }, [@READ, @WRITE, @EXECUTE], nil)
+      TEST(-> { SquidErrorMessages.GetLanguages }, [@read, @write, @execute], nil)
 
       DUMP("")
       DUMP("GetLanguagesToComboBox()")
       TEST(-> { SquidErrorMessages.GetLanguagesToComboBox }, [
-             @READ,
-             @WRITE,
-             @EXECUTE
+             @read,
+             @write,
+             @execute
            ], nil)
 
       DUMP("")
       DUMP("GetPath(\"en\")")
       TEST(-> { SquidErrorMessages.GetPath("en") }, [
-             @READ,
-             @WRITE,
-             @EXECUTE
+             @read,
+             @write,
+             @execute
            ], nil)
       DUMP("GetPath(\"uk\")")
       TEST(-> { SquidErrorMessages.GetPath("uk") }, [
-             @READ,
-             @WRITE,
-             @EXECUTE
+             @read,
+             @write,
+             @execute
            ], nil)
 
       DUMP("")
@@ -74,9 +74,9 @@ module Yast
           Ops.add(SquidErrorMessages.err_msg_dir, "/en")
         )
       end, [
-        @READ,
-        @WRITE,
-        @EXECUTE
+        @read,
+        @write,
+        @execute
       ], nil)
       DUMP(
         Ops.add(
@@ -92,9 +92,9 @@ module Yast
           Ops.add(SquidErrorMessages.err_msg_dir, "/ru")
         )
       end, [
-        @READ,
-        @WRITE,
-        @EXECUTE
+        @read,
+        @write,
+        @execute
       ], nil)
 
       nil

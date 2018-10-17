@@ -57,7 +57,6 @@ module Yast
     def isHHMMFormat(str)
       return false if !Builtins.regexpmatch(str, "^[0-9]{1,2}:[0-9]{1,2}$")
       hm = Builtins.splitstring(str, ":")
-      tmp = 0
 
       tmp = Builtins.tointeger(Ops.get(hm, 0, ""))
       return false if Ops.less_than(tmp, 0) || Ops.greater_than(tmp, 23)

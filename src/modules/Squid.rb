@@ -439,7 +439,6 @@ module Yast
       acl = Ops.get_string(GetACL(id_item), "name", "")
       return nil if Builtins.size(acl) == 0 # invalid id_item
 
-      params = []
       ret = []
 
       # options with format:
@@ -492,11 +491,9 @@ module Yast
           ) do |params2|
             params2 = Builtins.remove(params2, 0) # remove first param
             if Builtins.contains(format2, value)
-              if Ops.greater_than(Builtins.size(params2), 1)
-                params2 = Builtins.remove(params2, 0)
-              else
-                raise Break
-              end
+              raise Break unless Ops.greater_than(Builtins.size(params2), 1)
+
+              params2 = Builtins.remove(params2, 0)
             end
             if Builtins.contains(params2, acl) ||
                 Builtins.contains(params2, Ops.add("!", acl))
@@ -1323,8 +1320,6 @@ module Yast
         return true
       end
 
-      tcp_ports = GetHttpPortsOnly()
-
       begin
         Y2Firewall::Firewalld::Service.modify_ports(
           name:      @firewall_service_name,
@@ -1360,11 +1355,9 @@ module Yast
           ok = false
           Report.Error(Message.CannotStartService("squid"))
         end
-      else
-        if !Service.Restart("squid")
-          ok = false
-          Report.Error(Message.CannotRestartService("squid"))
-        end
+      elsif !Service.Restart("squid")
+        ok = false
+        Report.Error(Message.CannotRestartService("squid"))
       end
 
       ok
@@ -1560,9 +1553,7 @@ module Yast
             end
             tmp = Ops.add(
               Ops.add(tmp, Ops.get_string(value, "port", "")),
-              Ops.get_boolean(value, "transparent", false) ?
-                _(" (transparent)") :
-                ""
+              Ops.get_boolean(value, "transparent", false) ? _(" (transparent)") : ""
             )
             tmp = Ops.add(tmp, "</i>")
             summary = Summary.AddListItem(summary, tmp)

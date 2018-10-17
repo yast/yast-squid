@@ -44,9 +44,7 @@ module Yast
     def AddEditHttpPortDialog(id_item)
       ui = nil
       ret = false
-      label = id_item.nil? ?
-        _("Add New HTTP Port") :
-        _("Edit Current HTTP Port")
+      label = id_item.nil? ? _("Add New HTTP Port") : _("Edit Current HTTP Port")
       contents = VBox(
         Label(label),
         VSpacing(0.5),
@@ -90,9 +88,7 @@ module Yast
     def AddEditRefreshPatternDialog(id_item)
       ret = false
       ui = nil
-      label = id_item.nil? ?
-        _("Add New Refresh Pattern") :
-        _("Edit Current refresh Pattern")
+      label = id_item.nil? ? _("Add New Refresh Pattern") : _("Edit Current refresh Pattern")
       tmp = nil
 
       contents = VBox(
@@ -156,7 +152,7 @@ module Yast
     # ****************  CACHE END  *******************
 
     # ****************  ACCESS CONTROL  **************
-    def addItemToAddEditHttpAccessDialog(_not, item)
+    def addItemToAddEditHttpAccessDialog(acl_not, item)
       items = []
 
       i = 0
@@ -177,7 +173,7 @@ module Yast
         )
         i = Ops.add(i, 1)
       end
-      items = Builtins.add(items, Item(Id(i), _not == true ? "not" : "", item))
+      items = Builtins.add(items, Item(Id(i), acl_not == true ? "not" : "", item))
       UI.ChangeWidget(Id("acls"), :Items, items)
 
       nil
@@ -217,8 +213,7 @@ module Yast
       ret = false
       ui = nil
       acl = ""
-      _not = false
-      tmp = nil
+      acl_not = false
       tmp_term = nil
       id_acl = 0
       label = id_item.nil? ? _("Add New HTTP Access") : _("Edit HTTP Access")
@@ -280,9 +275,9 @@ module Yast
           end
         elsif ui == :add
           acl = Convert.to_string(UI.QueryWidget(Id("acl"), :Value))
-          _not = Convert.to_boolean(UI.QueryWidget(Id("acl_not"), :Value))
+          acl_not = Convert.to_boolean(UI.QueryWidget(Id("acl_not"), :Value))
           if Ops.greater_than(Builtins.size(acl), 0)
-            addItemToAddEditHttpAccessDialog(_not, acl)
+            addItemToAddEditHttpAccessDialog(acl_not, acl)
             InitAddEditHttpAccessDialog(nil)
           end
         elsif ui == :del

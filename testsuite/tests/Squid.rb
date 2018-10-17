@@ -6,7 +6,7 @@ module Yast
       # testedfiles: Squid.ycp
 
       Yast.include self, "testsuite.rb"
-      @READ = {
+      @read = {
         "squid" => {
           "http_port"                 => [
             ["localhost:3128"],
@@ -69,10 +69,10 @@ module Yast
           "no_cache"                  => [["deny", "QUERY"]]
         }
       }
-      @READ = { "etc" => @READ }
+      @read = { "etc" => @read }
 
-      @WRITE = {}
-      @EXECUTE = {
+      @write = {}
+      @execute = {
         "target" => {
           "bash_output" => {
             "exit"   => 0,
@@ -83,7 +83,7 @@ module Yast
       }
 
       Yast.import "Squid"
-      TESTSUITE_INIT([@READ, @WRITE, @EXECUTE], nil)
+      TESTSUITE_INIT([@read, @write, @execute], nil)
 
       Squid.Read
 
@@ -150,9 +150,9 @@ module Yast
 
       DUMP("")
       DUMP("ACLIsUsedBy(0) - QUERY")
-      TEST(-> { Squid.ACLIsUsedBy(0) }, [@READ, @WRITE, @EXECUTE], nil)
+      TEST(-> { Squid.ACLIsUsedBy(0) }, [@read, @write, @execute], nil)
       DUMP("ACLIsUsedBy(1)")
-      TEST(-> { Squid.ACLIsUsedBy(1) }, [@READ, @WRITE, @EXECUTE], nil)
+      TEST(-> { Squid.ACLIsUsedBy(1) }, [@read, @write, @execute], nil)
 
       DUMP("==================================================")
       DUMP("================  HTTP_ACCESS  ===================")

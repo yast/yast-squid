@@ -4,7 +4,7 @@ module Yast
   class SquidACLClient < Client
     def main
       # testedfiles: SquidACL.ycp
-      @READ = {
+      @read = {
         "squid" => {
           "acl"         => [
             "QUERY urlpath_regex cgi-bin \\?",
@@ -39,8 +39,8 @@ module Yast
         }
       }
 
-      @WRITE = {}
-      @EXECUTE = {}
+      @write = {}
+      @execute = {}
 
       Yast.include self, "testsuite.rb"
       # TESTSUITE_INIT([READ,WRITE,EXECUTE], nil);

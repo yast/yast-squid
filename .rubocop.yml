@@ -44,3 +44,74 @@ Metrics/ParameterLists:
 Metrics/PerceivedComplexity:
   Max: 28
 
+# Offense count: 23
+Style/Documentation:
+  Exclude:
+    - 'src/include/squid/popup_dialogs.rb'
+    - 'src/include/squid/handlers.rb'
+    - 'src/include/squid/store_del.rb'
+    - 'src/include/squid/inits.rb'
+    - 'src/include/squid/wizards.rb'
+    - 'src/include/squid/helps.rb'
+    - 'src/include/squid/helper_functions.rb'
+    - 'src/include/squid/SquidACL_local_functions.rb'
+    - 'src/include/squid/complex.rb'
+    - 'src/include/squid/dialogs.rb'
+    - 'src/modules/SquidACL.rb'
+    - 'src/modules/SquidACL.rb'
+    - 'src/modules/Squid.rb'
+    - 'src/modules/Squid.rb'
+    - 'src/modules/SquidErrorMessages.rb'
+    - 'src/modules/SquidErrorMessages.rb'
+    - 'src/clients/squid.rb'
+    - 'src/clients/squid_auto.rb'
+    - 'testsuite/tests/SquidACL.rb'
+    - 'testsuite/tests/Squid.rb'
+    - 'testsuite/tests/SquidErrorMessages.rb'
+    - 'testsuite/tests/Squid-Read.rb'
+    - 'testsuite/tests/complex_include_test.rb'
+
+# Offense count: 8
+# Configuration parameters: ExpectMatchingDefinition, Regex, IgnoreExecutableScripts.
+Style/FileName:
+  Exclude:
+    - 'src/include/squid/SquidACL_local_functions.rb'
+    - 'src/modules/Squid.rb'
+    - 'src/modules/SquidACL.rb'
+    - 'src/modules/SquidErrorMessages.rb'
+    - 'testsuite/tests/Squid-Read.rb'
+    - 'testsuite/tests/Squid.rb'
+    - 'testsuite/tests/SquidACL.rb'
+    - 'testsuite/tests/SquidErrorMessages.rb'
+
+# Offense count: 197
+# Configuration parameters: EnforcedStyle, SupportedStyles.
+# SupportedStyles: snake_case, camelCase
+Style/MethodName:
+  Exclude:
+    - 'src/clients/squid.rb'
+    - 'src/include/squid/SquidACL_local_functions.rb'
+    - 'src/include/squid/complex.rb'
+    - 'src/include/squid/dialogs.rb'
+    - 'src/include/squid/handlers.rb'
+    - 'src/include/squid/helper_functions.rb'
+    - 'src/include/squid/inits.rb'
+    - 'src/include/squid/popup_dialogs.rb'
+    - 'src/include/squid/store_del.rb'
+    - 'src/include/squid/wizards.rb'
+    - 'src/modules/Squid.rb'
+    - 'src/modules/SquidACL.rb'
+    - 'src/modules/SquidErrorMessages.rb'
+
+# Offense count: 19
+# Configuration parameters: EnforcedStyle, SupportedStyles.
+# SupportedStyles: snake_case, camelCase
+Style/VariableName:
+  Exclude:
+    - 'src/include/squid/helps.rb'
+    - 'src/include/squid/store_del.rb'
+    - 'src/modules/Squid.rb'
+    - 'testsuite/tests/Squid-Read.rb'
+    - 'testsuite/tests/Squid.rb'
+    - 'testsuite/tests/SquidACL.rb'
+    - 'testsuite/tests/SquidErrorMessages.rb'
