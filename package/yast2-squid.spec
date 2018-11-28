@@ -76,7 +76,7 @@ rm -rf %{buildroot}/%{yast_plugindir}/libpy2ag_squid.la
 %{yast_moduledir}/SquidErrorMessages.*
 %{yast_desktopdir}/squid.desktop
 %{yast_schemadir}/autoyast/rnc/squid.rnc
-%{_datadir}/icons/*
+%{yast_icondir}
 %{yast_plugindir}/libpy2ag_squid.so*
 %{yast_scrconfdir}/*.scr
 %doc %{yast_docdir}
