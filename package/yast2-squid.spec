@@ -17,7 +17,7 @@
 
 
 Name:           yast2-squid
-Version:        4.1.1
+Version:        4.1.2
 Release:        0
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -76,7 +76,7 @@ rm -rf %{buildroot}/%{yast_plugindir}/libpy2ag_squid.la
 %{yast_moduledir}/SquidErrorMessages.*
 %{yast_desktopdir}/squid.desktop
 %{yast_schemadir}/autoyast/rnc/squid.rnc
-
+%{yast_icondir}
 %{yast_plugindir}/libpy2ag_squid.so*
 %{yast_scrconfdir}/*.scr
 %doc %{yast_docdir}
