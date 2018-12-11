@@ -32,9 +32,12 @@
 require "yast"
 require "y2firewall/firewalld"
 require "yast2/system_service"
+require "fileutils"
 
 module Yast
   class SquidClass < Module
+    include Yast::Logger
+
     def main
       textdomain "squid"
 
@@ -205,21 +208,16 @@ module Yast
     # If dir does not exist, function returns true;
     def setWritePremissionsToCacheDir(dir)
       if !FileUtils.IsDirectory(dir)
-        Builtins.y2debug(
-          "Squid::checkWritePremissionsCacheDir() - '%1' is not directory",
-          dir
-        )
+        log.warn "Squid::checkWritePremissionsCacheDir() - '#{dir}' is not directory"
         return true
       end
 
-      if Convert.to_integer(
-        SCR.Execute(path(".target.bash"), Ops.add("chown squid:root ", dir))
-      ) != 0 ||
-          Convert.to_integer(
-            SCR.Execute(path(".target.bash"), Ops.add("chmod 750 ", dir))
-          ) != 0
+      begin
+        ::FileUtils.chown("squid", "root", dir)
+        ::FileUtils.chmod(0o750, dir)
+      rescue IOError, Errno => e
+        log.error "failed to set permissions #{e.inspect}"
         return false
-        # return (Popup::ContinueCancel(sformat(_("Unable to set correct permissions to directory %1."), dir)));
       end
 
       true
@@ -1345,11 +1343,6 @@ module Yast
     def StartService
       ok = true
       # verify config file
-      # if ((integer)SCR::Execute(.target.bash, "squid -k parse") != 0){
-      #    y2error("Squid::Write - startService - 'squid -k parse' failed");
-      #    return false;
-      # }
-
       if !IsServiceRunning()
         if !Service.Start("squid")
           ok = false
