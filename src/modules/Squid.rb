@@ -215,7 +215,7 @@ module Yast
       begin
         ::FileUtils.chown("squid", "root", dir)
         ::FileUtils.chmod(0o750, dir)
-      rescue IOError, Errno => e
+      rescue IOError, SystemCallError => e
         log.error "failed to set permissions #{e.inspect}"
         return false
       end

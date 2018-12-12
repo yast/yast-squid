@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Dec 12 12:24:20 UTC 2018 - Josef Reidinger <jreidinger@suse.com>
+
+- Fix name of exception (related to fix for bsc#1118291)
+- 4.1.4
+
+-------------------------------------------------------------------
 Tue Dec 11 08:35:22 UTC 2018 - jreidinger@suse.com
 
 - always use absolute path to binaries (bsc#1118291)
