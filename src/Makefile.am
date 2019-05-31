@@ -30,7 +30,7 @@ schemafiles_DATA = \
   autoyast-rnc/squid.rnc
 
 desktop_DATA = \
-  desktop/squid.desktop
+  desktop/org.openSUSE.YaST.Squid.desktop
 
 scalabledir = @icondir@/hicolor/scalable/apps
 scalable_DATA = \
