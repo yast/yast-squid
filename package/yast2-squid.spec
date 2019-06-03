@@ -38,7 +38,7 @@ BuildRequires:  update-desktop-files
 # Yast2::ServiceWidget
 BuildRequires:  yast2 >= 4.1.0
 BuildRequires:  yast2-core-devel
-BuildRequires:  yast2-devtools >= 3.1.10
+BuildRequires:  yast2-devtools >= 4.2.2
 BuildRequires:  yast2-testsuite
 
 Requires:       yast2-ruby-bindings >= 1.0.0
