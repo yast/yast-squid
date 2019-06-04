@@ -12,26 +12,25 @@
 # license that conforms to the Open Source Definition (Version 1.9)
 # published by the Open Source Initiative.
 
-# Please submit bugfixes or comments via http://bugs.opensuse.org/
+# Please submit bugfixes or comments via https://bugs.opensuse.org/
 #
 
 
 Name:           yast2-squid
-Version:        4.1.4
+Version:        4.2.0
 Release:        0
+Summary:        Configuration of squid
+License:        GPL-2.0-only
+Group:          System/YaST
+Url:            https://github.com/yast/yast-squid
 
-BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        %{name}-%{version}.tar.bz2
-
-# Yast2::ServiceWidget
-Requires:       yast2 >= 4.1.0
 
 %if 0%{?suse_version} > 1325
 BuildRequires:  libboost_regex-devel
 %else
 BuildRequires:  boost-devel
 %endif
-
 BuildRequires:  gcc-c++
 BuildRequires:  libtool
 BuildRequires:  perl-XML-Writer
@@ -39,46 +38,38 @@ BuildRequires:  update-desktop-files
 # Yast2::ServiceWidget
 BuildRequires:  yast2 >= 4.1.0
 BuildRequires:  yast2-core-devel
-BuildRequires:  yast2-devtools >= 3.1.10
+BuildRequires:  yast2-devtools >= 4.2.2
 BuildRequires:  yast2-testsuite
 
-#BuildArchitectures:	noarch
-
 Requires:       yast2-ruby-bindings >= 1.0.0
-
-Summary:        Configuration of squid
-License:        GPL-2.0-only
-Group:          System/YaST
+# Yast2::ServiceWidget
+Requires:       yast2 >= 4.1.0
 
 %description
 Configuration of squid
 
 %prep
-%setup -n %{name}-%{version}
+%setup -q
 
 %build
 %yast_build
 
 %install
 %yast_install
-
 rm -rf %{buildroot}/%{yast_plugindir}/libpy2ag_squid.la
+%yast_metainfo
 
 %files
-%defattr(-,root,root)
-%dir %{yast_yncludedir}/squid
 %config /etc/sysconfig/SuSEfirewall2.d/services/squid
-%{yast_yncludedir}/squid/*
-%{yast_clientdir}/squid.rb
-%{yast_clientdir}/squid_*.rb
-%{yast_moduledir}/Squid.*
-%{yast_moduledir}/SquidACL.*
-%{yast_moduledir}/SquidErrorMessages.*
-%{yast_desktopdir}/squid.desktop
-%{yast_schemadir}/autoyast/rnc/squid.rnc
+%{yast_yncludedir}
+%{yast_clientdir}
+%{yast_moduledir}
+%{yast_desktopdir}
+%{yast_metainfodir}
+%{yast_schemadir}
 %{yast_icondir}
-%{yast_plugindir}/libpy2ag_squid.so*
-%{yast_scrconfdir}/*.scr
+%{yast_plugindir}
+%{yast_scrconfdir}
 %doc %{yast_docdir}
 %license COPYING
 

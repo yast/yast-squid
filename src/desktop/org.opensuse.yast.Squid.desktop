@@ -19,6 +19,7 @@ X-SuSE-YaST-Keywords=proxy,network,internet
 Icon=yast-squid
 Exec=xdg-su -c "/sbin/yast2 squid"
 
-Name=Squid
-GenericName=Configure a Squid cache proxy server
+Name=YaST Squid
+GenericName=Squid
+Comment=Configure a Squid cache proxy server
 StartupNotify=true

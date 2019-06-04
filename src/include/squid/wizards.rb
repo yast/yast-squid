@@ -69,7 +69,7 @@ module Yast
       }
 
       Wizard.CreateDialog
-      Wizard.SetDesktopTitleAndIcon("squid")
+      Wizard.SetDesktopTitleAndIcon("org.opensuse.yast.Squid")
 
       ret = Sequencer.Run(aliases, sequence)
 
