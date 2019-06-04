@@ -45,8 +45,6 @@ Requires:       yast2-ruby-bindings >= 1.0.0
 # Yast2::ServiceWidget
 Requires:       yast2 >= 4.1.0
 
-#BuildArch:      noarch
-
 %description
 Configuration of squid
 
