@@ -1099,7 +1099,7 @@ module Yast
       Progress.NextStage
 
       Progress.set(false)
-      if !firewalld.read
+      if !firewalld.read && !Mode.test
         # bnc#808722: yast2 squid fail if SuSEfirewall in not installed
         # other or no firewall can be installed
         Builtins.y2warning("Cannot read firewall settings.")
