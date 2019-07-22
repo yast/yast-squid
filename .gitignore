@@ -12,6 +12,7 @@ config.sub
 configure
 configure.ac
 depcomp
+doc/autodocs
 install-sh
 missing
 mkinstalldirs
@@ -38,3 +39,4 @@ doc/autodocs/js/
 /stamp-*
 testsuite/raw.tmp.err.*
 testsuite/raw.tmp.out.*
+.yardoc/
