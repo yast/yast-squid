@@ -60,7 +60,6 @@ rm -rf %{buildroot}/%{yast_plugindir}/libpy2ag_squid.la
 %yast_metainfo
 
 %files
-%config /etc/sysconfig/SuSEfirewall2.d/services/squid
 %{yast_yncludedir}
 %{yast_clientdir}
 %{yast_moduledir}
