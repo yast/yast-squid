@@ -1,7 +1,7 @@
 #! /usr/bin/env rspec
 
 require_relative "./test_helper"
-require_relative "../../src/include/squid/complex"
+require_relative "../src/include/squid/complex"
 
 Yast.import "Confirm"
 Yast.import "Squid"
