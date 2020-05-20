@@ -180,80 +180,106 @@ describe "Yast::Squid" do
   end
 
   describe ".readRefreshPatterns" do
+    let(:patterns) do
+      {
+        ["^ftp:", "1440", "20%", "10080"]        => {
+          "case_sensitive" => true, "max" => "10080", "min" => "1440",
+          "percent" => "20", "regexp" => "^ftp:"
+        },
+        ["-i", "^gopher:", "1440", "0%", "1440"] => {
+          "case_sensitive" => false, "max" => "1440", "min" => "1440",
+          "percent" => "0", "regexp" => "^gopher:"
+        },
+        [".", "0", "20%", "4320"]                => {
+          "case_sensitive" => true, "max" => "4320", "min" => "0",
+          "percent" => "20", "regexp" => "."
+        }
+      }
+    end
+
     before do
       allow(Yast::SCR).to receive(:Read).with(path_matching(/\.squid\..*refresh_pattern/))
-        .and_return [
-          ["^ftp:", "1440", "20%", "10080"],
-          ["-i", "^gopher:", "1440", "0%", "1440"],
-          [".", "0", "20%", "4320"]
-        ]
+        .and_return patterns.keys
     end
 
     it "parses several kinds of patterns" do
       squid.readRefreshPatterns
-      expect(squid.refresh_patterns).to eq [
-        {
-          "case_sensitive" => true, "max" => "10080", "min" => "1440",
-          "percent" => "20", "regexp" => "^ftp:"
-        },
-        {
-          "case_sensitive" => false, "max" => "1440", "min" => "1440",
-          "percent" => "0", "regexp" => "^gopher:"
-        },
-        {
-          "case_sensitive" => true, "max" => "4320", "min" => "0",
-          "percent" => "20", "regexp" => "."
-        }
-      ]
+      expect(squid.refresh_patterns).to eq patterns.values
     end
   end
 
   describe ".readACLs" do
+    let(:acls) do
+      {
+        ["QUERY", "urlpath_regex", "cgi-bin", "\\?"]               => {
+          "name" => "QUERY", "options" => ["cgi-bin \\?"], "type" => "urlpath_regex"
+        },
+        ["apache", "rep_header", "Server", "^Apache"]              => {
+          "name" => "apache", "options" => ["Server", "^Apache"], "type" => "rep_header"
+        },
+        ["all", "src", "0.0.0.0/0.0.0.0"]                          => {
+          "name" => "all", "options" => ["0.0.0.0/0.0.0.0"], "type" => "src"
+        },
+        ["manager", "proto", "cache_object"]                       => {
+          "name" => "manager", "options" => ["cache_object"], "type" => "proto"
+        },
+        ["localhost", "src", "127.0.0.1/255.255.255.255"]          => {
+          "name" => "localhost", "options" => ["127.0.0.1/255.255.255.255"], "type" => "src"
+        },
+        ["localhost_public", "src", "10.20.1.241/255.255.255.255"] => {
+          "name" => "localhost_public", "options" => ["10.20.1.241/255.255.255.255"],
+          "type" => "src"
+        },
+        ["to_localhost", "dst", "127.0.0.0/8"]                     => {
+          "name" => "to_localhost", "options" => ["127.0.0.0/8"], "type" => "dst"
+        },
+        ["SSL_ports", "port", " 443"]                              => {
+          "name" => "SSL_ports", "options" => [" 443"], "type" => "port"
+        },
+        ["Safe_ports", "port", "80"]                               => {
+          "name" => "Safe_ports", "options" => ["80"], "type" => "port"
+        },
+        ["Safe_ports", "port", "21"]                               => {
+          "name" => "Safe_ports", "options" => ["21"], "type" => "port"
+        },
+        ["Safe_ports", "port", "443"]                              => {
+          "name" => "Safe_ports", "options" => ["443"], "type" => "port"
+        },
+        ["Safe_ports", "port", "70"]                               => {
+          "name" => "Safe_ports", "options" => ["70"], "type" => "port"
+        },
+        ["Safe_ports", "port", "210"]                              => {
+          "name" => "Safe_ports", "options" => ["210"], "type" => "port"
+        },
+        ["Safe_ports", "port", "1025-65535"]                       => {
+          "name" => "Safe_ports", "options" => ["1025-65535"], "type" => "port"
+        },
+        ["Safe_ports", "port", "280"]                              => {
+          "name" => "Safe_ports", "options" => ["280"], "type" => "port"
+        },
+        ["Safe_ports", "port", "488"]                              => {
+          "name" => "Safe_ports", "options" => ["488"], "type" => "port"
+        },
+        ["Safe_ports", "port", "591"]                              => {
+          "name" => "Safe_ports", "options" => ["591"], "type" => "port"
+        },
+        ["Safe_ports", "port", "777"]                              => {
+          "name" => "Safe_ports", "options" => ["777"], "type" => "port"
+        },
+        ["CONNECT", "method", "CONNECT"]                           => {
+          "name" => "CONNECT", "options" => ["CONNECT"], "type" => "method"
+        }
+      }
+    end
+
     before do
       allow(Yast::SCR).to receive(:Read).with(path_matching(/\.squid\..*acl/))
-        .and_return [
-          ["QUERY", "urlpath_regex", "cgi-bin", "\\?"],
-          ["apache", "rep_header", "Server", "^Apache"],
-          ["all", "src", "0.0.0.0/0.0.0.0"],
-          ["manager", "proto", "cache_object"],
-          ["localhost", "src", "127.0.0.1/255.255.255.255"],
-          ["localhost_public", "src", "10.20.1.241/255.255.255.255"],
-          ["to_localhost", "dst", "127.0.0.0/8"], ["SSL_ports", "port", " 443"],
-          ["Safe_ports", "port", "80"], ["Safe_ports", "port", "21"],
-          ["Safe_ports", "port", "443"], ["Safe_ports", "port", "70"],
-          ["Safe_ports", "port", "210"], ["Safe_ports", "port", "1025-65535"],
-          ["Safe_ports", "port", "280"], ["Safe_ports", "port", "488"],
-          ["Safe_ports", "port", "591"], ["Safe_ports", "port", "777"],
-          ["CONNECT", "method", "CONNECT"]
-        ]
+        .and_return acls.keys
     end
 
     it "parses all kind of supported ACL formats" do
       squid.readACLs
-      expect(squid.acls).to eq [
-        { "name" => "QUERY", "options" => ["cgi-bin \\?"], "type" => "urlpath_regex" },
-        { "name" => "apache", "options" => ["Server", "^Apache"], "type" => "rep_header" },
-        { "name" => "all", "options" => ["0.0.0.0/0.0.0.0"], "type" => "src" },
-        { "name" => "manager", "options" => ["cache_object"], "type" => "proto" },
-        { "name" => "localhost", "options" => ["127.0.0.1/255.255.255.255"], "type" => "src" },
-        {
-          "name" => "localhost_public", "options" => ["10.20.1.241/255.255.255.255"],
-          "type" => "src"
-        },
-        { "name" => "to_localhost", "options" => ["127.0.0.0/8"], "type" => "dst" },
-        { "name" => "SSL_ports", "options" => [" 443"], "type" => "port" },
-        { "name" => "Safe_ports", "options" => ["80"], "type" => "port" },
-        { "name" => "Safe_ports", "options" => ["21"], "type" => "port" },
-        { "name" => "Safe_ports", "options" => ["443"], "type" => "port" },
-        { "name" => "Safe_ports", "options" => ["70"], "type" => "port" },
-        { "name" => "Safe_ports", "options" => ["210"], "type" => "port" },
-        { "name" => "Safe_ports", "options" => ["1025-65535"], "type" => "port" },
-        { "name" => "Safe_ports", "options" => ["280"], "type" => "port" },
-        { "name" => "Safe_ports", "options" => ["488"], "type" => "port" },
-        { "name" => "Safe_ports", "options" => ["591"], "type" => "port" },
-        { "name" => "Safe_ports", "options" => ["777"], "type" => "port" },
-        { "name" => "CONNECT", "options" => ["CONNECT"], "type" => "method" }
-      ]
+      expect(squid.acls).to eq acls.values
     end
   end
 
