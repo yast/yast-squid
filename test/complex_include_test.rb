@@ -1,7 +1,7 @@
 #! /usr/bin/env rspec
 
 require_relative "./test_helper"
-require_relative "../../src/include/squid/complex"
+require_relative "../src/include/squid/complex"
 
 Yast.import "Confirm"
 Yast.import "Squid"
@@ -9,6 +9,7 @@ Yast.import "Wizard"
 Yast.import "PackageSystem"
 
 describe "Yast::SquidComplexInclude" do
+  # Dummy class to test the include
   class TestSquidClient < Yast::Client
     include Yast::SquidComplexInclude
 

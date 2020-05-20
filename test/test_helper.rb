@@ -1,6 +1,4 @@
-# encoding: utf-8
-
-# Copyright (c) [2018] SUSE LLC
+# Copyright (c) [2018-2020] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -23,18 +21,22 @@ srcdir = File.expand_path("../../src", __FILE__)
 y2dirs = ENV.fetch("Y2DIR", "").split(":")
 
 ENV["Y2DIR"] = y2dirs.unshift(srcdir).join(":")
+# Needed to access the YCP variables that are published as private. Those
+# variables were checked in the old testsuite that was migrated to RSpec.
+ENV["Y2ALLGLOBAL"] = "1"
 
 require "yast"
+require "yast/rspec"
 
 include Yast::Logger
 
 if ENV["COVERAGE"]
   require "simplecov"
   SimpleCov.start do
-    add_filter "/testsuite/"
+    add_filter "/test/"
   end
 
-  src_location = File.expand_path("../../src", __FILE__)
+  src_location = File.expand_path("../src", __FILE__)
   # track all ruby files under src
   SimpleCov.track_files("#{src_location}/**/*.rb")
 

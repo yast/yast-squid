@@ -39,5 +39,4 @@ doc/autodocs/js/
 /libtool
 /ltmain.sh
 /stamp-*
-testsuite/raw.tmp.err.*
-testsuite/raw.tmp.out.*
+coverage/
