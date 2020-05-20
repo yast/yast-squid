@@ -9,6 +9,7 @@ Yast.import "Wizard"
 Yast.import "PackageSystem"
 
 describe "Yast::SquidComplexInclude" do
+  # Dummy class to test the include
   class TestSquidClient < Yast::Client
     include Yast::SquidComplexInclude
 
