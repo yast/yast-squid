@@ -33,7 +33,6 @@ BuildRequires:  boost-devel
 %endif
 BuildRequires:  gcc-c++
 BuildRequires:  libtool
-BuildRequires:  perl-XML-Writer
 BuildRequires:  update-desktop-files
 # Yast2::ServiceWidget
 BuildRequires:  yast2 >= 4.1.0
