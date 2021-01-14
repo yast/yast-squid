@@ -15,9 +15,6 @@ jobs:
     - name: Git Checkout
       uses: actions/checkout@v2
 
-    - name: Install Dependencies
-      run: zypper --non-interactive install libboost_regex-devel gcc-c++ libtool yast2-core-devel
-
     # just for easier debugging...
     - name: Inspect Installed Packages
       run: rpm -qa | sort
@@ -54,6 +51,9 @@ jobs:
 
     - name: Git Checkout
       uses: actions/checkout@v2
+
+    - name: Install Dependencies
+      run: zypper --non-interactive install libboost_regex-devel gcc-c++ libtool yast2-core-devel
 
     - name: Package Build
       run: yast-ci-ruby -o package
