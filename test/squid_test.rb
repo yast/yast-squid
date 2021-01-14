@@ -101,7 +101,7 @@ describe "Yast::Squid" do
     context "when running in normal mode" do
       it "does not call to #EnableService nor #DisableService" do
         expect(squid).to_not receive(:EnableService)
-        expect(squid).to_not receive(:Disableervice)
+        expect(squid).to_not receive(:DisableService)
 
         squid.Write
       end
