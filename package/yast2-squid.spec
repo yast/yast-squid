@@ -1,7 +1,7 @@
 #
 # spec file for package yast2-squid
 #
-# Copyright (c) 2017 SUSE LINUX GmbH, Nuernberg, Germany.
+# Copyright (c) 2021 SUSE LLC
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -17,33 +17,29 @@
 
 
 Name:           yast2-squid
-Version:        4.4.0
+Version:        4.4.1
 Release:        0
 Summary:        Configuration of squid
 License:        GPL-2.0-only
 Group:          System/YaST
-Url:            https://github.com/yast/yast-squid
-
+URL:            https://github.com/yast/yast-squid
 Source0:        %{name}-%{version}.tar.bz2
-
-%if 0%{?suse_version} > 1325
-BuildRequires:  libboost_regex-devel
-%else
-BuildRequires:  boost-devel
-%endif
 BuildRequires:  gcc-c++
 BuildRequires:  libtool
 BuildRequires:  update-desktop-files
 # Yast2::ServiceWidget
 BuildRequires:  yast2 >= 4.1.0
 BuildRequires:  yast2-core-devel
-BuildRequires:  yast2-devtools >= 4.2.2
-
-Requires:       yast2-ruby-bindings >= 1.0.0
+BuildRequires:  yast2-devtools >= 4.4.0
 # Yast2::ServiceWidget
 Requires:       yast2 >= 4.1.0
-
+Requires:       yast2-ruby-bindings >= 1.0.0
 Supplements:    autoyast(squid)
+%if 0%{?suse_version} > 1325
+BuildRequires:  libboost_regex-devel
+%else
+BuildRequires:  boost-devel
+%endif
 
 %description
 Configuration of squid
@@ -60,6 +56,7 @@ rm -rf %{buildroot}/%{yast_plugindir}/libpy2ag_squid.la
 %yast_metainfo
 
 %files
+%license COPYING
 %{yast_yncludedir}
 %{yast_clientdir}
 %{yast_moduledir}
@@ -69,7 +66,5 @@ rm -rf %{buildroot}/%{yast_plugindir}/libpy2ag_squid.la
 %{yast_icondir}
 %{yast_plugindir}
 %{yast_scrconfdir}
-%doc %{yast_docdir}
-%license COPYING
 
 %changelog
