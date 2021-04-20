@@ -17,7 +17,7 @@
 
 
 Name:           yast2-squid
-Version:        4.3.2
+Version:        4.4.0
 Release:        0
 Summary:        Configuration of squid
 License:        GPL-2.0-only
