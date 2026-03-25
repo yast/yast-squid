@@ -17,7 +17,7 @@
 
 
 Name:           yast2-squid
-Version:        5.0.0
+Version:        5.0.1
 Release:        0
 Summary:        Configuration of squid
 License:        GPL-2.0-only
@@ -26,7 +26,6 @@ URL:            https://github.com/yast/yast-squid
 Source0:        %{name}-%{version}.tar.bz2
 BuildRequires:  gcc-c++
 BuildRequires:  libtool
-BuildRequires:  update-desktop-files
 # Yast2::ServiceWidget
 BuildRequires:  yast2 >= 4.1.0
 BuildRequires:  yast2-core-devel
